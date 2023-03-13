@@ -1,4 +1,3 @@
-Assmann:
 
 ssh -AX <username>@rackham.uppmax.uu.se
 
@@ -48,3 +47,5 @@ dds data get --get-all --project "ngisthlm00193"
 #dds data get --get-all --project "ngisthlm00193"
 
 screen -r britomartis
+
+/proj/uppoff2020002/private/raw_data_backups/Assmann
