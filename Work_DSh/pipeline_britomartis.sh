@@ -1,3 +1,12 @@
+#Dialy log Dasha
+
+#### Working directory ####
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Concervation
+
+
+
+
+###
 
 ssh -AX <username>@rackham.uppmax.uu.se
 
@@ -49,3 +58,34 @@ dds data get --get-all --project "ngisthlm00193"
 screen -r britomartis
 
 /proj/uppoff2020002/private/raw_data_backups/Assmann
+
+###Getting backup copy
+
+ls /proj/uppoff2020002/private/raw_data_backups/Assmann
+
+
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 12:00:00
+#SBATCH -J assmann_download
+#SBATCH --mail-user=daria.shipilina@gmail.com
+
+ml bioinfo-tools dds-cli
+cd /proj/uppoff2020002/private/raw_data_backups/Assmann
+dds data get --get-all --project "ngisthlm00193"
+
+
+########### DOWNLOAD ATHALIA
+## from https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.2_ilMelAtha1.2/
+mkdir reference_genome_M.athalia
+cd reference_genome_M.athalia/
+
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.2_ilMelAtha1.2/GCA_905220545.2_ilMelAtha1.2_genomic.fna.gz
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.2_ilMelAtha1.2/GCA_905220545.2_ilMelAtha1.2_genomic.gbff.gz
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.2_ilMelAtha1.2/README.txt
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.1_ilMelAtha1.1/GCA_905220545.1_ilMelAtha1.1_feature_count.txt.gz
+
+### thinking
+ --save_output_as_bam
+ 
