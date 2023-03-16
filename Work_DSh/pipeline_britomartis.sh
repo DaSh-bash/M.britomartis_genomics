@@ -88,4 +88,18 @@ wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.1_il
 
 ### thinking
  --save_output_as_bam
- 
+
+ #### Setting up the pipeline
+
+ ## 1. Get sample NAMES (command line is fine)
+
+ #SCRIPT FOR READING SEQUENCES NAMES FROM STANDARD DELIVERY FOLDER
+ #This loop iterates through the delivery folder with standard UPPMAX structure and outputs soft links to fasta files
+ for d in /proj/uppoff2020002/private/raw_data_backups/Assmann/DataDelivery_2023-03-13_11-55-20_ngisthlm00193/files/P27562/*/ ; do
+         cd "$d"
+         for filename in */*/* ; do
+                 echo "$d""$filename"
+         done
+ done > fasta_pathes_britomartis.txt
+
+        
