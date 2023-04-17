@@ -89,6 +89,7 @@ wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.1_il
 ### thinking
  --save_output_as_bam
 
+<<<<<<< Updated upstream
  #### Setting up the pipeline
 
  ## 1. Get sample NAMES (command line is fine)
@@ -103,3 +104,26 @@ wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.1_il
  done > fasta_pathes_britomartis.txt
 
         
+=======
+
+ from Bio import SeqIO
+ import matplotlib.pyplot as plt
+
+ def calculate_gc_content(seq):
+     gc_count = seq.count('G') + seq.count('C')
+     gc_content = gc_count / len(seq)
+     return gc_content
+
+ fastq_files = ['sample1.fastq', 'sample2.fastq', 'sample3.fastq']
+ for fastq_file in fastq_files:
+     gc_content = []
+     for record in SeqIO.parse(fastq_file, 'fastq'):
+         seq = record.seq.upper()
+         gc_content.append(calculate_gc_content(seq))
+     plt.hist(gc_content, bins=50)
+     plt.xlabel('GC content')
+     plt.ylabel('Count')
+     plt.title(f'Distribution of GC content for {fastq_file}')
+     plt.savefig(f'{fastq_file}.pdf')
+     plt.clf()
+>>>>>>> Stashed changes
