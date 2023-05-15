@@ -95,11 +95,47 @@ wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/905/220/545/GCA_905220545.1_il
 
  #SCRIPT FOR READING SEQUENCES NAMES FROM STANDARD DELIVERY FOLDER
  #This loop iterates through the delivery folder with standard UPPMAX structure and outputs soft links to fasta files
- for d in /proj/uppoff2020002/private/raw_data_backups/Assmann/DataDelivery_2023-03-13_11-55-20_ngisthlm00193/files/P27562/*/ ; do
+ for d in /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/*/ ; do
          cd "$d"
          for filename in */*/* ; do
                  echo "$d""$filename"
          done
  done > fasta_pathes_britomartis.txt
 
-        
+
+### Making test sample list manually
+
+# S55, S53, S15, S20
+
+declare -A groups=(["MUZAV5_43"]="P27562_1015" ["MUZAV5_98"]="P27562_1020" ["MUZAV90_05"]="P27562_1053" ["MUZAV26_94"]="P27562_1055")
+
+
+echo 'patient,sample,lane,fastq_1,fastq_2'
+for files in "${!groups[@]}"; do
+        #echo "$files - ${groups[$files]}";
+        read1=$(cat /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Concervation/00_Mapping_Calling_sarek/fasta_pathes_britomartis.txt | grep ${groups[$files]} | grep 'R1')
+        read2=$(cat /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Concervation/00_Mapping_Calling_sarek/fasta_pathes_britomartis.txt | grep ${groups[$files]} | grep 'R2')
+        echo "$files,$files,L001,$read1,$read2"
+done
+
+mkdir 00_Benchmarking4x
+nano make_sample_list.sh
+bash make_sample_list.sh > sample_sheet.csv
+
+## Sample list ready
+
+module load bioinfo-tools Nextflow nf-core nf-core-pipelines
+export NXF_HOME=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Concervation/00_Mapping_Calling_sarek/00_Benchmarking4x
+
+nextflow run nf-core/sarek --input sample_sheet.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna.gz --skip_tools baserecalibrator --outdir ./results
+
+
+#  Problem with reference, can't be gunzipped, restarting magical_williams
+
+### Also renamed FOLDER
+cd reference_genome_M.athalia/
+gunzip GCA_905220545.2_ilMelAtha1.2_genomic.fna.gz
+
+nextflow run nf-core/sarek --input sample_sheet.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -resume magical_williams --skip_tools baserecalibrator --outdir ./results
+
+cp multiqc_report.html multiqc_report_160323.html 
