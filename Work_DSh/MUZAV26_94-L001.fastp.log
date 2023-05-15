@@ -1,0 +1,39 @@
+Read1 before filtering:
+total reads: 72903432
+total bases: 11008418232
+Q20 bases: 10730821745(97.4783%)
+Q30 bases: 10257252233(93.1764%)
+
+Read2 before filtering:
+total reads: 72903432
+total bases: 11008418232
+Q20 bases: 10495866949(95.344%)
+Q30 bases: 9815774347(89.1661%)
+
+Read1 after filtering:
+total reads: 70815537
+total bases: 10432765319
+Q20 bases: 10199405685(97.7632%)
+Q30 bases: 9760238812(93.5537%)
+
+Read2 after filtering:
+total reads: 70815537
+total bases: 10468323323
+Q20 bases: 10113802456(96.6134%)
+Q30 bases: 9495394899(90.706%)
+
+Filtering result:
+reads passed filter: 141631074
+reads failed due to low quality: 3124090
+reads failed due to too many N: 38950
+reads failed due to too short: 1012750
+
+Duplication rate: 12.918%
+
+Insert size peak (evaluated by paired-end reads): 151
+
+JSON report: MUZAV26_94-L001.fastp.json
+HTML report: MUZAV26_94-L001.fastp.html
+
+fastp --in1 MUZAV26_94-L001_1.fastq.gz --in2 MUZAV26_94-L001_2.fastq.gz --out1 MUZAV26_94-L001_1.fastp.fastq.gz --out2 MUZAV26_94-L001_2.fastp.fastq.gz --json MUZAV26_94-L001.fastp.json --html MUZAV26_94-L001.fastp.html --thread 12 --detect_adapter_for_pe --disable_adapter_trimming --split_by_lines 200000000 
+fastp v0.23.2, time used: 179 seconds
