@@ -38,4 +38,34 @@
       "time":"18:00:00",
       "n":4
    },
+   "bwa":{
+      "time":"2-00:00:00",
+      "n":20,
+      "C" :"mem256GB"
+   },
+   "flagstat":{
+      "time":"5:00:00",
+      "n":1
+   },
+   "mkdupl":{
+      "time":"1-00:00:00",
+      "n":10
+   },
+   "haplotype_caller":{
+      "time":"2-00:00:00",
+      "n":20
+   },
+   "AllsitesGenotypeGVCFs":{
+      "time":"2-00:00:00",
+      "n":20
+   },
+   "zip":{
+      "time":"6:00:00"
+   },
+   "tabix":{
+      "time":"6:00:00"
+   },
+   "extractBedSites":{
+      "time":"10:00:00"
+   },
 }
