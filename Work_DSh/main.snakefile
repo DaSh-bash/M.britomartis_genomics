@@ -1,3 +1,67 @@
+SAMPLES = ["BELA_1_2004","SMAL_6_2013"] # Add or remove samples here
+
+rule all:
+    input:
+        expand("results/preprocess_fastqc/{sample}_output/{sample}.R1_fastqc.html", sample=SAMPLES),
+        expand("results/preprocess_fastqc/{sample}_output/{sample}.R2_fastqc.html", sample=SAMPLES),
+        expand("results/fastp/{sample}_1.fastp.fastq.gz", sample=SAMPLES),
+        expand("results/fastp/{sample}_2.fastp.fastq.gz", sample=SAMPLES),
+        expand("results/fastp/{sample}.fastp.json", sample=SAMPLES),
+        expand("results/fastp/{sample}.fastp.html", sample=SAMPLES)
+
+rule fastqc:
+    input:
+        r1 = "data/samples/contemporary_set/{sample}.R1.fastq.gz",
+        r2 = "data/samples/contemporary_set/{sample}.R2.fastq.gz"
+    conda:
+        "environment.yaml"
+    output:
+        html_report1 = "results/preprocess_fastqc/{sample}_output/{sample}.R1_fastqc.html"
+        html_report2 = "results/preprocess_fastqc/{sample}_output/{sample}.R2_fastqc.html"
+        #zip_archive = "results/preprocess_fastqc/{sample}_output.zip"
+    shell:
+        """
+        mkdir -p results/preprocess_fastqc/{wildcards.sample}_output
+        fastqc {input.r1} {input.r2} --threads 4 --outdir results/preprocess_fastqc/{wildcards.sample}_output
+        """
+
+rule fastp:
+    input:
+        r1 = "data/samples/contemporary_set/{sample}.R1.fastq.gz",
+        r2 = "data/samples/contemporary_set/{sample}.R2.fastq.gz"
+    conda:
+        "environment.yaml"
+    output:
+        r1_out = "results/fastp/{sample}_1.fastp.fastq.gz",
+        r2_out = "results/fastp/{sample}_2.fastp.fastq.gz",
+        html_out = "results/fastp/{sample}.fastp.html"
+    params:
+        thread = 12,
+        reads_to_process = 1000
+    shell:
+        """
+        mkdir -p results/fastp/
+        fastp \
+        --in1 {input.r1} \
+        --in2 {input.r2} \
+        --out1 {output.r1_out} \
+        --out2 {output.r2_out} \
+        --html {output.html_out} \
+        --thread {params.thread} \
+        --overrepresentation_analysis \
+        --reads_to_process {params.reads_to_process} \
+        --detect_adapter_for_pe
+        """
+
+
+
+
+
+
+
+
+
+
 
 # The following rules will not be executed as jobs
 localrules: all
