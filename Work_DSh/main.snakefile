@@ -7,7 +7,10 @@ rule all:
         expand("results/fastp/{sample}_1.fastp.fastq.gz", sample=SAMPLES),
         expand("results/fastp/{sample}_2.fastp.fastq.gz", sample=SAMPLES),
         expand("results/fastp/{sample}.fastp.json", sample=SAMPLES),
-        expand("results/fastp/{sample}.fastp.html", sample=SAMPLES)
+        expand("results/fastp/{sample}.fastp.html", sample=SAMPLES),
+        expand("results/bam/{sample}.bam", sample=SAMPLES)
+        "bam/{sample}.bam.bai"
+
 
 rule fastqc:
     input:
@@ -52,6 +55,101 @@ rule fastp:
         --reads_to_process {params.reads_to_process} \
         --detect_adapter_for_pe
         """
+
+rule bwa:
+    input:
+        ref="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna",
+        r1="results/fastp/{sample}_1.fastp.fastq.gz",
+        r2="results/fastp/{sample}_2.fastp.fastq.gz"
+    output:
+        "results/bam/{sample}.bam"
+    log:
+        "logs/bwa/{sample}.log"
+    params:
+        rg=r"@RG\tID:{sample}\tSM:{sample}\tLB:{sample}\tPL:Illumina"
+    threads: 2
+    shell:
+        """
+        mkdir -p results/bam/
+        mkdir -p logs/bwa/
+        mkdir -p tmp/bwa/{wildcards.sample}
+        bwa mem -R '{params.rg}' -t {threads} -M {input.ref} {input.r1} {input.r2} \
+        |samtools sort -m 6G -@{threads} -T tmp/bwa/{wildcards.sample} - >{output}.tmp) 2>{log} \
+        && mv {output}.tmp {output}"
+         """
+
+
+rule bwa:
+    input:
+        ref="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna",
+        r1="results/fastp/{sample}_1.fastp.fastq.gz",
+        r2="results/fastp/{sample}_2.fastp.fastq.gz"
+    output:
+        "results/bam/{sample}.bam"
+    log:
+        "logs/bwa/{sample}.log"
+    params:
+        rg=r"@RG\tID:{sample}\tSM:{sample}\tLB:{sample}\tPL:Illumina"
+    threads: 20
+    shell:
+        """
+        mkdir -p results/bam/
+        mkdir -p logs/bwa/
+        mkdir -p tmp/bwa/{wildcards.sample}
+        bwa mem -R '{params.rg}' -t {threads} -M {input.ref} {input.r1} {input.r2} \
+        |samtools sort -m 6G -@{threads} -T tmp/bwa/{wildcards.sample} - >{output}.tmp) 2>{log} \
+        && mv {output}.tmp {output}"
+         """
+
+rule index_bam:
+    input:
+        "results/bam/{sample}.bam"
+    output:
+        "results/bam/{sample}.bam.bai"
+    log:
+        "logs/samtools/index.{sample}.log"
+    threads: 1
+    shell:
+        "samtools index {input} {output}"
+
+rule markdupl:
+    input:
+        "results/bam/{sample}.bam"
+    output:
+        bam="results/bam/{sample}.md.bam",
+        metrics="results/bam/{sample}.metrics"
+    log:
+        "logs/picard/{sample}.mkdupl.log"
+    params:
+        picard="/sw/apps/bioinfo/picard/2.23.4/rackham/picard.jar",
+        mem="60g"
+    threads: 10
+    shell:
+        "(java -Xmx{params.mem} -jar {params.picard} MarkDuplicates INPUT={input} \
+         METRICS_FILE={output.metrics} TMP_DIR=$SNIC_TMP ASSUME_SORTED=true \
+         VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=TRUE OUTPUT={output.bam}.tmp) 2>{log} \
+         && mv {output.bam}.tmp {output.bam} && mv {output.bam}.tmp.bai {output.bam}.bai"
+
+rule qualimap:
+    input:
+        "results/bam/{sample}.bam"
+    output:
+        "qualimap_results/{sample}_qualimap"
+    params:
+        #extra="-nt 8" # optional extra parameters
+    log:
+        "logs/qualimap/{sample}.log"
+    shell:
+        """
+        mkdir -p results/bam/qualimap/{wildcards.sample}_qualimap
+        qualimap bamqc -bam {input} -outdir qualimap_results/{wildcards.sample}_qualimap -c -sd {params.extra} 2> {log}
+        """
+
+
+
+
+
+
 
 
 
