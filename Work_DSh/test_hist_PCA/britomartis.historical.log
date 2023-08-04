@@ -1,0 +1,38 @@
+PLINK v1.90b4.9 64-bit (13 Oct 2017)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --extract britomartis.historical.prune.in
+  --make-bed
+  --out britomartis.historical
+  --pca
+  --set-missing-var-ids @:#
+  --vcf ../merge.freebayes.historical.Qfilter.vcf.gz
+
+Hostname: rackham4.uppmax.uu.se
+Working directory: /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/06_freebayesRun/plink
+Start time: Fri Jun 23 10:29:20 2023
+
+Random number seed: 1687508960
+257386 MB RAM detected; reserving 128693 MB for main workspace.
+--vcf: britomartis.historical-temporary.bed +
+britomartis.historical-temporary.bim + britomartis.historical-temporary.fam
+written.
+45626 variants loaded from .bim file.
+45626 missing IDs set.
+34 people (0 males, 0 females, 34 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to britomartis.historical.nosex .
+--extract: 5705 variants remaining.
+Using up to 39 threads (change this with --threads).
+Before main variant filters, 34 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.712064.
+5705 variants and 34 people pass filters and QC.
+Note: No phenotypes present.
+Relationship matrix calculation complete.
+--pca: Results saved to britomartis.historical.eigenval and
+britomartis.historical.eigenvec .
+--make-bed to britomartis.historical.bed + britomartis.historical.bim +
+britomartis.historical.fam ... done.
+
+End time: Fri Jun 23 10:29:21 2023
