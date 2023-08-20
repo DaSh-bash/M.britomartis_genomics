@@ -1088,7 +1088,7 @@ bcftools mpileup -a AD,DP,SP -Ou -f $REF \
 -mO z -o ./cichlid.vcf.gz
 
 #### My code/ small recalling
-module load bioinfo-tools bcftools samtools
+module load bioinfo-tools bcftools samtools vcftools
 
 bcftools mpileup -a AD,DP,SP -Ou -f $REF -b reduced_samle.list | bcftools call -f GQ,GP -mO z -o ./cichlid.vcf.gz
 
@@ -1107,7 +1107,7 @@ nano reduced_samle.list
 
  mkdir 00_mpileupCalling
 
- bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b reduced_samle.list | bcftools call -c -M -O b --threads 4 -o ./reduced_samle_contemp.vcf.gz
+ bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b reduced_samle.list | bcftools call -m -M -O b --threads 4 -o ./reduced_samle_contemp.vcf.gz
 
  .....testing interactively.....
 
@@ -1116,11 +1116,196 @@ vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --m
 bcftools stats merge.contemporary.freebayes.bg.Chr1.mxmissprc05.vcf.gz | head -n 30 | tail -n 9
 
 
- vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz  --indv URAL_2_1995_URAL_2_1995,RUSS_4_2008_RUSS_4_2008,JAPA_1_1994_JAPA_1_1994,CHEH_1_1989_CHEH_1_1989,KRAS_1_2002_KRAS_1_2002,RUSS_1_1998_RUSS_1_1998,URAL_1_1991_URAL_1_1991,STOC_6_1965_STOC_6_1965,VAST_1_1983_VAST_1_1983,SMAL_4_1996_SMAL_4_1996 --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
+ might be wrong: vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz  --indv URAL_2_1995_URAL_2_1995,RUSS_4_2008_RUSS_4_2008,JAPA_1_1994_JAPA_1_1994,CHEH_1_1989_CHEH_1_1989,KRAS_1_2002_KRAS_1_2002,RUSS_1_1998_RUSS_1_1998,URAL_1_1991_URAL_1_1991,STOC_6_1965_STOC_6_1965,VAST_1_1983_VAST_1_1983,SMAL_4_1996_SMAL_4_1996 --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
+
+ vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --indv URAL_2_1995_URAL_2_1995;RUSS_4_2008_RUSS_4_2008 --recode --stdout
+
+ --keep <filename>
+
+Provide files containing a list of individuals to either include or exclude in subsequent analysis. Each individual ID (as defined in the VCF headerline) should be included on a separate line. If both options are used, then the "--keep" option is executed before the "--remove" option. When multiple files are provided, the union of individuals from all keep files subtracted by the union of individuals from all remove files are kept. No header line is expected.
+
+nano keep.reduced.txt
+#
+URAL_2_1995_URAL_2_1995
+RUSS_4_2008_RUSS_4_2008
+JAPA_1_1994_JAPA_1_1994
+CHEH_1_1989_CHEH_1_1989
+KRAS_1_2002_KRAS_1_2002
+RUSS_1_1998_RUSS_1_1998
+URAL_1_1991_URAL_1_1991
+STOC_6_1965_STOC_6_1965
+VAST_1_1983_VAST_1_1983
+SMAL_4_1996_SMAL_4_1996
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --keep keep.reduced.txt --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
 
 
- --max-indv
+###*** --max-indv
+bcftools stats merge.contemporary.reduced.freebayes.bg.vcf.gz | head -n 30 | tail -n 9
+
 
 
 
 bcftools stats reduced_samle_contemp.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      10
+SN      0       number of records:      96145268
+SN      0       number of no-ALTs:      86364234
+SN      0       number of SNPs: 9012258
+SN      0       number of MNPs: 0
+SN      0       number of indels:       768776
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   106241
+
+#Only missingness
+vcftools --gzvcf reduced_samle_contemp.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > reduced_samle_contemp.mxmiss3.vcf.gz
+bcftools stats reduced_samle_contemp.mxmiss3.vcf.gz | head -n 30 | tail -n 9
+
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      10
+SN      0       number of records:      95220215
+SN      0       number of no-ALTs:      86207957
+SN      0       number of SNPs: 9012258
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   92674
+
+vcftools --gzvcf reduced_samle_contemp.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > reduced_samle_contemp.mxmiss3.vcf.gz
+
+#subsamp.bed
+HG992177.1 1 10000000
+
+bcftools filter -T subsamp.bed -o reduced_samle_contemp.Chr1.vcf.gz reduced_samle_contemp.vcf.gz
+
+bcftools stats reduced_samle_contemp.Chr1.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8447766
+SN	0	number of no-ALTs:	7581371
+SN	0	number of SNPs:	794417
+SN	0	number of MNPs:	0
+SN	0	number of indels:	71978
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	9464
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.mxmiss3.vcf.gz
+bcftools stats reduced_samle_contemp.Chr1.mxmiss3.vcf.gz | head -n 30 | tail -n 9
+
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8361676
+SN	0	number of no-ALTs:	7567259
+SN	0	number of SNPs:	794417
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	8187
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing 1 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.mxmissprc1.vcf.gz
+bcftools stats reduced_samle_contemp.Chr1.mxmissprc1.vcf.gz | head -n 30 | tail -n 9
+
+
+bcftools stats reduced_samle_contemp.Chr1.mxmissprc1.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8361676
+SN	0	number of no-ALTs:	7567259
+SN	0	number of SNPs:	794417
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	8187
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.qfilter.vcf.gz
+
+0 snps
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.qfilter.vcf.gz
+
+bcftools stats reduced_samle_contemp.Chr1.qfilter.vcf.gz | head -n 30 | tail -n 9
+
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	665439
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	665439
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+### Conclusion: consensus caller dont give missing data as ./.
+### Allelic inbalance???
+
+### Next: use mpiledup file for Chr1 (first half) to run stats
+module load plink
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out britomartis.contemp.reduced
+
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp.reduced.prune.in --make-bed --pca --out britomartis.contemp.reduced.pruned
+
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp.reduced.noprune
+
+##### Small test
+
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 50 0.5 --out britomartis.contemp.reduced.test
+Pruned 465453 variants from chromosome 27, leaving 199986.
+Pruning complete.  465453 of 665439 variants removed.
+
+### Call using different algorithm
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 8
+#SBATCH -t 08:00:00
+#SBATCH -J all_freebayes
+#SBATCH --output=all_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+date
+module load bioinfo-tools bcftools samtools
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/00_mpileupCalling
+bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b reduced_samle.list | bcftools call -m -M -O b --threads 8 -o ./reduced_samle_contemp_mcalling.vcf.gz
+date
+
+wc -l reduced_samle_contemp_mcalling.vcf.gz
+21734211 reduced_samle_contemp_mcalling.vcf.gz
+
+bcftools filter -T subsamp.bed -o reduced_samle_contemp_mcalling.Chr1.vcf.gz reduced_samle_contemp_mcalling.vcf.gz
+
+bcftools stats reduced_samle_contemp_mcalling.Chr1.vcf.gz | head -n 30 | tail -n 9
+
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8447766
+SN	0	number of no-ALTs:	7569410
+SN	0	number of SNPs:	802171
+SN	0	number of MNPs:	0
+SN	0	number of indels:	76185
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	45255
+
+vcftools --gzvcf reduced_samle_contemp_mcalling.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+bcftools stats reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	521907
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	521907
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+### Next: use mpiledup file for Chr1 (first half) to run stats
+module load plink
+plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis.contemp_mcalling.reduced
+
+plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp.reduced.prune.in --make-bed --pca --out britomartis.contemp_mcalling.reduced.pruned
+
+plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp_mcalling.reduced.noprune
