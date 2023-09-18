@@ -792,6 +792,164 @@ done
 
 contemporary_samples.txt
 
+#lets call snps with freebayes
+mkdir 04_CallingContemporary
+module load bioinfo-tools Nextflow nf-core nf-core-pipelines
+export NXF_HOME=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Concervation/00_Mapping_Calling_sarek/04_CallingContemporary
+
+
+declare -A groups=(["KAZA_2_2006"]="P27562_1068" ["KAZA_1_2006"]="P27562_1038" ["KALM_9_1981"]="P27562_1056" ["KALM_10_1983"]="P27562_1057" ["ALTA_2_2015"]="P27562_1069" ["ALTA_1_2015"]="P27562_1051" ["VORO_1_1998"]="P27562_1071" ["VAST_3_2005"]="P27562_1055" ["VAST_2_1999"]="P27562_1066" ["VAST_1_1983"]="P27562_1065" ["URAL_2_1995"]="P27562_1061" ["URAL_1_1991"]="P27562_1062"  ["STOC_6_1965"]="P27562_1035" ["SMAL_6_2013"]="P27562_1044" ["SMAL_5_1998"]="P27562_1037" ["SMAL_4_1996"]="P27562_1054"  ["SLOV_1_1990"]="P27562_1059" ["RUSS_5_2008"]="P27562_1042" ["RUSS_4_2008"]="P27562_1041" ["RUSS_3_1999"]="P27562_1060" ["RUSS_2_1999"]="P27562_1046" ["RUSS_1_1998"]="P27562_1067" ["POLA_2_2003"]="P27562_1073" ["POLA_1_2003"]="P27562_1072" ["KRAS_4_2002"]="P27562_1075" ["KRAS_3_2002"]="P27562_1074" ["KRAS_2_2002"]="P27562_1070" ["KRAS_1_2002"]="P27562_1052" ["KALM_1_2018"]="P27562_1049" ["JAPA_2_1994"]="P27562_1063" ["JAPA_1_1994"]="P27562_1053" ["CHEH_3_2008"]="P27562_1047" ["CHEH_2_2004"]="P27562_1048" ["CHEH_1_1989"]="P27562_1058" ["BELA_1_2004"]="P27562_1045" ["BAJK_3_2016"]="P27562_1064" ["BAJK_2_2016"]="P27562_1043" ["BAJK_4_2016"]="P27562_1040" ["BAJK_1_2016"]="P27562_1039")
+
+echo 'patient,sample,cram,crai'
+for files in "${!groups[@]}"; do
+        echo "$files,$files,../01_MappingAll/results/preprocessing/markduplicates/$files/$files.md.cram,../01_MappingAll/results/preprocessing/markduplicates/$files/$files.md.cram.crai"
+done
+
+patient,sample,cram,crai
+BAJK_1_2016,BAJK_1_2016,../01_MappingAll/results/preprocessing/markduplicates/BAJK_1_2016/BAJK_1_2016.md.cram,../01_MappingAll/results/preprocessing/markduplicates/BAJK_1_2016/BAJK_1_2016.md.cram.crai
+KAZA_1_2006,KAZA_1_2006,../01_MappingAll/results/preprocessing/markduplicates/KAZA_1_2006/KAZA_1_2006.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KAZA_1_2006/KAZA_1_2006.md.cram.crai
+SLOV_1_1990,SLOV_1_1990,../01_MappingAll/results/preprocessing/markduplicates/SLOV_1_1990/SLOV_1_1990.md.cram,../01_MappingAll/results/preprocessing/markduplicates/SLOV_1_1990/SLOV_1_1990.md.cram.crai
+URAL_2_1995,URAL_2_1995,../01_MappingAll/results/preprocessing/markduplicates/URAL_2_1995/URAL_2_1995.md.cram,../01_MappingAll/results/preprocessing/markduplicates/URAL_2_1995/URAL_2_1995.md.cram.crai
+RUSS_4_2008,RUSS_4_2008,../01_MappingAll/results/preprocessing/markduplicates/RUSS_4_2008/RUSS_4_2008.md.cram,../01_MappingAll/results/preprocessing/markduplicates/RUSS_4_2008/RUSS_4_2008.md.cram.crai
+JAPA_1_1994,JAPA_1_1994,../01_MappingAll/results/preprocessing/markduplicates/JAPA_1_1994/JAPA_1_1994.md.cram,../01_MappingAll/results/preprocessing/markduplicates/JAPA_1_1994/JAPA_1_1994.md.cram.crai
+CHEH_1_1989,CHEH_1_1989,../01_MappingAll/results/preprocessing/markduplicates/CHEH_1_1989/CHEH_1_1989.md.cram,../01_MappingAll/results/preprocessing/markduplicates/CHEH_1_1989/CHEH_1_1989.md.cram.crai
+KRAS_2_2002,KRAS_2_2002,../01_MappingAll/results/preprocessing/markduplicates/KRAS_2_2002/KRAS_2_2002.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KRAS_2_2002/KRAS_2_2002.md.cram.crai
+RUSS_1_1998,RUSS_1_1998,../01_MappingAll/results/preprocessing/markduplicates/RUSS_1_1998/RUSS_1_1998.md.cram,../01_MappingAll/results/preprocessing/markduplicates/RUSS_1_1998/RUSS_1_1998.md.cram.crai
+URAL_1_1991,URAL_1_1991,../01_MappingAll/results/preprocessing/markduplicates/URAL_1_1991/URAL_1_1991.md.cram,../01_MappingAll/results/preprocessing/markduplicates/URAL_1_1991/URAL_1_1991.md.cram.crai
+STOC_6_1965,STOC_6_1965,../01_MappingAll/results/preprocessing/markduplicates/STOC_6_1965/STOC_6_1965.md.cram,../01_MappingAll/results/preprocessing/markduplicates/STOC_6_1965/STOC_6_1965.md.cram.crai
+VAST_1_1983,VAST_1_1983,../01_MappingAll/results/preprocessing/markduplicates/VAST_1_1983/VAST_1_1983.md.cram,../01_MappingAll/results/preprocessing/markduplicates/VAST_1_1983/VAST_1_1983.md.cram.crai
+SMAL_4_1996,SMAL_4_1996,../01_MappingAll/results/preprocessing/markduplicates/SMAL_4_1996/SMAL_4_1996.md.cram,../01_MappingAll/results/preprocessing/markduplicates/SMAL_4_1996/SMAL_4_1996.md.cram.crai
+RUSS_3_1999,RUSS_3_1999,../01_MappingAll/results/preprocessing/markduplicates/RUSS_3_1999/RUSS_3_1999.md.cram,../01_MappingAll/results/preprocessing/markduplicates/RUSS_3_1999/RUSS_3_1999.md.cram.crai
+CHEH_3_2008,CHEH_3_2008,../01_MappingAll/results/preprocessing/markduplicates/CHEH_3_2008/CHEH_3_2008.md.cram,../01_MappingAll/results/preprocessing/markduplicates/CHEH_3_2008/CHEH_3_2008.md.cram.crai
+BAJK_2_2016,BAJK_2_2016,../01_MappingAll/results/preprocessing/markduplicates/BAJK_2_2016/BAJK_2_2016.md.cram,../01_MappingAll/results/preprocessing/markduplicates/BAJK_2_2016/BAJK_2_2016.md.cram.crai
+SMAL_5_1998,SMAL_5_1998,../01_MappingAll/results/preprocessing/markduplicates/SMAL_5_1998/SMAL_5_1998.md.cram,../01_MappingAll/results/preprocessing/markduplicates/SMAL_5_1998/SMAL_5_1998.md.cram.crai
+VAST_3_2005,VAST_3_2005,../01_MappingAll/results/preprocessing/markduplicates/VAST_3_2005/VAST_3_2005.md.cram,../01_MappingAll/results/preprocessing/markduplicates/VAST_3_2005/VAST_3_2005.md.cram.crai
+ALTA_2_2015,ALTA_2_2015,../01_MappingAll/results/preprocessing/markduplicates/ALTA_2_2015/ALTA_2_2015.md.cram,../01_MappingAll/results/preprocessing/markduplicates/ALTA_2_2015/ALTA_2_2015.md.cram.crai
+JAPA_2_1994,JAPA_2_1994,../01_MappingAll/results/preprocessing/markduplicates/JAPA_2_1994/JAPA_2_1994.md.cram,../01_MappingAll/results/preprocessing/markduplicates/JAPA_2_1994/JAPA_2_1994.md.cram.crai
+KALM_9_1981,KALM_9_1981,../01_MappingAll/results/preprocessing/markduplicates/KALM_9_1981/KALM_9_1981.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KALM_9_1981/KALM_9_1981.md.cram.crai
+RUSS_2_1999,RUSS_2_1999,../01_MappingAll/results/preprocessing/markduplicates/RUSS_2_1999/RUSS_2_1999.md.cram,../01_MappingAll/results/preprocessing/markduplicates/RUSS_2_1999/RUSS_2_1999.md.cram.crai
+KRAS_3_2002,KRAS_3_2002,../01_MappingAll/results/preprocessing/markduplicates/KRAS_3_2002/KRAS_3_2002.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KRAS_3_2002/KRAS_3_2002.md.cram.crai
+POLA_1_2003,POLA_1_2003,../01_MappingAll/results/preprocessing/markduplicates/POLA_1_2003/POLA_1_2003.md.cram,../01_MappingAll/results/preprocessing/markduplicates/POLA_1_2003/POLA_1_2003.md.cram.crai
+KALM_1_2018,KALM_1_2018,../01_MappingAll/results/preprocessing/markduplicates/KALM_1_2018/KALM_1_2018.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KALM_1_2018/KALM_1_2018.md.cram.crai
+KRAS_4_2002,KRAS_4_2002,../01_MappingAll/results/preprocessing/markduplicates/KRAS_4_2002/KRAS_4_2002.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KRAS_4_2002/KRAS_4_2002.md.cram.crai
+SMAL_6_2013,SMAL_6_2013,../01_MappingAll/results/preprocessing/markduplicates/SMAL_6_2013/SMAL_6_2013.md.cram,../01_MappingAll/results/preprocessing/markduplicates/SMAL_6_2013/SMAL_6_2013.md.cram.crai
+VORO_1_1998,VORO_1_1998,../01_MappingAll/results/preprocessing/markduplicates/VORO_1_1998/VORO_1_1998.md.cram,../01_MappingAll/results/preprocessing/markduplicates/VORO_1_1998/VORO_1_1998.md.cram.crai
+KALM_10_1983,KALM_10_1983,../01_MappingAll/results/preprocessing/markduplicates/KALM_10_1983/KALM_10_1983.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KALM_10_1983/KALM_10_1983.md.cram.crai
+BAJK_3_2016,BAJK_3_2016,../01_MappingAll/results/preprocessing/markduplicates/BAJK_3_2016/BAJK_3_2016.md.cram,../01_MappingAll/results/preprocessing/markduplicates/BAJK_3_2016/BAJK_3_2016.md.cram.crai
+BAJK_4_2016,BAJK_4_2016,../01_MappingAll/results/preprocessing/markduplicates/BAJK_4_2016/BAJK_4_2016.md.cram,../01_MappingAll/results/preprocessing/markduplicates/BAJK_4_2016/BAJK_4_2016.md.cram.crai
+ALTA_1_2015,ALTA_1_2015,../01_MappingAll/results/preprocessing/markduplicates/ALTA_1_2015/ALTA_1_2015.md.cram,../01_MappingAll/results/preprocessing/markduplicates/ALTA_1_2015/ALTA_1_2015.md.cram.crai
+CHEH_2_2004,CHEH_2_2004,../01_MappingAll/results/preprocessing/markduplicates/CHEH_2_2004/CHEH_2_2004.md.cram,../01_MappingAll/results/preprocessing/markduplicates/CHEH_2_2004/CHEH_2_2004.md.cram.crai
+RUSS_5_2008,RUSS_5_2008,../01_MappingAll/results/preprocessing/markduplicates/RUSS_5_2008/RUSS_5_2008.md.cram,../01_MappingAll/results/preprocessing/markduplicates/RUSS_5_2008/RUSS_5_2008.md.cram.crai
+VAST_2_1999,VAST_2_1999,../01_MappingAll/results/preprocessing/markduplicates/VAST_2_1999/VAST_2_1999.md.cram,../01_MappingAll/results/preprocessing/markduplicates/VAST_2_1999/VAST_2_1999.md.cram.crai
+POLA_2_2003,POLA_2_2003,../01_MappingAll/results/preprocessing/markduplicates/POLA_2_2003/POLA_2_2003.md.cram,../01_MappingAll/results/preprocessing/markduplicates/POLA_2_2003/POLA_2_2003.md.cram.crai
+KRAS_1_2002,KRAS_1_2002,../01_MappingAll/results/preprocessing/markduplicates/KRAS_1_2002/KRAS_1_2002.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KRAS_1_2002/KRAS_1_2002.md.cram.crai
+BELA_1_2004,BELA_1_2004,../01_MappingAll/results/preprocessing/markduplicates/BELA_1_2004/BELA_1_2004.md.cram,../01_MappingAll/results/preprocessing/markduplicates/BELA_1_2004/BELA_1_2004.md.cram.crai
+KAZA_2_2006,KAZA_2_2006,../01_MappingAll/results/preprocessing/markduplicates/KAZA_2_2006/KAZA_2_2006.md.cram,../01_MappingAll/results/preprocessing/markduplicates/KAZA_2_2006/KAZA_2_2006.md.cram.crai
+
+
+nextflow run nf-core/sarek -r 3.1.2 --input contemporary_calling_input.csv -profile uppmax --project naiss2023-5-52 --fasta  /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --step variant_calling --tools freebayes --outdir ./results
+
+
+#Lets map low q
+mkdir 03_MappingHistorical
+
+
+### Making sample list
+
+#!/bin/bash
+
+
+
+declare -A groups=(["КALM_8_1969"]="P27562_1029" ["КALM_7_1961"]="P27562_1028" ["КALM_6_1961"]="P27562_1025" ["КALM_5_1961"]="P27562_1021" ["КALM_4_1957"]="P27562_1024" ["КALM_3_1955"]="P27562_1031" ["КALM_2_1955"]="P27562_1030" ["UPPS_3_1969"]="P27562_1022" ["UPPS_2_1958"]="P27562_1023" ["UPPS_1_1951"]="P27562_1026" ["STOC_5_1965"]="P27562_1013" ["STOC_4_1965"]="P27562_1008" ["STOC_3_1965"]="P27562_1007" ["STOC_2_1965"]="P27562_1002" ["STOC_1_1965"]="P27562_1001" ["SMAL_5_1998"]="P27562_1037" ["SMAL_4_1996"]="P27562_1054" ["SMAL_3_1967"]="P27562_1033" ["SMAL_2_1967"]="P27562_1020" ["SMAL_1_1967"]="P27562_1005" ["ITAL_1_1946"]="P27562_1034" ["GAST_9_1965"]="P27562_1014" ["GAST_8_1965"]="P27562_1011" ["GAST_7_1965"]="P27562_1010" ["GAST_6_1965"]="P27562_1004" ["GAST_5_1943"]="P27562_1015" ["GAST_4_1941"]="P27562_1019" ["GAST_3_1941"]="P27562_1017" ["GAST_2_1941"]="P27562_1009" ["GAST_14_1969"]="P27562_1032" ["GAST_13_1969"]="P27562_1027" ["GAST_12_1969"]="P27562_1012" ["GAST_11_1965"]="P27562_1018" ["GAST_10_1965"]="P27562_1016" ["GAST_1_1941"]="P27562_1003" ["DALA_1_1965"]="P27562_1006")
+
+
+echo 'patient,sample,lane,fastq_1,fastq_2'
+for files in "${!groups[@]}"; do
+        #echo "$files - ${groups[$files]}";
+        read1=$(cat /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/fasta_pathes_britomartis.txt | grep ${groups[$files]} | grep 'R1')
+        read2=$(cat /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/fasta_pathes_britomartis.txt | grep ${groups[$files]} | grep 'R2')
+        echo "$files,$files,L001,$read1,$read2"
+done
+
+
+nextflow run nf-core/sarek -r 3.1.2 --input historical_sample_list.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --skip_tools baserecalibrator --outdir ./results
+
+
+
+module load bioinfo-tools Nextflow nf-core nf-core-pipelines
+export NXF_HOME=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Concervation/00_Mapping_Calling_sarek/03_MappingHistorical
+
+
+historical_sample_list.csv
+
+-resume hopeful_monod
+
+nextflow run nf-core/sarek -r 3.1.2 -resume hopeful_monod --input historical_sample_list.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --skip_tools baserecalibrator --outdir ./results
+
+
+#lets call snps with freebayes
+
+module load bioinfo-tools Nextflow nf-core nf-core-pipelines
+export NXF_HOME=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical
+
+
+  declare -A groups=(["КALM_8_1969"]="P27562_1029" ["КALM_7_1961"]="P27562_1028" ["КALM_6_1961"]="P27562_1025" ["КALM_5_1961"]="P27562_1021" ["КALM_4_1957"]="P27562_1024" ["КALM_3_1955"]="P27562_1031" ["КALM_2_1955"]="P27562_1030" ["UPPS_3_1969"]="P27562_1022" ["UPPS_2_1958"]="P27562_1023" ["UPPS_1_1951"]="P27562_1026" ["STOC_5_1965"]="P27562_1013" ["STOC_4_1965"]="P27562_1008" ["STOC_3_1965"]="P27562_1007" ["STOC_2_1965"]="P27562_1002" ["STOC_1_1965"]="P27562_1001" ["SMAL_5_1998"]="P27562_1037" ["SMAL_4_1996"]="P27562_1054" ["SMAL_3_1967"]="P27562_1033" ["SMAL_2_1967"]="P27562_1020" ["SMAL_1_1967"]="P27562_1005" ["ITAL_1_1946"]="P27562_1034" ["GAST_9_1965"]="P27562_1014" ["GAST_8_1965"]="P27562_1011" ["GAST_7_1965"]="P27562_1010" ["GAST_6_1965"]="P27562_1004" ["GAST_5_1943"]="P27562_1015" ["GAST_4_1941"]="P27562_1019" ["GAST_3_1941"]="P27562_1017" ["GAST_2_1941"]="P27562_1009" ["GAST_14_1969"]="P27562_1032" ["GAST_13_1969"]="P27562_1027" ["GAST_12_1969"]="P27562_1012" ["GAST_11_1965"]="P27562_1018" ["GAST_10_1965"]="P27562_1016" ["GAST_1_1941"]="P27562_1003" ["DALA_1_1965"]="P27562_1006")
+
+  echo 'patient,sample,cram,crai'
+  for files in "${!groups[@]}"; do
+          echo "$files,$files,../03_MappingHistorical/results/preprocessing/markduplicates/$files/$files.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/$files/$files.md.cram.crai"
+  done
+
+nextflow pull nf-core/sarek -r 3.1.2
+nextflow run nf-core/sarek -r 3.1.2 --input historical_calling_input.csv -profile uppmax --project naiss2023-5-52 --fasta  /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --step variant_calling --tools freebayes --outdir ./results
+
+
+
+
+patient,sample,cram,crai
+GAST_6_1965,GAST_6_1965,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_6_1965/GAST_6_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_6_1965/GAST_6_1965.md.cram.crai
+STOC_4_1965,STOC_4_1965,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_4_1965/STOC_4_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_4_1965/STOC_4_1965.md.cram.crai
+GAST_14_1969,GAST_14_1969,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_14_1969/GAST_14_1969.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_14_1969/GAST_14_1969.md.cram.crai
+UPPS_1_1951,UPPS_1_1951,../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_1_1951/UPPS_1_1951.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_1_1951/UPPS_1_1951.md.cram.crai
+KALM_3_1955,KALM_3_1955,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_3_1955/KALM_3_1955.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_3_1955/KALM_3_1955.md.cram.crai
+GAST_4_1941,GAST_4_1941,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_4_1941/GAST_4_1941.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_4_1941/GAST_4_1941.md.cram.crai
+KALM_5_1961,KALM_5_1961,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_5_1961/KALM_5_1961.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_5_1961/KALM_5_1961.md.cram.crai
+GAST_2_1941,GAST_2_1941,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_2_1941/GAST_2_1941.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_2_1941/GAST_2_1941.md.cram.crai
+SMAL_4_1996,SMAL_4_1996,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_4_1996/SMAL_4_1996.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_4_1996/SMAL_4_1996.md.cram.crai
+UPPS_3_1969,UPPS_3_1969,../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_3_1969/UPPS_3_1969.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_3_1969/UPPS_3_1969.md.cram.crai
+KALM_7_1961,KALM_7_1961,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_7_1961/KALM_7_1961.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_7_1961/KALM_7_1961.md.cram.crai
+GAST_10_1965,GAST_10_1965,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_10_1965/GAST_10_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_10_1965/GAST_10_1965.md.cram.crai
+SMAL_2_1967,SMAL_2_1967,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_2_1967/SMAL_2_1967.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_2_1967/SMAL_2_1967.md.cram.crai
+STOC_2_1965,STOC_2_1965,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_2_1965/STOC_2_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_2_1965/STOC_2_1965.md.cram.crai
+GAST_7_1965,GAST_7_1965,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_7_1965/GAST_7_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_7_1965/GAST_7_1965.md.cram.crai
+SMAL_5_1998,SMAL_5_1998,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_5_1998/SMAL_5_1998.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_5_1998/SMAL_5_1998.md.cram.crai
+GAST_11_1965,GAST_11_1965,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_11_1965/GAST_11_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_11_1965/GAST_11_1965.md.cram.crai
+GAST_12_1969,GAST_12_1969,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_12_1969/GAST_12_1969.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_12_1969/GAST_12_1969.md.cram.crai
+STOC_3_1965,STOC_3_1965,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_3_1965/STOC_3_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_3_1965/STOC_3_1965.md.cram.crai
+DALA_1_1965,DALA_1_1965,../03_MappingHistorical/results/preprocessing/markduplicates/DALA_1_1965/DALA_1_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/DALA_1_1965/DALA_1_1965.md.cram.crai
+SMAL_3_1967,SMAL_3_1967,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_3_1967/SMAL_3_1967.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_3_1967/SMAL_3_1967.md.cram.crai
+STOC_5_1965,STOC_5_1965,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_5_1965/STOC_5_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_5_1965/STOC_5_1965.md.cram.crai
+KALM_6_1961,KALM_6_1961,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_6_1961/KALM_6_1961.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_6_1961/KALM_6_1961.md.cram.crai
+GAST_13_1969,GAST_13_1969,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_13_1969/GAST_13_1969.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_13_1969/GAST_13_1969.md.cram.crai
+GAST_1_1941,GAST_1_1941,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_1_1941/GAST_1_1941.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_1_1941/GAST_1_1941.md.cram.crai
+KALM_8_1969,KALM_8_1969,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_8_1969/KALM_8_1969.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_8_1969/KALM_8_1969.md.cram.crai
+GAST_8_1965,GAST_8_1965,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_8_1965/GAST_8_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_8_1965/GAST_8_1965.md.cram.crai
+KALM_2_1955,KALM_2_1955,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_2_1955/KALM_2_1955.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_2_1955/KALM_2_1955.md.cram.crai
+GAST_9_1965,GAST_9_1965,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_9_1965/GAST_9_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_9_1965/GAST_9_1965.md.cram.crai
+SMAL_1_1967,SMAL_1_1967,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_1_1967/SMAL_1_1967.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_1_1967/SMAL_1_1967.md.cram.crai
+STOC_1_1965,STOC_1_1965,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_1_1965/STOC_1_1965.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/STOC_1_1965/STOC_1_1965.md.cram.crai
+KALM_4_1957,KALM_4_1957,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_4_1957/KALM_4_1957.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/KALM_4_1957/KALM_4_1957.md.cram.crai
+GAST_3_1941,GAST_3_1941,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_3_1941/GAST_3_1941.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_3_1941/GAST_3_1941.md.cram.crai
+ITAL_1_1946,ITAL_1_1946,../03_MappingHistorical/results/preprocessing/markduplicates/ITAL_1_1946/ITAL_1_1946.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/ITAL_1_1946/ITAL_1_1946.md.cram.crai
+GAST_5_1943,GAST_5_1943,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_5_1943/GAST_5_1943.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/GAST_5_1943/GAST_5_1943.md.cram.crai
+UPPS_2_1958,UPPS_2_1958,../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_2_1958/UPPS_2_1958.md.cram,../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_2_1958/UPPS_2_1958.md.cram.crai
+
+
+### Let's join Freebayes
+### Let's get a list of files to Merge
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes
+find . -name "*gz" | awk '{for (i=1; i<=NF; i++) a[NR,i] = $i} NF>p { p = NF } END { for(j=1; j<=p; j++) { str=a[1,j]; for(i=2; i<=NR; i++){ str=str" "a[i,j];} print str}}'
+
 #Update reference
 
 awk '{print $1}' GCA_905220545.2_ilMelAtha1.2_genomic.fna.fai >  GCA_905220545.2_ilMelAtha1.2_genomic.fna.chroms.names
@@ -834,8 +992,6 @@ Work dir:
 Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
 
 #restart
-
-
 nextflow run nf-core/sarek -resume magical_gautier --input contemporary_samples.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --skip_tools baserecalibrator --outdir ./results
 
 
