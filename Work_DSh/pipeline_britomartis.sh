@@ -792,50 +792,6 @@ done
 
 contemporary_samples.txt
 
-#Update reference
-
-awk '{print $1}' GCA_905220545.2_ilMelAtha1.2_genomic.fna.fai >  GCA_905220545.2_ilMelAtha1.2_genomic.fna.chroms.names
-module load seqtk
-seqtk subseq GCA_905220545.2_ilMelAtha1.2_genomic.fna GCA_905220545.2_ilMelAtha1.2_genomic.fna.chroms.names > GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
-
-
-Error executing process > 'NFCORE_SAREK:SAREK:FASTQC (АLTA_1_2015-L001)'
-
-Caused by:
-  Missing output file(s) `*.html` expected by process `NFCORE_SAREK:SAREK:FASTQC (АLTA_1_2015-L001)`
-
-Command executed:
-
-  printf "%s\n" P27562_1051_S51_L001_R1_001.fastq.gz P27562_1051_S51_L001_R2_001.fastq.gz | while read f; do [[ $f =~ ^АLTA_1_2015-L001.* ]] || ln -s $f АLTA_1_2015-L001_$f ; done
-  fastqc --quiet --threads 4 АLTA_1_2015-L001*
-
-  cat <<-END_VERSIONS > versions.yml
-  "NFCORE_SAREK:SAREK:FASTQC":
-      fastqc: $( fastqc --version | sed -e "s/FastQC v//g" )
-  END_VERSIONS
-
-Command exit status:
-  0
-
-Command output:
-  (empty)
-
-Command error:
-  INFO:    Environment variable SINGULARITYENV_TMPDIR is set, but APPTAINERENV_TMPDIR is preferred
-  INFO:    Environment variable SINGULARITYENV_NXF_DEBUG is set, but APPTAINERENV_NXF_DEBUG is preferred
-  INFO:    Environment variable SINGULARITYENV_SNIC_TMP is set, but APPTAINERENV_SNIC_TMP is preferred
-  WARNING: Skipping mount /var/apptainer/mnt/session/etc/resolv.conf [files]: /etc/resolv.conf doesn't exist in container
-  Skipping '??LTA_1_2015-L001_P27562_1051_S51_L001_R1_001.fastq.gz' which didn't exist, or couldn't be read
-  Skipping '??LTA_1_2015-L001_P27562_1051_S51_L001_R2_001.fastq.gz' which didn't exist, or couldn't be read
-
-Work dir:
-  /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/work/89/dd505f764287b08302fb689a1e24bf
-
-Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
-
-#restart
-nextflow run nf-core/sarek -resume magical_gautier --input contemporary_samples.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --skip_tools baserecalibrator --outdir ./results
-
 #lets call snps with freebayes
 mkdir 04_CallingContemporary
 module load bioinfo-tools Nextflow nf-core nf-core-pipelines
@@ -994,6 +950,97 @@ UPPS_2_1958,UPPS_2_1958,../03_MappingHistorical/results/preprocessing/markduplic
 cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes
 find . -name "*gz" | awk '{for (i=1; i<=NF; i++) a[NR,i] = $i} NF>p { p = NF } END { for(j=1; j<=p; j++) { str=a[1,j]; for(i=2; i<=NR; i++){ str=str" "a[i,j];} print str}}'
 
+#Update reference
+
+awk '{print $1}' GCA_905220545.2_ilMelAtha1.2_genomic.fna.fai >  GCA_905220545.2_ilMelAtha1.2_genomic.fna.chroms.names
+module load seqtk
+seqtk subseq GCA_905220545.2_ilMelAtha1.2_genomic.fna GCA_905220545.2_ilMelAtha1.2_genomic.fna.chroms.names > GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+
+
+Error executing process > 'NFCORE_SAREK:SAREK:FASTQC (АLTA_1_2015-L001)'
+
+Caused by:
+  Missing output file(s) `*.html` expected by process `NFCORE_SAREK:SAREK:FASTQC (АLTA_1_2015-L001)`
+
+Command executed:
+
+  printf "%s\n" P27562_1051_S51_L001_R1_001.fastq.gz P27562_1051_S51_L001_R2_001.fastq.gz | while read f; do [[ $f =~ ^АLTA_1_2015-L001.* ]] || ln -s $f АLTA_1_2015-L001_$f ; done
+  fastqc --quiet --threads 4 АLTA_1_2015-L001*
+
+  cat <<-END_VERSIONS > versions.yml
+  "NFCORE_SAREK:SAREK:FASTQC":
+      fastqc: $( fastqc --version | sed -e "s/FastQC v//g" )
+  END_VERSIONS
+
+Command exit status:
+  0
+
+Command output:
+  (empty)
+
+Command error:
+  INFO:    Environment variable SINGULARITYENV_TMPDIR is set, but APPTAINERENV_TMPDIR is preferred
+  INFO:    Environment variable SINGULARITYENV_NXF_DEBUG is set, but APPTAINERENV_NXF_DEBUG is preferred
+  INFO:    Environment variable SINGULARITYENV_SNIC_TMP is set, but APPTAINERENV_SNIC_TMP is preferred
+  WARNING: Skipping mount /var/apptainer/mnt/session/etc/resolv.conf [files]: /etc/resolv.conf doesn't exist in container
+  Skipping '??LTA_1_2015-L001_P27562_1051_S51_L001_R1_001.fastq.gz' which didn't exist, or couldn't be read
+  Skipping '??LTA_1_2015-L001_P27562_1051_S51_L001_R2_001.fastq.gz' which didn't exist, or couldn't be read
+
+Work dir:
+  /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/work/89/dd505f764287b08302fb689a1e24bf
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+
+#restart
+nextflow run nf-core/sarek -resume magical_gautier --input contemporary_samples.csv -profile uppmax --project naiss2023-5-52 --fasta /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna --skip_tools baserecalibrator --outdir ./results
+
+
+
+#Separate diary
+
+Contmporary set:
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes/merge.freebayes.vcf.gz
+
+170G	merge.freebayes.vcf.gz
+
+Historical set:
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.vcf.gz
+
+58G	merge.freebayes.historical.vcf.gz
+
+
+module load bioinfo-tools vcftools bcftools samtools
+
+for i in $(seq 26 55); do vcftools --gzvcf LR9999${i}allsites_hardTEfiltered_noindel.vcf.gz --remove-indv S15_19M002_S15_19M002 --max-maf 0 --min-meanDP 30 --max-meanDP 80 --recode --stdout | bgzip -c > LR9999${i}allsites_hardTEfiltered_noindel_invariant_Qfilter.vcf.gz ; done
+
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.vcf.gz --min-meanDP 10 --max-meanDP 50 --remove-indels --max-missing-count 30 --minQ 30 --recode --stdout | bgzip -c > merge.freebayes.historical.Qfilter.vcf.gz
+
+bcftools stats merge.freebayes.historical.vcf.gz | head -n 30 | tail -n 9
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 4
+#SBATCH -t 12:00:00
+#SBATCH -J all_freebayes
+#SBATCH --output=all_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+date
+module load bioinfo-tools bcftools
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/00_Mapping_Calling_sarek/
+bgzip -c >
+bcftools merge --threads 4 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes/merge.freebayes.vcf.gz /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.vcf.gz > britomartis.merged.freebayes.vcf.gz
+date
+
+
+bgzip -c >  /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes/merge.freebayes.vcf.gz
+
+bgzip -c > /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.vcf.gz
+
 
 #!/bin/sh
 #SBATCH -A naiss2023-5-52
@@ -1006,16 +1053,465 @@ find . -name "*gz" | awk '{for (i=1; i<=NF; i++) a[NR,i] = $i} NF>p { p = NF } E
 #SBATCH --mail-type=ALL
 
 date
-module load bioinfo-tools bcftools
+module load bioinfo-tools bcftools samtools
 cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes
-bcftools merge --threads 4 ./SMAL_4_1996/SMAL_4_1996.freebayes.vcf.gz ./KAZA_1_2006/KAZA_1_2006.freebayes.vcf.gz ./POLA_2_2003/POLA_2_2003.freebayes.vcf.gz ./KRAS_4_2002/KRAS_4_2002.freebayes.vcf.gz ./RUSS_3_1999/RUSS_3_1999.freebayes.vcf.gz ./KALM_9_1981/KALM_9_1981.freebayes.vcf.gz ./RUSS_4_2008/RUSS_4_2008.freebayes.vcf.gz ./RUSS_1_1998/RUSS_1_1998.freebayes.vcf.gz ./BELA_1_2004/BELA_1_2004.freebayes.vcf.gz ./RUSS_5_2008/RUSS_5_2008.freebayes.vcf.gz ./KAZA_2_2006/KAZA_2_2006.freebayes.vcf.gz ./URAL_2_1995/URAL_2_1995.freebayes.vcf.gz ./URAL_1_1991/URAL_1_1991.freebayes.vcf.gz ./KALM_1_2018/KALM_1_2018.freebayes.vcf.gz ./KALM_10_1983/KALM_10_1983.freebayes.vcf.gz ./VAST_3_2005/VAST_3_2005.freebayes.vcf.gz ./CHEH_1_1989/CHEH_1_1989.freebayes.vcf.gz ./BAJK_3_2016/BAJK_3_2016.freebayes.vcf.gz ./JAPA_2_1994/JAPA_2_1994.freebayes.vcf.gz ./VORO_1_1998/VORO_1_1998.freebayes.vcf.gz ./SMAL_5_1998/SMAL_5_1998.freebayes.vcf.gz ./RUSS_2_1999/RUSS_2_1999.freebayes.vcf.gz ./KRAS_2_2002/KRAS_2_2002.freebayes.vcf.gz ./ALTA_2_2015/ALTA_2_2015.freebayes.vcf.gz ./SLOV_1_1990/SLOV_1_1990.freebayes.vcf.gz ./POLA_1_2003/POLA_1_2003.freebayes.vcf.gz ./JAPA_1_1994/JAPA_1_1994.freebayes.vcf.gz ./ALTA_1_2015/ALTA_1_2015.freebayes.vcf.gz ./CHEH_3_2008/CHEH_3_2008.freebayes.vcf.gz ./KRAS_1_2002/KRAS_1_2002.freebayes.vcf.gz ./SMAL_6_2013/SMAL_6_2013.freebayes.vcf.gz ./STOC_6_1965/STOC_6_1965.freebayes.vcf.gz ./CHEH_2_2004/CHEH_2_2004.freebayes.vcf.gz ./VAST_2_1999/VAST_2_1999.freebayes.vcf.gz ./BAJK_1_2016/BAJK_1_2016.freebayes.vcf.gz ./BAJK_2_2016/BAJK_2_2016.freebayes.vcf.gz ./BAJK_4_2016/BAJK_4_2016.freebayes.vcf.gz ./VAST_1_1983/VAST_1_1983.freebayes.vcf.gz ./KRAS_3_2002/KRAS_3_2002.freebayes.vcf.gz > merge.freebayes.vcf.gz
+bcftools merge --threads 4 ./SMAL_4_1996/SMAL_4_1996.freebayes.vcf.gz ./KAZA_1_2006/KAZA_1_2006.freebayes.vcf.gz ./POLA_2_2003/POLA_2_2003.freebayes.vcf.gz ./KRAS_4_2002/KRAS_4_2002.freebayes.vcf.gz ./RUSS_3_1999/RUSS_3_1999.freebayes.vcf.gz ./KALM_9_1981/KALM_9_1981.freebayes.vcf.gz ./RUSS_4_2008/RUSS_4_2008.freebayes.vcf.gz ./RUSS_1_1998/RUSS_1_1998.freebayes.vcf.gz ./BELA_1_2004/BELA_1_2004.freebayes.vcf.gz ./RUSS_5_2008/RUSS_5_2008.freebayes.vcf.gz ./KAZA_2_2006/KAZA_2_2006.freebayes.vcf.gz ./URAL_2_1995/URAL_2_1995.freebayes.vcf.gz ./URAL_1_1991/URAL_1_1991.freebayes.vcf.gz ./KALM_1_2018/KALM_1_2018.freebayes.vcf.gz ./KALM_10_1983/KALM_10_1983.freebayes.vcf.gz ./VAST_3_2005/VAST_3_2005.freebayes.vcf.gz ./CHEH_1_1989/CHEH_1_1989.freebayes.vcf.gz ./BAJK_3_2016/BAJK_3_2016.freebayes.vcf.gz ./JAPA_2_1994/JAPA_2_1994.freebayes.vcf.gz ./VORO_1_1998/VORO_1_1998.freebayes.vcf.gz ./SMAL_5_1998/SMAL_5_1998.freebayes.vcf.gz ./RUSS_2_1999/RUSS_2_1999.freebayes.vcf.gz ./KRAS_2_2002/KRAS_2_2002.freebayes.vcf.gz ./ALTA_2_2015/ALTA_2_2015.freebayes.vcf.gz ./SLOV_1_1990/SLOV_1_1990.freebayes.vcf.gz ./POLA_1_2003/POLA_1_2003.freebayes.vcf.gz ./JAPA_1_1994/JAPA_1_1994.freebayes.vcf.gz ./ALTA_1_2015/ALTA_1_2015.freebayes.vcf.gz ./CHEH_3_2008/CHEH_3_2008.freebayes.vcf.gz ./KRAS_1_2002/KRAS_1_2002.freebayes.vcf.gz ./SMAL_6_2013/SMAL_6_2013.freebayes.vcf.gz ./STOC_6_1965/STOC_6_1965.freebayes.vcf.gz ./CHEH_2_2004/CHEH_2_2004.freebayes.vcf.gz ./VAST_2_1999/VAST_2_1999.freebayes.vcf.gz ./BAJK_1_2016/BAJK_1_2016.freebayes.vcf.gz ./BAJK_2_2016/BAJK_2_2016.freebayes.vcf.gz ./BAJK_4_2016/BAJK_4_2016.freebayes.vcf.gz ./VAST_1_1983/VAST_1_1983.freebayes.vcf.gz ./KRAS_3_2002/KRAS_3_2002.freebayes.vcf.gz > merge.contemporary.freebayes.vcf.gz
+bgzip -c merge.contemporary.freebayes.vcf.gz > merge.contemporary.freebayes.bg.vcf.gz
 date
 
-(base) [daria@rackham3 freebayes]$ sbatch merging.sh
-Submitted batch job 38737351
 
-### Let's get a list of historical files to Merge
-cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes
+plink --vcf ../merge.freebayes.historical.Qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out britomartis.historical
+
+
+plink --vcf ../merge.freebayes.historical.Qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.historical.prune.in --make-bed --pca --out britomartis.historical
+
+
+tabix /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes/merge.contemporary.freebayes.bg.vcf.gz
+tabix /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.bg.vcf.gz > britomartis.merged.freebayes.bg.vcf.gz
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 8
+#SBATCH -t 08:00:00
+#SBATCH -J all_freebayes
+#SBATCH --output=all_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+date
+module load bioinfo-tools bcftools samtools
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/00_Mapping_Calling_sarek/06_freebayesRun/
+tabix /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes/merge.contemporary.freebayes.bg.vcf.gz
+tabix /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.bg.vcf.gz
+bcftools merge --threads 8 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes/merge.contemporary.freebayes.bg.vcf.gz /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes/merge.freebayes.historical.bg.vcf.gz > britomartis.merged.freebayes.vcf.gz
+date
+
+
+bcftools stats merge.contemporary.freebayes.bg.vcf.gz | head -n 30 | tail -n 9
+
+vcftools --gzvcf merge.freebayes.historical.Qfilter.vcf.gz --max-missing-count 30 --minQ 30 --minDP 8 --maxDP 40 --recode --stdout | gzip -c | bcftools stats | head -n 30 | tail -n 9 > stats.out
+
+vcftools --gzvcf britomartis.merged.freebayes.vcf.gz --remove-indels --max-missing-count 10 --minQ 30 --min-meanDP 10 --max-meanDP 40 --recode --stdout | gzip -c > britomartis.merged.freebayes.qfilter.vcf.gz
+
+--min-meanDP 30
+
+3607 britomartis.merged.freebayes.qfilter.vcf.gz
+
+
+plink --vcf ../britomartis.merged.freebayes.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out britomartis.all
+Pruning complete.  1486 of 2203 variants removed.
+
+
+plink --vcf ../britomartis.merged.freebayes.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out britomartis.all
+
+
+
+########## Contmporary only!
+module load bioinfo-tools bcftools samtools
+bcftools stats merge.contemporary.freebayes.bg.vcf.gz | head -n 30 | tail -n 9
+
+interactive -A naiss2023-5-52  -n 4 -t 10:00:0
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --remove-indels --max-missing-count 3 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.qfilter.vcf.gz
+
+bcftools stats merge.contemporary.freebayes.bg.qfilter.vcf.gz | head -n 30 | tail -n 9
+
+SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      81478
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 81478
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   11326
+
+
+plink --vcf merge.contemporary.freebayes.bg.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out britomartis.all
+
+#### Tailoring filters with subsampled Set
+interactive -A naiss2023-5-52  -n 4 -t 10:00:0
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes
+
+bcftools view merge.contemporary.freebayes.bg.vcf.gz | vcfrandomsample -r 0.012 > merge.contemporary.freebayes.bg.subset.vcf
+
+
+#subsamp.bed
+HG992177.1 1 10000000
+
+bcftools filter -T ^subsamp.bed -o merge.contemporary.freebayes.bg.Chr1.vcf.gz merge.contemporary.freebayes.bg.vcf.gz
+
+bcftools stats merge.contemporary.freebayes.bg.Chr1.vcf.gz | head -n 30 | tail -n 9
+[E::bgzf_read_block] Failed to read BGZF block data at offset 201326170 expected 7991 bytes; hread returned 404
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      1153951
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 770306
+SN      0       number of MNPs: 215555
+SN      0       number of indels:       182319
+SN      0       number of others:       139468
+SN      0       number of multiallelic sites:   258348
+
+#Example:
+vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --remove-indels --max-missing-count 3 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.qfilter.vcf.gz
+
+#Only missingness
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.vcf.gz.mxmiss3.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.vcf.gz.mxmiss3.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      630
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 630
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   84
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing-count 10 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.vcf.gz.mxmiss10.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.vcf.gz.mxmiss10.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      4071
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 4071
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   611
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing-count 30 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.vcf.gz.mxmiss30.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.vcf.gz.mxmiss30.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      19175
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 19175
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   3137
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing 1 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.mxmissprc1.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.mxmissprc1.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      196
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 196
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   24
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing 0.75 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.mxmissprc075.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.mxmissprc075.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      8727
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 8727
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   1360
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing 0.5 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.mxmissprc05.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.mxmissprc05.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      39
+SN      0       number of records:      27557
+SN      0       number of no-ALTs:      0
+SN      0       number of SNPs: 27557
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   4686
+
+
+### Trying to recall
+### Example
+cd ~
+bcftools mpileup -a AD,DP,SP -Ou -f $REF \
+./align/*_sort.bam | bcftools call -f GQ,GP \
+-mO z -o ./cichlid.vcf.gz
+
+#### My code/ small recalling
+module load bioinfo-tools bcftools samtools vcftools
+
+bcftools mpileup -a AD,DP,SP -Ou -f $REF -b reduced_samle.list | bcftools call -f GQ,GP -mO z -o ./cichlid.vcf.gz
+
+
+nano reduced_samle.list
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/URAL_2_1995/URAL_2_1995.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/RUSS_4_2008/RUSS_4_2008.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/JAPA_1_1994/JAPA_1_1994.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/CHEH_1_1989/CHEH_1_1989.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/KRAS_2_2002/KRAS_2_2002.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/RUSS_1_1998/RUSS_1_1998.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/URAL_1_1991/URAL_1_1991.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/STOC_6_1965/STOC_6_1965.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/VAST_1_1983/VAST_1_1983.md.cram
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/01_MappingAll/results/preprocessing/markduplicates/SMAL_4_1996/SMAL_4_1996.md.cram
+
+ mkdir 00_mpileupCalling
+
+ bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b reduced_samle.list | bcftools call -m -M -O b --threads 4 -o ./reduced_samle_contemp.vcf.gz
+
+ .....testing interactively.....
+
+# Preparing comparable set
+vcftools --gzvcf merge.contemporary.freebayes.bg.Chr1.vcf.gz --remove-indels --max-missing 0.5 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.Chr1.mxmissprc05.vcf.gz
+bcftools stats merge.contemporary.freebayes.bg.Chr1.mxmissprc05.vcf.gz | head -n 30 | tail -n 9
+
+
+ might be wrong: vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz  --indv URAL_2_1995_URAL_2_1995,RUSS_4_2008_RUSS_4_2008,JAPA_1_1994_JAPA_1_1994,CHEH_1_1989_CHEH_1_1989,KRAS_1_2002_KRAS_1_2002,RUSS_1_1998_RUSS_1_1998,URAL_1_1991_URAL_1_1991,STOC_6_1965_STOC_6_1965,VAST_1_1983_VAST_1_1983,SMAL_4_1996_SMAL_4_1996 --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
+
+ vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --indv URAL_2_1995_URAL_2_1995;RUSS_4_2008_RUSS_4_2008 --recode --stdout
+
+ --keep <filename>
+
+Provide files containing a list of individuals to either include or exclude in subsequent analysis. Each individual ID (as defined in the VCF headerline) should be included on a separate line. If both options are used, then the "--keep" option is executed before the "--remove" option. When multiple files are provided, the union of individuals from all keep files subtracted by the union of individuals from all remove files are kept. No header line is expected.
+
+nano keep.reduced.txt
+#
+URAL_2_1995_URAL_2_1995
+RUSS_4_2008_RUSS_4_2008
+JAPA_1_1994_JAPA_1_1994
+CHEH_1_1989_CHEH_1_1989
+KRAS_1_2002_KRAS_1_2002
+RUSS_1_1998_RUSS_1_1998
+URAL_1_1991_URAL_1_1991
+STOC_6_1965_STOC_6_1965
+VAST_1_1983_VAST_1_1983
+SMAL_4_1996_SMAL_4_1996
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --keep keep.reduced.txt --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
+
+
+###*** --max-indv
+bcftools stats merge.contemporary.reduced.freebayes.bg.vcf.gz | head -n 30 | tail -n 9
+
+
+
+
+bcftools stats reduced_samle_contemp.vcf.gz | head -n 30 | tail -n 9
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      10
+SN      0       number of records:      96145268
+SN      0       number of no-ALTs:      86364234
+SN      0       number of SNPs: 9012258
+SN      0       number of MNPs: 0
+SN      0       number of indels:       768776
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   106241
+
+#Only missingness
+vcftools --gzvcf reduced_samle_contemp.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > reduced_samle_contemp.mxmiss3.vcf.gz
+bcftools stats reduced_samle_contemp.mxmiss3.vcf.gz | head -n 30 | tail -n 9
+
+
+# SN    [2]id   [3]key  [4]value
+SN      0       number of samples:      10
+SN      0       number of records:      95220215
+SN      0       number of no-ALTs:      86207957
+SN      0       number of SNPs: 9012258
+SN      0       number of MNPs: 0
+SN      0       number of indels:       0
+SN      0       number of others:       0
+SN      0       number of multiallelic sites:   92674
+
+vcftools --gzvcf reduced_samle_contemp.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > reduced_samle_contemp.mxmiss3.vcf.gz
+
+#subsamp.bed
+HG992177.1 1 10000000
+
+bcftools filter -T subsamp.bed -o reduced_samle_contemp.Chr1.vcf.gz reduced_samle_contemp.vcf.gz
+
+bcftools stats reduced_samle_contemp.Chr1.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8447766
+SN	0	number of no-ALTs:	7581371
+SN	0	number of SNPs:	794417
+SN	0	number of MNPs:	0
+SN	0	number of indels:	71978
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	9464
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing-count 3 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.mxmiss3.vcf.gz
+bcftools stats reduced_samle_contemp.Chr1.mxmiss3.vcf.gz | head -n 30 | tail -n 9
+
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8361676
+SN	0	number of no-ALTs:	7567259
+SN	0	number of SNPs:	794417
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	8187
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing 1 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.mxmissprc1.vcf.gz
+bcftools stats reduced_samle_contemp.Chr1.mxmissprc1.vcf.gz | head -n 30 | tail -n 9
+
+
+bcftools stats reduced_samle_contemp.Chr1.mxmissprc1.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8361676
+SN	0	number of no-ALTs:	7567259
+SN	0	number of SNPs:	794417
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	8187
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.qfilter.vcf.gz
+
+0 snps
+
+vcftools --gzvcf reduced_samle_contemp.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp.Chr1.qfilter.vcf.gz
+
+bcftools stats reduced_samle_contemp.Chr1.qfilter.vcf.gz | head -n 30 | tail -n 9
+
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	665439
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	665439
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+### Conclusion: consensus caller dont give missing data as ./.
+### Allelic inbalance???
+
+### Next: use mpiledup file for Chr1 (first half) to run stats
+module load plink
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out britomartis.contemp.reduced
+
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp.reduced.prune.in --make-bed --pca --out britomartis.contemp.reduced.pruned
+
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp.reduced.noprune
+
+##### Small test
+
+plink --vcf reduced_samle_contemp.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 50 0.5 --out britomartis.contemp.reduced.test
+Pruned 465453 variants from chromosome 27, leaving 199986.
+Pruning complete.  465453 of 665439 variants removed.
+
+### Call using different algorithm
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 8
+#SBATCH -t 08:00:00
+#SBATCH -J all_freebayes
+#SBATCH --output=all_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+date
+module load bioinfo-tools bcftools samtools
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/00_mpileupCalling
+bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b reduced_samle.list | bcftools call -m -M -O b --threads 8 -o ./reduced_samle_contemp_mcalling.vcf.gz
+date
+
+wc -l reduced_samle_contemp_mcalling.vcf.gz
+21734211 reduced_samle_contemp_mcalling.vcf.gz
+
+bcftools filter -T subsamp.bed -o reduced_samle_contemp_mcalling.Chr1.vcf.gz reduced_samle_contemp_mcalling.vcf.gz
+
+bcftools stats reduced_samle_contemp_mcalling.Chr1.vcf.gz | head -n 30 | tail -n 9
+
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	8447766
+SN	0	number of no-ALTs:	7569410
+SN	0	number of SNPs:	802171
+SN	0	number of MNPs:	0
+SN	0	number of indels:	76185
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	45255
+
+vcftools --gzvcf reduced_samle_contemp_mcalling.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+bcftools stats reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	10
+SN	0	number of records:	521907
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	521907
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+### Next: use mpiledup file for Chr1 (first half) to run stats
+module load plink
+plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis.contemp_mcalling.reduced
+
+plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp.reduced.prune.in --make-bed --pca --out britomartis.contemp_mcalling.reduced.pruned
+
+plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp_mcalling.reduced.noprune
+
+#### Aug 25 ####
+### Trying new subsample
+
+interactive -A naiss2023-5-52 -n 4 -t 10:00:0
+
+##contig=<ID=HG992196.1,length=18366132>
+
+#subsampChr20.bed
+HG992196.1  1 18366132
+
+module load bioinfo-tools bcftools samtools vcftools
+
+nohup bcftools filter -T subsampChr20.bed -o reduced_samle_contemp_mcalling.Chr20.vcf.gz reduced_samle_contemp_mcalling.vcf.gz &
+
+
+###Chrom 10
+##contig=<ID=HG992186.1,length=21375889>
+
+#subsampChr10.bed
+HG992186.1  1 21375889
+
+nohup bcftools filter -T subsampChr10.bed -t 3 -o reduced_samle_contemp_mcalling.Chr10.vcf.gz reduced_samle_contemp_mcalling.vcf.gz &
+
+# Filtering vcf
+
+vcftools --gzvcf reduced_samle_contemp_mcalling.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+
+### Aug 28
+
+#Trying to see all the SNPs
+
+
+###Current corrupted??? file ends with:
+HG992194.1	4981543	.	G	.	128.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981544	.	C	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981545	.	G	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981546	.	A	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981547	.	A	.	123.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981548	.	C	.	98.0878	.	DP=6;MQ0F=0;AN=4;DP4=1,1,0,0;MQ=37	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981549	.	T	.	123.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981550	.	T	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981551	.	A	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981552	.	T	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/00_Mapping_Calling_sarek
 
 
 #!/bin/sh
@@ -1023,16 +1519,305 @@ cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation
 #SBATCH -p node
 #SBATCH -n 1
 #SBATCH -t 08:00:00
-#SBATCH -J hist_freebayes
-#SBATCH --output=hist_freebayes.out
+#SBATCH -J Filteringcontemp_mcalling.out
+#SBATCH --output=cont_freebayes.out
 #SBATCH --mail-user=daria.shipilina@ebc.uu.se
 #SBATCH --mail-type=ALL
 
-date
-module load bioinfo-tools bcftools
-cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/05_CallingHistorical/results/variant_calling/freebayes
-bcftools merge --threads 4 ./GAST_7_1965/GAST_7_1965.freebayes.vcf.gz ./KALM_2_1955/KALM_2_1955.freebayes.vcf.gz ./GAST_10_1965/GAST_10_1965.freebayes.vcf.gz ./GAST_8_1965/GAST_8_1965.freebayes.vcf.gz ./KALM_5_1961/KALM_5_1961.freebayes.vcf.gz ./ITAL_1_1946/ITAL_1_1946.freebayes.vcf.gz ./GAST_11_1965/GAST_11_1965.freebayes.vcf.gz ./UPPS_3_1969/UPPS_3_1969.freebayes.vcf.gz ./GAST_1_1941/GAST_1_1941.freebayes.vcf.gz ./UPPS_2_1958/UPPS_2_1958.freebayes.vcf.gz ./STOC_4_1965/STOC_4_1965.freebayes.vcf.gz ./SMAL_2_1967/SMAL_2_1967.freebayes.vcf.gz ./KALM_3_1955/KALM_3_1955.freebayes.vcf.gz ./GAST_12_1969/GAST_12_1969.freebayes.vcf.gz ./SMAL_1_1967/SMAL_1_1967.freebayes.vcf.gz ./SMAL_3_1967/SMAL_3_1967.freebayes.vcf.gz ./GAST_2_1941/GAST_2_1941.freebayes.vcf.gz ./STOC_3_1965/STOC_3_1965.freebayes.vcf.gz ./STOC_5_1965/STOC_5_1965.freebayes.vcf.gz ./GAST_3_1941/GAST_3_1941.freebayes.vcf.gz ./DALA_1_1965/DALA_1_1965.freebayes.vcf.gz ./GAST_13_1969/GAST_13_1969.freebayes.vcf.gz ./KALM_7_1961/KALM_7_1961.freebayes.vcf.gz ./UPPS_1_1951/UPPS_1_1951.freebayes.vcf.gz ./KALM_4_1957/KALM_4_1957.freebayes.vcf.gz ./GAST_14_1969/GAST_14_1969.freebayes.vcf.gz ./GAST_5_1943/GAST_5_1943.freebayes.vcf.gz ./KALM_6_1961/KALM_6_1961.freebayes.vcf.gz ./KALM_8_1969/KALM_8_1969.freebayes.vcf.gz ./GAST_4_1941/GAST_4_1941.freebayes.vcf.gz ./GAST_6_1965/GAST_6_1965.freebayes.vcf.gz ./STOC_2_1965/STOC_2_1965.freebayes.vcf.gz ./GAST_9_1965/GAST_9_1965.freebayes.vcf.gz ./STOC_1_1965/STOC_1_1965.freebayes.vcf.gz > merge.freebayes.historical.vcf.gz
-date
+module load bioinfo-tools bcftools samtools vcftools
+vcftools --gzvcf reduced_samle_contemp_mcalling.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.qfilter.vcf.gz
 
-awk '/# DP/ {flag=1;next} /#/ {flag=0} flag {print}' DALA_1_1965.freebayes.bcftools_stats.txt > depth.txt
-awk '/# QUAL/ {flag=1;next} /#/ {flag=0} flag {print}' DALA_1_1965.freebayes.bcftools_stats.txt > qual.txt
+module load plink
+plink --vcf reduced_samle_contemp_mcalling.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis.contemp_mcalling.full
+
+Pruning complete.  17656071 of 19539605 variants removed.
+
+plink --vcf reduced_samle_contemp_mcalling.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp_mcalling.full.prune.in --make-bed --pca --out britomartis.contemp_mcalling.full.pruned
+
+1883534 variants and 10 people pass filters and QC.
+
+plink --vcf reduced_samle_contemp_mcalling.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp_mcalling.full.noprune
+
+19539605 variants and 10 people pass filters and QC.
+
+
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 1
+#SBATCH -t 08:00:00
+#SBATCH -J Filteringcontemp_mcalling.out
+#SBATCH --output=cont_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+vcftools --gzvcf reduced_samle_contemp_mcalling.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
+
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 4-00:00:00
+#SBATCH -J all_sample_mcalling
+#SBATCH --output=all_sample_mcalling.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b full_sample.list | bcftools call -m -M -O b --threads 8 -o britomartis_all_mcaller.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss3.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 20 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss20.vcf.gz
+
+
+
+### full_sample.list
+### Getting sample list from SAREK
+
+
+
+awk -F "",' {print $3} full_sample_raw.list
+
+(base) [daria@rackham2 07_mpileupM_joined]$ nano all_sample_mcalling.sh
+(base) [daria@rackham2 07_mpileupM_joined]$ sbatch all_sample_mcalling.sh
+Submitted batch job 40558801
+
+
+du -h reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
+#Nothing here!!! Filter not applicable!!!!
+
+bcftools stats reduced_samle_contemp_mcalling.qfilterDP.vcf.gz | head -n 30 | tail -n 9
+
+
+ bcftools filter -e 'FORMAT/PL[0] < 50'  reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+
+scancel 40558801
+
+
+bcftools mpileup -a AD,DP,SP -Ou -f $REF -b reduced_samle.list | bcftools call -f GQ,GP -mO z -o ./cichlid.vcf.gz
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 4-00:00:00
+#SBATCH -J all_sample_mcalling
+#SBATCH --output=all_sample_mcalling.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+bcftools mpileup -a AD,DP,SP -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b full_sample.list | bcftools call -f GQ,GP -m -M -O b --threads 8 -o britomartis_all_mcaller.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss3.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 20 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss20.vcf.gz
+
+sbatch all_sample_mcalling.sh
+Submitted batch job 40561218
+
+### August 31
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/00_mpileupCalling
+
+zcat britomartis_all_mcaller.vcf.gz | tail -10
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 03:00:00
+#SBATCH -J end_check
+#SBATCH --output=end_check.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+zcat britomartis_all_mcaller.vcf.gz | tail -10 > current.tail
+
+HG992197.1      2323651 .       A       G       193.215 .       DP=329;VDB=0.517259;SGB=29.0063;RPBZ=-1.34465;MQBZ=-0.868137;MQSBZ=0.320284;BQBZ=-1.3369;SCBZ=-1.19565;MQ0F=0;AC=2;AN=96;DP4=78,93,3,7;MQ=56    GT:PL:DP:SP:AD:GP:GQ    0/0:0,3,46:1:0:1,0:0.979118,0.0208818,1.11337e-08:16    0/0:0,3,60:1:0:1,0:0.979118,0.0208818,4.4324e-10:16     0/0:0,15,205:5:0:5,0:0.998656,0.00134384,1.42962e-24:28 0/0:0,18,255:6:0:6,0:0.999326,0.000673968,1.43058e-29:31        ./.:0,0,0:0:0:0,0:0,0,0:0       0/0:0,18,211:6:0:6,0:0.999326,0.000673968,3.59345e-25:31        0/0:0,39,255:13:0:13,0:0.999995,5.3571e-06,1.43154e-29:52       0/0:0,9,127:3:0:3,0:0.994671,0.00532858,8.98429e-17:22  0/0:0,9,167:3:0:3,0:0.994671,0.00532858,8.98429e-21:22  0/0:0,27,255:9:0:9,0:0.999915,8.48976e-05,1.43142e-29:40        0/0:0,3,46:1:0:1,0:0.979118,0.0208818,1.11337e-08:16    0/0:0,27,255:9:0:9,0:0.999915,8.48976e-05,1.43142e-29:40        ./.:0,0,0:0:0:0,0:0,0,0:0       0/
+1-21:42:29
+
+Benchmarking:
+25+25+24+23+23+22+21+21+21+21+20+20+20+20+20+20+20
+ 404 million snps in 2 days
+
+
+bcftools stats britomartis_all_mcaller.vcf.gz | head -n 30 | tail -n 9
+
+#September 1st
+
+#Example:
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 00:00:00
+#SBATCH -J QCall
+#SBATCH --output=QCall.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+for i in $(seq 24 55); do
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel.vcf.gz --mac 1 --recode --stdout | gzip -c > LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --freq2 --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant --max-alleles 2
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-mean-depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-quality --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-indv --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-site --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --het --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+done
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 06:00:00
+#SBATCH -J SNP_QC
+#SBATCH --output=SNP_QC.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel.vcf.gz --mac 1 --recode --stdout | gzip -c > LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --freq2 --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant --max-alleles 2
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-mean-depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-quality --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-indv --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-site --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --het --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+done
+
+
+#### Testing stringent
+module load plink
+plink --vcf ../britomartis_all_mcaller.miss3.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis_all_mcaller.miss3
+
+Pruning complete.  112134 of 220333 variants removed.
+
+plink --vcf ../britomartis_all_mcaller.miss3.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis_all_mcaller.miss3.prune.in  --make-bed --pca --out britomartis_all_mcaller.miss3.pruned
+
+108199 variants and 73 people pass filters and QC.
+
+plink --vcf ../britomartis_all_mcaller.miss3.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss3.noprune
+
+220333 variants and 73 people pass filters and QC.
+
+bcftools stats britomartis_all_mcaller.miss3.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	73
+SN	0	number of records:	220333
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	220333
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+##Continue filtering
+wc -l britomartis_all_mcaller.miss20.vcf.gz
+20026630 britomartis_all_mcaller.miss20.vcf.gz
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined
+
+#### Testing relaxed
+module load bioinfo-tools  plink
+plink --vcf ../britomartis_all_mcaller.miss20.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis_all_mcaller.miss20
+
+Pruning complete.  4967863 of 8419518 variants removed.
+
+
+plink --vcf ../britomartis_all_mcaller.miss20.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis_all_mcaller.miss20.prune.in  --make-bed --pca --out britomartis_all_mcaller.miss20.pruned
+
+3451655 variants and 73 people pass filters and QC.
+
+plink --vcf ../britomartis_all_mcaller.miss20.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss20.noprune
+
+8419518 variants and 73 people pass filters and QC.
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 06:00:00
+#SBATCH -J SNP_QC
+#SBATCH --output=SNP_QC.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --freq2 --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --depth --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --site-mean-depth --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --site-quality  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --missing-indv  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --missing-site  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --het --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+
+### Split dataset!
+--remove-indv S15_19M002_S15_19M002
+
+module load bcftools
+
+bcftools filter -T ^VcardDToL_kNdSannot_CDS.bed -o LR9999${i}allsites_hardTEfiltered_noindel_variant_Qfilter_nosinglt_CDS.vcf.gz LR9999${i}allsites_hardTEfiltered_noindel_variant_Qfilter_nosinglt.vcf.gz
+
+HG992207.1	W	5.27	37.4
+HG992176.1	Z	26.23	34
+HG992208.1	MT	0.02	19.7
+
+##contig=<ID=HG992207.1,length=5265952>
+##contig=<ID=HG992176.1,length=26233870>
+##contig=<ID=HG992208.2,length=15154>
+
+### mtDNA.bed
+HG992208.1  1 15154
+
+bcftools filter -T mtDNA.bed -o britomartis_all_mcaller.miss3.mtDNA.vcf.gz britomartis_all_mcaller.miss3.vcf.gz
+
+### sex_chroms.bed
+HG992207.1  1 5265952
+HG992176.1  1 26233870
+
+-r, --regions
+bcftools view -r HG992208.2 britomartis_all_mcaller.miss3.vcf.gz
+
+bcftools view -r HG992207.1,HG992176.1 britomartis_all_mcaller.miss3.vcf.gz -o britomartis_all_mcaller.miss3.ZW.vcf.gz
+
+bcftools view -r HG992177.1,HG992178.1,HG992179.1,HG992180.1,HG992181.1,HG992182.1,HG992183.1,HG992184.1,HG992185.1,HG992186.1,HG992187.1,HG992188.1,HG992189.1,HG992190.1,HG992191.1,HG992192.1,HG992193.1,HG992194.1,HG992195.1,HG992196.1,HG992197.1,HG992198.1,HG992199.1,HG992200.1,HG992201.1,HG992202.1,HG992203.1,HG992204.1,HG992205.1,HG992206.1 britomartis_all_mcaller.miss3.vcf.gz -o britomartis_all_mcaller.miss3.autosomes.vcf.gz
+
+
+wc -l britomartis_all_mcaller.miss3.autosomes.vcf.gz
+585531 britomartis_all_mcaller.miss3.autosomes.vcf.gz
+wc -l britomartis_all_mcaller.miss3.ZW.vcf.gz
+21299 britomartis_all_mcaller.miss3.ZW.vcf.gz
+wc -l britomartis_all_mcaller.miss3.mtDNA.vcf.gz
+3617 britomartis_all_mcaller.miss3.mtDNA.vcf.gz
+
+
+#### mtDNA
+module load bioinfo-tools  plink
+
+plink --vcf ../britomartis_all_mcaller.miss3.mtDNA.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss3.mtDNA
+
+8419518 variants and 73 people pass filters and QC.

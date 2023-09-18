@@ -1,0 +1,34 @@
+PLINK v1.90b4.9 64-bit (13 Oct 2017)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --indep-pairwise 50 40 0.2
+  --out britomartis.contemp_mcalling.reduced
+  --set-missing-var-ids @:#
+  --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+Hostname: rackham2.uppmax.uu.se
+Working directory: /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/00_mpileupCalling
+Start time: Fri Aug 11 16:23:26 2023
+
+Random number seed: 1691763806
+257386 MB RAM detected; reserving 128693 MB for main workspace.
+--vcf: britomartis.contemp_mcalling.reduced-temporary.bed +
+britomartis.contemp_mcalling.reduced-temporary.bim +
+britomartis.contemp_mcalling.reduced-temporary.fam written.
+521907 variants loaded from .bim file.
+521907 missing IDs set.
+10 people (0 males, 0 females, 10 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to britomartis.contemp_mcalling.reduced.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 10 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.983781.
+521907 variants and 10 people pass filters and QC.
+Note: No phenotypes present.
+Pruned 472266 variants from chromosome 27, leaving 49641.
+Pruning complete.  472266 of 521907 variants removed.
+Marker lists written to britomartis.contemp_mcalling.reduced.prune.in and
+britomartis.contemp_mcalling.reduced.prune.out .
+
+End time: Fri Aug 11 16:23:28 2023

@@ -1,0 +1,33 @@
+PLINK v1.90b4.9 64-bit (13 Oct 2017)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --out britomartis_all_mcaller.miss20.noprune
+  --pca
+  --set-missing-var-ids @:#
+  --vcf ../britomartis_all_mcaller.miss20.vcf.gz
+
+Hostname: rackham3.uppmax.uu.se
+Working directory: /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/PCA
+Start time: Tue Sep  5 14:41:21 2023
+
+Random number seed: 1693917681
+257386 MB RAM detected; reserving 128693 MB for main workspace.
+--vcf: britomartis_all_mcaller.miss20.noprune-temporary.bed +
+britomartis_all_mcaller.miss20.noprune-temporary.bim +
+britomartis_all_mcaller.miss20.noprune-temporary.fam written.
+8419518 variants loaded from .bim file.
+8419518 missing IDs set.
+73 people (0 males, 0 females, 73 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to britomartis_all_mcaller.miss20.noprune.nosex .
+Using up to 39 threads (change this with --threads).
+Before main variant filters, 73 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.904502.
+8419518 variants and 73 people pass filters and QC.
+Note: No phenotypes present.
+Relationship matrix calculation complete.
+--pca: Results saved to britomartis_all_mcaller.miss20.noprune.eigenval and
+britomartis_all_mcaller.miss20.noprune.eigenvec .
+
+End time: Tue Sep  5 14:44:45 2023

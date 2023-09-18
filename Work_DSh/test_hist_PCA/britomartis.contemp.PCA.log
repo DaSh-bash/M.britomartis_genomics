@@ -1,0 +1,36 @@
+PLINK v1.90b4.9 64-bit (13 Oct 2017)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --make-bed
+  --out britomartis.contemp.PCA
+  --pca
+  --set-missing-var-ids @:#
+  --vcf merge.contemporary.freebayes.bg.qfilter.vcf.gz
+
+Hostname: r104.uppmax.uu.se
+Working directory: /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/results/variant_calling/freebayes
+Start time: Fri Jun 30 11:02:02 2023
+
+Random number seed: 1688115722
+128373 MB RAM detected; reserving 64186 MB for main workspace.
+--vcf: britomartis.contemp.PCA-temporary.bed +
+britomartis.contemp.PCA-temporary.bim + britomartis.contemp.PCA-temporary.fam
+written.
+81478 variants loaded from .bim file.
+81478 missing IDs set.
+39 people (0 males, 0 females, 39 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to britomartis.contemp.PCA.nosex .
+Using up to 19 threads (change this with --threads).
+Before main variant filters, 39 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.967693.
+81478 variants and 39 people pass filters and QC.
+Note: No phenotypes present.
+Relationship matrix calculation complete.
+--pca: Results saved to britomartis.contemp.PCA.eigenval and
+britomartis.contemp.PCA.eigenvec .
+--make-bed to britomartis.contemp.PCA.bed + britomartis.contemp.PCA.bim +
+britomartis.contemp.PCA.fam ... done.
+
+End time: Fri Jun 30 11:02:04 2023

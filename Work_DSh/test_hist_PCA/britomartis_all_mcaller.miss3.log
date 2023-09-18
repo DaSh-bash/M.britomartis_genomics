@@ -1,0 +1,67 @@
+PLINK v1.90b4.9 64-bit (13 Oct 2017)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --indep-pairwise 50 40 0.2
+  --out britomartis_all_mcaller.miss3
+  --set-missing-var-ids @:#
+  --vcf ../britomartis_all_mcaller.miss3.vcf.gz
+
+Hostname: rackham2.uppmax.uu.se
+Working directory: /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/PCA
+Start time: Fri Sep  1 10:42:22 2023
+
+Random number seed: 1693557742
+257386 MB RAM detected; reserving 128693 MB for main workspace.
+Allocated 72389 MB successfully, after larger attempt(s) failed.
+--vcf: britomartis_all_mcaller.miss3-temporary.bed +
+britomartis_all_mcaller.miss3-temporary.bim +
+britomartis_all_mcaller.miss3-temporary.fam written.
+220333 variants loaded from .bim file.
+220333 missing IDs set.
+73 people (0 males, 0 females, 73 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to britomartis_all_mcaller.miss3.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 73 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.990206.
+220333 variants and 73 people pass filters and QC.
+Note: No phenotypes present.
+Pruned 3985 variants from chromosome 27, leaving 3788.
+Pruned 4134 variants from chromosome 28, leaving 4101.
+Pruned 4485 variants from chromosome 29, leaving 4129.
+Pruned 3599 variants from chromosome 30, leaving 3505.
+Pruned 3698 variants from chromosome 31, leaving 3646.
+Pruned 4552 variants from chromosome 32, leaving 4427.
+Pruned 4470 variants from chromosome 33, leaving 4194.
+Pruned 3238 variants from chromosome 34, leaving 3244.
+Pruned 3993 variants from chromosome 35, leaving 3770.
+Pruned 3097 variants from chromosome 36, leaving 3122.
+Pruned 3391 variants from chromosome 37, leaving 3320.
+Pruned 3395 variants from chromosome 38, leaving 3281.
+Pruned 6578 variants from chromosome 39, leaving 6190.
+Pruned 3951 variants from chromosome 40, leaving 3624.
+Pruned 2748 variants from chromosome 41, leaving 2890.
+Pruned 3036 variants from chromosome 42, leaving 2979.
+Pruned 3717 variants from chromosome 43, leaving 3835.
+Pruned 3548 variants from chromosome 44, leaving 3345.
+Pruned 4303 variants from chromosome 45, leaving 3996.
+Pruned 3852 variants from chromosome 46, leaving 3563.
+Pruned 2974 variants from chromosome 47, leaving 2804.
+Pruned 2703 variants from chromosome 48, leaving 2689.
+Pruned 2149 variants from chromosome 49, leaving 2142.
+Pruned 6216 variants from chromosome 50, leaving 5714.
+Pruned 2205 variants from chromosome 51, leaving 2381.
+Pruned 4043 variants from chromosome 52, leaving 4023.
+Pruned 2645 variants from chromosome 53, leaving 2561.
+Pruned 2402 variants from chromosome 54, leaving 2280.
+Pruned 2275 variants from chromosome 55, leaving 2444.
+Pruned 1984 variants from chromosome 56, leaving 2076.
+Pruned 407 variants from chromosome 57, leaving 337.
+Pruned 3053 variants from chromosome 58, leaving 3445.
+Pruned 1308 variants from chromosome 59, leaving 354.
+Pruning complete.  112134 of 220333 variants removed.
+Marker lists written to britomartis_all_mcaller.miss3.prune.in and
+britomartis_all_mcaller.miss3.prune.out .
+
+End time: Fri Sep  1 10:42:27 2023
