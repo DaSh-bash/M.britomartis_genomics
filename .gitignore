@@ -1,2 +1,8 @@
 
 *.bam
+Work_DSh/test_hist_PCA/britomartis.contemp_mcalling.full.prune.in
+Work_DSh/test_hist_PCA/britomartis.contemp_mcalling.full.prune.out
+Work_DSh/test_hist_PCA/britomartis.contemp_mcalling.full.pruned.bed
+Work_DSh/test_hist_PCA/britomartis.contemp_mcalling.full.pruned.bim
+Work_DSh/test_hist_PCA/britomartis.contemp_mcalling.full.pruned.fam
+Work_DSh/test_hist_PCA/britomartis_all_mcaller.miss3.pruned.fam
