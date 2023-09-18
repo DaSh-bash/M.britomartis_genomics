@@ -960,7 +960,9 @@ interactive -A naiss2023-5-52  -n 4 -t 10:00:0
 
 vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --remove-indels --max-missing-count 3 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > merge.contemporary.freebayes.bg.qfilter.vcf.gz
 
-bcftools stats merge.contemporary.freebayes.bg.qfilter.vcf.gz | head -n 30 | tail -n 9                                                                                        # SN    [2]id   [3]key  [4]value
+bcftools stats merge.contemporary.freebayes.bg.qfilter.vcf.gz | head -n 30 | tail -n 9
+
+SN    [2]id   [3]key  [4]value
 SN      0       number of samples:      39
 SN      0       number of records:      81478
 SN      0       number of no-ALTs:      0
@@ -1309,3 +1311,357 @@ plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --all
 plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp.reduced.prune.in --make-bed --pca --out britomartis.contemp_mcalling.reduced.pruned
 
 plink --vcf reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp_mcalling.reduced.noprune
+
+#### Aug 25 ####
+### Trying new subsample
+
+interactive -A naiss2023-5-52 -n 4 -t 10:00:0
+
+##contig=<ID=HG992196.1,length=18366132>
+
+#subsampChr20.bed
+HG992196.1  1 18366132
+
+module load bioinfo-tools bcftools samtools vcftools
+
+nohup bcftools filter -T subsampChr20.bed -o reduced_samle_contemp_mcalling.Chr20.vcf.gz reduced_samle_contemp_mcalling.vcf.gz &
+
+
+###Chrom 10
+##contig=<ID=HG992186.1,length=21375889>
+
+#subsampChr10.bed
+HG992186.1  1 21375889
+
+nohup bcftools filter -T subsampChr10.bed -t 3 -o reduced_samle_contemp_mcalling.Chr10.vcf.gz reduced_samle_contemp_mcalling.vcf.gz &
+
+# Filtering vcf
+
+vcftools --gzvcf reduced_samle_contemp_mcalling.Chr1.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+
+### Aug 28
+
+#Trying to see all the SNPs
+
+
+###Current corrupted??? file ends with:
+HG992194.1	4981543	.	G	.	128.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981544	.	C	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981545	.	G	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981546	.	A	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981547	.	A	.	123.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981548	.	C	.	98.0878	.	DP=6;MQ0F=0;AN=4;DP4=1,1,0,0;MQ=37	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981549	.	T	.	123.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981550	.	T	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981551	.	A	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/0
+HG992194.1	4981552	.	T	.	131.088	.	DP=6;MQ0F=0;AN=4;DP4=1,2,0,0;MQ=38	GT	./.	0/0	./.	./.	./.	./.	./.	./.	./.	0/00_Mapping_Calling_sarek
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 1
+#SBATCH -t 08:00:00
+#SBATCH -J Filteringcontemp_mcalling.out
+#SBATCH --output=cont_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+vcftools --gzvcf reduced_samle_contemp_mcalling.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.qfilter.vcf.gz
+
+module load plink
+plink --vcf reduced_samle_contemp_mcalling.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis.contemp_mcalling.full
+
+Pruning complete.  17656071 of 19539605 variants removed.
+
+plink --vcf reduced_samle_contemp_mcalling.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.contemp_mcalling.full.prune.in --make-bed --pca --out britomartis.contemp_mcalling.full.pruned
+
+1883534 variants and 10 people pass filters and QC.
+
+plink --vcf reduced_samle_contemp_mcalling.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis.contemp_mcalling.full.noprune
+
+19539605 variants and 10 people pass filters and QC.
+
+
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p node
+#SBATCH -n 1
+#SBATCH -t 08:00:00
+#SBATCH -J Filteringcontemp_mcalling.out
+#SBATCH --output=cont_freebayes.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+vcftools --gzvcf reduced_samle_contemp_mcalling.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --min-meanDP 8 --max-meanDP 50 --recode --stdout  | gzip -c > reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
+
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 4-00:00:00
+#SBATCH -J all_sample_mcalling
+#SBATCH --output=all_sample_mcalling.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+bcftools mpileup -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b full_sample.list | bcftools call -m -M -O b --threads 8 -o britomartis_all_mcaller.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss3.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 20 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss20.vcf.gz
+
+
+
+### full_sample.list
+### Getting sample list from SAREK
+
+
+
+awk -F "",' {print $3} full_sample_raw.list
+
+(base) [daria@rackham2 07_mpileupM_joined]$ nano all_sample_mcalling.sh
+(base) [daria@rackham2 07_mpileupM_joined]$ sbatch all_sample_mcalling.sh
+Submitted batch job 40558801
+
+
+du -h reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
+#Nothing here!!! Filter not applicable!!!!
+
+bcftools stats reduced_samle_contemp_mcalling.qfilterDP.vcf.gz | head -n 30 | tail -n 9
+
+
+ bcftools filter -e 'FORMAT/PL[0] < 50'  reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+
+
+scancel 40558801
+
+
+bcftools mpileup -a AD,DP,SP -Ou -f $REF -b reduced_samle.list | bcftools call -f GQ,GP -mO z -o ./cichlid.vcf.gz
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 4-00:00:00
+#SBATCH -J all_sample_mcalling
+#SBATCH --output=all_sample_mcalling.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+bcftools mpileup -a AD,DP,SP -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b full_sample.list | bcftools call -f GQ,GP -m -M -O b --threads 8 -o britomartis_all_mcaller.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 3 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss3.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-count 20 --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss20.vcf.gz
+
+sbatch all_sample_mcalling.sh
+Submitted batch job 40561218
+
+### August 31
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/00_mpileupCalling
+
+zcat britomartis_all_mcaller.vcf.gz | tail -10
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 03:00:00
+#SBATCH -J end_check
+#SBATCH --output=end_check.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+zcat britomartis_all_mcaller.vcf.gz | tail -10 > current.tail
+
+HG992197.1      2323651 .       A       G       193.215 .       DP=329;VDB=0.517259;SGB=29.0063;RPBZ=-1.34465;MQBZ=-0.868137;MQSBZ=0.320284;BQBZ=-1.3369;SCBZ=-1.19565;MQ0F=0;AC=2;AN=96;DP4=78,93,3,7;MQ=56    GT:PL:DP:SP:AD:GP:GQ    0/0:0,3,46:1:0:1,0:0.979118,0.0208818,1.11337e-08:16    0/0:0,3,60:1:0:1,0:0.979118,0.0208818,4.4324e-10:16     0/0:0,15,205:5:0:5,0:0.998656,0.00134384,1.42962e-24:28 0/0:0,18,255:6:0:6,0:0.999326,0.000673968,1.43058e-29:31        ./.:0,0,0:0:0:0,0:0,0,0:0       0/0:0,18,211:6:0:6,0:0.999326,0.000673968,3.59345e-25:31        0/0:0,39,255:13:0:13,0:0.999995,5.3571e-06,1.43154e-29:52       0/0:0,9,127:3:0:3,0:0.994671,0.00532858,8.98429e-17:22  0/0:0,9,167:3:0:3,0:0.994671,0.00532858,8.98429e-21:22  0/0:0,27,255:9:0:9,0:0.999915,8.48976e-05,1.43142e-29:40        0/0:0,3,46:1:0:1,0:0.979118,0.0208818,1.11337e-08:16    0/0:0,27,255:9:0:9,0:0.999915,8.48976e-05,1.43142e-29:40        ./.:0,0,0:0:0:0,0:0,0,0:0       0/
+1-21:42:29
+
+Benchmarking:
+25+25+24+23+23+22+21+21+21+21+20+20+20+20+20+20+20
+ 404 million snps in 2 days
+
+
+bcftools stats britomartis_all_mcaller.vcf.gz | head -n 30 | tail -n 9
+
+#September 1st
+
+#Example:
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 00:00:00
+#SBATCH -J QCall
+#SBATCH --output=QCall.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+for i in $(seq 24 55); do
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel.vcf.gz --mac 1 --recode --stdout | gzip -c > LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --freq2 --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant --max-alleles 2
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-mean-depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-quality --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-indv --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-site --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --het --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+done
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 06:00:00
+#SBATCH -J SNP_QC
+#SBATCH --output=SNP_QC.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel.vcf.gz --mac 1 --recode --stdout | gzip -c > LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --freq2 --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant --max-alleles 2
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-mean-depth --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --site-quality --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-indv --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --missing-site --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+  vcftools --gzvcf /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/LR9999${i}allsites_hardTEfiltered_noindel_variant.vcf.gz --het --out /proj/uppstore2017185/b2014034/nobackup/Dasha/ShortLong_Vanessa/6_SCANS/1_VCFtoolsQC/LR9999${i}_variant
+done
+
+
+#### Testing stringent
+module load plink
+plink --vcf ../britomartis_all_mcaller.miss3.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis_all_mcaller.miss3
+
+Pruning complete.  112134 of 220333 variants removed.
+
+plink --vcf ../britomartis_all_mcaller.miss3.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis_all_mcaller.miss3.prune.in  --make-bed --pca --out britomartis_all_mcaller.miss3.pruned
+
+108199 variants and 73 people pass filters and QC.
+
+plink --vcf ../britomartis_all_mcaller.miss3.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss3.noprune
+
+220333 variants and 73 people pass filters and QC.
+
+bcftools stats britomartis_all_mcaller.miss3.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	73
+SN	0	number of records:	220333
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	220333
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+##Continue filtering
+wc -l britomartis_all_mcaller.miss20.vcf.gz
+20026630 britomartis_all_mcaller.miss20.vcf.gz
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined
+
+#### Testing relaxed
+module load bioinfo-tools  plink
+plink --vcf ../britomartis_all_mcaller.miss20.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 40 0.2 --out britomartis_all_mcaller.miss20
+
+Pruning complete.  4967863 of 8419518 variants removed.
+
+
+plink --vcf ../britomartis_all_mcaller.miss20.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis_all_mcaller.miss20.prune.in  --make-bed --pca --out britomartis_all_mcaller.miss20.pruned
+
+3451655 variants and 73 people pass filters and QC.
+
+plink --vcf ../britomartis_all_mcaller.miss20.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss20.noprune
+
+8419518 variants and 73 people pass filters and QC.
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 06:00:00
+#SBATCH -J SNP_QC
+#SBATCH --output=SNP_QC.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --freq2 --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --depth --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --site-mean-depth --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --site-quality  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --missing-indv  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --missing-site  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.vcf.gz --het --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller
+
+
+### Split dataset!
+--remove-indv S15_19M002_S15_19M002
+
+module load bcftools
+
+bcftools filter -T ^VcardDToL_kNdSannot_CDS.bed -o LR9999${i}allsites_hardTEfiltered_noindel_variant_Qfilter_nosinglt_CDS.vcf.gz LR9999${i}allsites_hardTEfiltered_noindel_variant_Qfilter_nosinglt.vcf.gz
+
+HG992207.1	W	5.27	37.4
+HG992176.1	Z	26.23	34
+HG992208.1	MT	0.02	19.7
+
+##contig=<ID=HG992207.1,length=5265952>
+##contig=<ID=HG992176.1,length=26233870>
+##contig=<ID=HG992208.2,length=15154>
+
+### mtDNA.bed
+HG992208.1  1 15154
+
+bcftools filter -T mtDNA.bed -o britomartis_all_mcaller.miss3.mtDNA.vcf.gz britomartis_all_mcaller.miss3.vcf.gz
+
+### sex_chroms.bed
+HG992207.1  1 5265952
+HG992176.1  1 26233870
+
+-r, --regions
+bcftools view -r HG992208.2 britomartis_all_mcaller.miss3.vcf.gz
+
+bcftools view -r HG992207.1,HG992176.1 britomartis_all_mcaller.miss3.vcf.gz -o britomartis_all_mcaller.miss3.ZW.vcf.gz
+
+bcftools view -r HG992177.1,HG992178.1,HG992179.1,HG992180.1,HG992181.1,HG992182.1,HG992183.1,HG992184.1,HG992185.1,HG992186.1,HG992187.1,HG992188.1,HG992189.1,HG992190.1,HG992191.1,HG992192.1,HG992193.1,HG992194.1,HG992195.1,HG992196.1,HG992197.1,HG992198.1,HG992199.1,HG992200.1,HG992201.1,HG992202.1,HG992203.1,HG992204.1,HG992205.1,HG992206.1 britomartis_all_mcaller.miss3.vcf.gz -o britomartis_all_mcaller.miss3.autosomes.vcf.gz
+
+
+wc -l britomartis_all_mcaller.miss3.autosomes.vcf.gz
+585531 britomartis_all_mcaller.miss3.autosomes.vcf.gz
+wc -l britomartis_all_mcaller.miss3.ZW.vcf.gz
+21299 britomartis_all_mcaller.miss3.ZW.vcf.gz
+wc -l britomartis_all_mcaller.miss3.mtDNA.vcf.gz
+3617 britomartis_all_mcaller.miss3.mtDNA.vcf.gz
+
+
+#### mtDNA
+module load bioinfo-tools  plink
+
+plink --vcf ../britomartis_all_mcaller.miss3.mtDNA.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss3.mtDNA
+
+8419518 variants and 73 people pass filters and QC.
