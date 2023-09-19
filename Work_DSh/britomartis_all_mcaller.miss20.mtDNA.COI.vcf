@@ -1,0 +1,69 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##bcftoolsVersion=1.17+htslib-1.17
+##bcftoolsCommand=mpileup -a AD,DP,SP -Ou -Q 30 -q 30 -B -f /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna -b full_sample.list
+##reference=file:///crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+##contig=<ID=HG992177.1,length=25133022>
+##contig=<ID=HG992178.1,length=24877037>
+##contig=<ID=HG992179.1,length=23648884>
+##contig=<ID=HG992180.1,length=22925277>
+##contig=<ID=HG992181.1,length=22895925>
+##contig=<ID=HG992182.1,length=22794856>
+##contig=<ID=HG992183.1,length=21872383>
+##contig=<ID=HG992184.1,length=21419982>
+##contig=<ID=HG992185.1,length=21389510>
+##contig=<ID=HG992186.1,length=21375889>
+##contig=<ID=HG992187.1,length=21234190>
+##contig=<ID=HG992188.1,length=20508949>
+##contig=<ID=HG992189.1,length=20295254>
+##contig=<ID=HG992190.1,length=20209291>
+##contig=<ID=HG992191.1,length=19986373>
+##contig=<ID=HG992192.1,length=19818840>
+##contig=<ID=HG992193.1,length=19640724>
+##contig=<ID=HG992194.1,length=19553016>
+##contig=<ID=HG992195.1,length=18440301>
+##contig=<ID=HG992196.1,length=18366132>
+##contig=<ID=HG992197.1,length=17060131>
+##contig=<ID=HG992198.1,length=16621731>
+##contig=<ID=HG992199.1,length=15218959>
+##contig=<ID=HG992200.1,length=15145429>
+##contig=<ID=HG992201.1,length=14968207>
+##contig=<ID=HG992202.1,length=14402919>
+##contig=<ID=HG992203.1,length=13271753>
+##contig=<ID=HG992204.1,length=12763386>
+##contig=<ID=HG992205.1,length=11974655>
+##contig=<ID=HG992206.1,length=10898131>
+##contig=<ID=HG992207.1,length=5265952>
+##contig=<ID=HG992176.1,length=26233870>
+##contig=<ID=HG992208.2,length=15154>
+##ALT=<ID=*,Description="Represents allele(s) other than observed.">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##INFO=<ID=IDV,Number=1,Type=Integer,Description="Maximum number of raw reads supporting an indel">
+##INFO=<ID=IMF,Number=1,Type=Float,Description="Maximum fraction of raw reads supporting an indel">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw read depth">
+##INFO=<ID=VDB,Number=1,Type=Float,Description="Variant Distance Bias for filtering splice-site artefacts in RNA-seq data (bigger is better)",Version="3">
+##INFO=<ID=RPBZ,Number=1,Type=Float,Description="Mann-Whitney U-z test of Read Position Bias (closer to 0 is better)">
+##INFO=<ID=MQBZ,Number=1,Type=Float,Description="Mann-Whitney U-z test of Mapping Quality Bias (closer to 0 is better)">
+##INFO=<ID=BQBZ,Number=1,Type=Float,Description="Mann-Whitney U-z test of Base Quality Bias (closer to 0 is better)">
+##INFO=<ID=MQSBZ,Number=1,Type=Float,Description="Mann-Whitney U-z test of Mapping Quality vs Strand Bias (closer to 0 is better)">
+##INFO=<ID=SCBZ,Number=1,Type=Float,Description="Mann-Whitney U-z test of Soft-Clip Length Bias (closer to 0 is better)">
+##INFO=<ID=SGB,Number=1,Type=Float,Description="Segregation based metric, http://samtools.github.io/bcftools/rd-SegBias.pdf">
+##INFO=<ID=MQ0F,Number=1,Type=Float,Description="Fraction of MQ0 reads (smaller is better)">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="List of Phred-scaled genotype likelihoods">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Number of high-quality bases">
+##FORMAT=<ID=SP,Number=1,Type=Integer,Description="Phred-scaled strand bias P-value">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths (high-quality bases)">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Phred-scaled Genotype Quality">
+##FORMAT=<ID=GP,Number=G,Type=Float,Description="Genotype posterior probabilities in the range 0 to 1">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Number of high-quality ref-forward , ref-reverse, alt-forward and alt-reverse bases">
+##INFO=<ID=MQ,Number=1,Type=Integer,Description="Average mapping quality">
+##bcftools_callVersion=1.17+htslib-1.17
+##bcftools_callCommand=call -f GQ,GP -m -M -O b --threads 8 -o britomartis_all_mcaller.vcf.gz; Date=Tue Aug 29 12:31:11 2023
+##bcftools_filterVersion=1.17+htslib-1.17
+##bcftools_filterCommand=filter -T mtDNA.bed -o britomartis_all_mcaller.miss20.mtDNA.vcf.gz britomartis_all_mcaller.miss20.vcf.gz; Date=Thu Sep  7 16:08:16 2023
+##bcftools_viewVersion=1.17+htslib-1.17
+##bcftools_viewCommand=view -r HG992208.2:4154-4810 -o britomartis_all_mcaller.miss20.mtDNA.COI.vcf.gz britomartis_all_mcaller.miss20.mtDNA.vcf.gz; Date=Tue Sep 19 17:24:35 2023
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	BAJK_1_2016_BAJK_1_2016	KAZA_1_2006_KAZA_1_2006	SLOV_1_1990_SLOV_1_1990	URAL_2_1995_URAL_2_1995	RUSS_4_2008_RUSS_4_2008	JAPA_1_1994_JAPA_1_1994	CHEH_1_1989_CHEH_1_1989	KRAS_2_2002_KRAS_2_2002	RUSS_1_1998_RUSS_1_1998	URAL_1_1991_URAL_1_1991	STOC_6_1965_STOC_6_1965	VAST_1_1983_VAST_1_1983	SMAL_4_1996_SMAL_4_1996	RUSS_3_1999_RUSS_3_1999	CHEH_3_2008_CHEH_3_2008	BAJK_2_2016_BAJK_2_2016	SMAL_5_1998_SMAL_5_1998	VAST_3_2005_VAST_3_2005	ALTA_2_2015_ALTA_2_2015	JAPA_2_1994_JAPA_2_1994	KALM_9_1981_KALM_9_1981	RUSS_2_1999_RUSS_2_1999	KRAS_3_2002_KRAS_3_2002	POLA_1_2003_POLA_1_2003	KALM_1_2018_KALM_1_2018	KRAS_4_2002_KRAS_4_2002	SMAL_6_2013_SMAL_6_2013	VORO_1_1998_VORO_1_1998	KALM_10_1983_KALM_10_1983	BAJK_3_2016_BAJK_3_2016	BAJK_4_2016_BAJK_4_2016	ALTA_1_2015_ALTA_1_2015	CHEH_2_2004_CHEH_2_2004	RUSS_5_2008_RUSS_5_2008	VAST_2_1999_VAST_2_1999	POLA_2_2003_POLA_2_2003	KRAS_1_2002_KRAS_1_2002	BELA_1_2004_BELA_1_2004	KAZA_2_2006_KAZA_2_2006	GAST_6_1965_GAST_6_1965	STOC_4_1965_STOC_4_1965	GAST_14_1969_GAST_14_1969	UPPS_1_1951_UPPS_1_1951	KALM_3_1955_KALM_3_1955	GAST_4_1941_GAST_4_1941	KALM_5_1961_KALM_5_1961	GAST_2_1941_GAST_2_1941	UPPS_3_1969_UPPS_3_1969	KALM_7_1961_KALM_7_1961	GAST_10_1965_GAST_10_1965	SMAL_2_1967_SMAL_2_1967	STOC_2_1965_STOC_2_1965	GAST_7_1965_GAST_7_1965	GAST_11_1965_GAST_11_1965	GAST_12_1969_GAST_12_1969	STOC_3_1965_STOC_3_1965	DALA_1_1965_DALA_1_1965	SMAL_3_1967_SMAL_3_1967	STOC_5_1965_STOC_5_1965	KALM_6_1961_KALM_6_1961	GAST_13_1969_GAST_13_1969	GAST_1_1941_GAST_1_1941	KALM_8_1969_KALM_8_1969	GAST_8_1965_GAST_8_1965	KALM_2_1955_KALM_2_1955	GAST_9_1965_GAST_9_1965	SMAL_1_1967_SMAL_1_1967	STOC_1_1965_STOC_1_1965	KALM_4_1957_KALM_4_1957	GAST_3_1941_GAST_3_1941	ITAL_1_1946_ITAL_1_1946	GAST_5_1943_GAST_5_1943	UPPS_2_1958_UPPS_2_1958
