@@ -2660,7 +2660,7 @@ tabix "${output_dir}/${sample_name}.cram"
 ./KALM_5_1961.cram
 
 
-module load bioinfo-tools ANGSD PCAngsd
+module load bioinfo-tools ANGSD PCAngsd samtools
 
 angsd -GL 2 -out mtDNA_assmann -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam sample_mtDNA.list
 
@@ -2670,4 +2670,253 @@ pcangsd -b mtDNA_assmann.beagle.gz -o mtDNA_assmann -threads 64
 
 ### Trying to evenout coverage
 
-samtools depth sample.cram | awk '{sum+=$3} END {print "Mean Coverage:", sum/NR}'
+samtools depth ALTA_1_2015.cram	| awk '{sum+=$3} END {print "Mean Coverage:", sum/NR}'
+
+### Plan Oct.30
+#1. Try subsampling
+#2. Run whole genomes
+#3. Subtract repeats
+#4. Run relatedness
+#5. pi whole and within populations, 4-fold
+#6. Taj D?
+
+#1. Try subsampling
+#!/bin/bash
+
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
+
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*.cram; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%.cram}"
+
+    # Run samtools depth and calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Print the result
+    echo "File: $file_name_no_ext - Mean Coverage: $mean_coverage"
+done
+
+File: ALTA_1_2015 - Mean Coverage: 25930.4
+File: BAJK_1_2016 - Mean Coverage: 344.696
+File: BAJK_2_2016 - Mean Coverage: 2946.04
+File: BELA_1_2004 - Mean Coverage: 2473.57
+File: CHEH_1_1989 - Mean Coverage: 8737.7
+File: DALA_1_1965 - Mean Coverage: 351.153
+File: GAST_10_1965 - Mean Coverage: 203.476
+File: GAST_11_1965 - Mean Coverage: 411.907
+File: GAST_1_1941 - Mean Coverage: 602.453
+File: GAST_12_1969 - Mean Coverage: 735.909
+File: GAST_14_1969 - Mean Coverage: 298.635
+File: GAST_2_1941 - Mean Coverage: 125.333
+File: GAST_3_1941 - Mean Coverage: 422.677
+File: GAST_4_1941 - Mean Coverage: 203.288
+File: GAST_5_1943 - Mean Coverage: 547.975
+File: GAST_6_1965 - Mean Coverage: 160.235
+File: GAST_7_1965 - Mean Coverage: 298.282
+File: JAPA_1_1994 - Mean Coverage: 1572.59
+File: JAPA_2_1994 - Mean Coverage: 3239.56
+File: KALM_10_1983 - Mean Coverage: 6271.84
+File: KALM_1_2018 - Mean Coverage: 26890.8
+File: KALM_2_1955 - Mean Coverage: 258.309
+File: KALM_3_1955 - Mean Coverage: 394.039
+File: KALM_5_1961 - Mean Coverage: 121.643
+File: KALM_6_1961 - Mean Coverage: 284.727
+File: KALM_8_1969 - Mean Coverage: 259.423
+File: KALM_9_1981 - Mean Coverage: 6428.52
+File: KAZA_1_2006 - Mean Coverage: 4034.71
+File: KAZA_2_2006 - Mean Coverage: 2179.59
+File: KRAS_1_2002 - Mean Coverage: 1130.79
+File: KRAS_3_2002 - Mean Coverage: 1873.8
+File: POLA_2_2003 - Mean Coverage: 1173.58
+File: RUSS_1_1998 - Mean Coverage: 2037.39
+File: RUSS_3_1999 - Mean Coverage: 6646.78
+File: RUSS_4_2008 - Mean Coverage: 6443.06
+File: RUSS_5_2008 - Mean Coverage: 887.994
+File: SLOV_1_1990 - Mean Coverage: 1636.64
+File: SMAL_2_1967 - Mean Coverage: 171.244
+File: SMAL_3_1967 - Mean Coverage: 346.479
+File: SMAL_4_1996 - Mean Coverage: 4432.66
+File: SMAL_5_1998 - Mean Coverage: 5142.24
+File: STOC_2_1965 - Mean Coverage: 28.9061
+File: STOC_4_1965 - Mean Coverage: 7.51993
+File: STOC_5_1965 - Mean Coverage: 15.1845
+File: STOC_6_1965 - Mean Coverage: 740.16
+File: UPPS_1_1951 - Mean Coverage: 309.581
+File: UPPS_2_1958 - Mean Coverage: 185.247
+File: UPPS_3_1969 - Mean Coverage: 241.404
+File: URAL_2_1995 - Mean Coverage: 10654.1
+File: VAST_1_1983 - Mean Coverage: 5219.36
+
+module load GATK
+
+#!/bin/bash
+
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
+
+# Define the target coverage
+target_coverage=120
+
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*.cram; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%.cram}"
+
+    # Run samtools depth to calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Calculate P based on target coverage and mean coverage
+    P=$(awk "BEGIN {print $target_coverage / $mean_coverage}")
+
+    # Run gatk DownsampleSam with the calculated P value
+    gatk DownsampleSam I="$cram_file" O="${file_name_no_ext}_downsampled.bam" P="$P"
+done
+
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
+
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*_downsampled.bam; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%_downsampled.bam}"
+
+    # Run samtools depth and calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Print the result
+    echo "File: $file_name_no_ext - Mean Coverage: $mean_coverage"
+done
+
+samtools depth KALM_10_1983_downsampled.bam	| awk '{sum+=$3} END {print "Mean Coverage:", sum/NR}'
+
+samtools view -o ALTA_1_2015.bam ALTA_1_2015.cram
+
+gatk DownsampleSam -I /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams/GAST_2_1941.bam  -O GAST_2_1941_downsampled.bam -P 0.1
+
+
+samtools depth GAST_2_1941_downsampled.bam | awk '{sum+=$3} END {print "Mean Coverage:", sum/NR}'
+
+
+samtools view -b -o GAST_2_1941.bam GAST_2_1941.cram
+
+
+
+
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
+
+# Define the target coverage
+target_coverage=120
+
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*.cram; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%.cram}"
+    output_bam="${file_name_no_ext}.bam"
+
+    # Run samtools depth to calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Calculate P based on target coverage and mean coverage
+    P=$(awk "BEGIN {print $target_coverage / $mean_coverage}")
+
+    # Run gatk DownsampleSam with the calculated P value
+    samtools view -b -o "$output_bam" "$cram_file"
+    gatk DownsampleSam I="$output_bam" O="${file_name_no_ext}_downsampled.bam" P="$P"
+done
+
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
+
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*_downsampled.bam; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%_downsampled.bam}"
+
+    # Run samtools depth and calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Print the result
+    echo "File: $file_name_no_ext - Mean Coverage: $mean_coverage"
+done
+
+
+File: ALTA_1_2015 - Mean Coverage: 118.561
+File: BAJK_1_2016 - Mean Coverage: 120.225
+File: BAJK_2_2016 - Mean Coverage: 117.391
+File: BELA_1_2004 - Mean Coverage: 120.574
+File: CHEH_1_1989 - Mean Coverage: 117.255
+File: DALA_1_1965 - Mean Coverage: 119.262
+File: GAST_10_1965 - Mean Coverage: 119.513
+File: GAST_11_1965 - Mean Coverage: 122.198
+File: GAST_1_1941 - Mean Coverage: 120.158
+File: GAST_12_1969 - Mean Coverage: 118.82
+File: GAST_14_1969 - Mean Coverage: 118.789
+File: GAST_2_1941 - Mean Coverage: 120.093
+File: GAST_3_1941 - Mean Coverage: 119.445
+File: GAST_4_1941 - Mean Coverage: 120.871
+File: GAST_5_1943 - Mean Coverage: 119.709
+File: GAST_6_1965 - Mean Coverage: 119.796
+File: GAST_7_1965 - Mean Coverage: 120.239
+File: JAPA_1_1994 - Mean Coverage: 118.382
+File: JAPA_2_1994 - Mean Coverage: 118.499
+File: KALM_10_1983 - Mean Coverage: 119.082
+File: KALM_1_2018 - Mean Coverage: 118.512
+File: KALM_2_1955 - Mean Coverage: 120.191
+File: KALM_3_1955 - Mean Coverage: 120.599
+File: KALM_5_1961 - Mean Coverage: 120.045
+File: KALM_6_1961 - Mean Coverage: 119.297
+File: KALM_8_1969 - Mean Coverage: 118.83
+File: KALM_9_1981 - Mean Coverage: 121.514
+File: KAZA_1_2006 - Mean Coverage: 120.168
+File: KAZA_2_2006 - Mean Coverage: 120.49
+File: KRAS_1_2002 - Mean Coverage: 120.863
+File: KRAS_3_2002 - Mean Coverage: 117.622
+File: POLA_2_2003 - Mean Coverage: 122.002
+File: RUSS_1_1998 - Mean Coverage: 122.27
+File: RUSS_3_1999 - Mean Coverage: 118.258
+File: RUSS_4_2008 - Mean Coverage: 120.459
+File: RUSS_5_2008 - Mean Coverage: 120.551
+File: SLOV_1_1990 - Mean Coverage: 118.125
+File: SMAL_2_1967 - Mean Coverage: 119.942
+File: SMAL_3_1967 - Mean Coverage: 119.777
+File: SMAL_4_1996 - Mean Coverage: 121.546
+File: SMAL_5_1998 - Mean Coverage: 120.729
+File: STOC_6_1965 - Mean Coverage: 118.046
+File: UPPS_1_1951 - Mean Coverage: 118.786
+File: UPPS_2_1958 - Mean Coverage: 119.458
+File: UPPS_3_1969 - Mean Coverage: 119.829
+File: URAL_2_1995 - Mean Coverage: 121.602
+File: VAST_1_1983 - Mean Coverage: 121.229
+
+
+SMAL_5_1998_downsampled.bam
+
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
+
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*_downsampled.bam; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%_downsampled.bam}"
+
+    # Run samtools depth and calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Print the result
+    echo "$cram_file"
+done
+
+
+
+angsd -GL 2 -out mtDNA_assmann_downsamp -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam sample_mtDNA_downsamp.list
+
+pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp -threads 64
