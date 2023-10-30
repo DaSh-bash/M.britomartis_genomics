@@ -1,0 +1,43 @@
+PLINK v1.90b4.9 64-bit (13 Oct 2017)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --make-bed
+  --out britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes
+  --pca
+  --set-missing-var-ids @:#
+  --vcf ../britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.vcf.gz
+
+Hostname: rackham1.uppmax.uu.se
+Working directory: /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/PCA
+Start time: Tue Oct 17 09:29:38 2023
+
+Random number seed: 1697527778
+257386 MB RAM detected; reserving 128693 MB for main workspace.
+--vcf:
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes-temporary.bed
++
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes-temporary.bim
++
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes-temporary.fam
+written.
+19453 variants loaded from .bim file.
+19453 missing IDs set.
+50 people (0 males, 0 females, 50 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.nosex .
+Using up to 39 threads (change this with --threads).
+Before main variant filters, 50 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+19453 variants and 50 people pass filters and QC.
+Note: No phenotypes present.
+Relationship matrix calculation complete.
+--pca: Results saved to
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.eigenval and
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.eigenvec .
+--make-bed to
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.bed +
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.bim +
+britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.fam ... done.
+
+End time: Tue Oct 17 09:29:39 2023

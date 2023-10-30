@@ -1582,11 +1582,11 @@ vcftools --gzvcf britomartis_all_mcaller.vcf.gz --remove-indels --max-missing-co
 
 
 
-awk -F "",' {print $3} full_sample_raw.list
+awk -F ',' {print $3} full_sample_raw.list
 
 (base) [daria@rackham2 07_mpileupM_joined]$ nano all_sample_mcalling.sh
 (base) [daria@rackham2 07_mpileupM_joined]$ sbatch all_sample_mcalling.sh
-Submitted batch job 40558801
+Subted batch job 40558801
 
 
 du -h reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
@@ -1595,7 +1595,7 @@ du -h reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
 bcftools stats reduced_samle_contemp_mcalling.qfilterDP.vcf.gz | head -n 30 | tail -n 9
 
 
- bcftools filter -e 'FORMAT/PL[0] < 50'  reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+ bcftools filter -e FORMAT/PL[0] < 50'  reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
 
 
 scancel 40558801
@@ -1821,3 +1821,853 @@ module load bioinfo-tools  plink
 plink --vcf ../britomartis_all_mcaller.miss3.mtDNA.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --pca --out britomartis_all_mcaller.miss3.mtDNA
 
 8419518 variants and 73 people pass filters and QC.
+
+
+#mtDNA tree
+
+mv britomartis_all_mcaller.miss20.mtDNA.COI.vcf.gz britomartis_all_mcaller.COI.vcf.gz
+
+### CReating alternative rferences
+
+#Dictionary for fasta
+gatk CreateSequenceDictionary -R GCA_905220545.2_ilMelAtha1.2_genomic.fna
+
+#Making rfs
+gatk FastaAlternateReferenceMaker \
+  -R /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna \
+  -O britomartisCO1.fasta \
+  -V /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.COI.vcf.gz
+
+bcftools index ../britomartis_all_mcaller.COI.vcf.gz
+tabix -p vcf ../britomartis_all_mcaller.COI.vcf.gz
+
+
+### This gave me full gnome and for all the samples together
+
+###
+cp /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna
+cp /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.dict .
+
+##Let's extract piece of fasta:
+
+
+nano CO1.bed
+# HG992208.2  4154  4810
+module load  BEDTools/2.29.2
+bedtools getfasta -fi GCA_905220545.2_ilMelAtha1.2_genomic.fna -bed CO1.bed
+
+
+>HG992208.2:4154-4810
+AATAAATGTTGATATAAAATAGGATCACCTCCCCCGGCTGGGTCAAAGAATGAGGTATTAATATTTCGATCGGTAAGAAGTATAGTAATTGCTCCAGCTAATACTGGCAAAGATAATAATAATAAGAGAGCTGTAATACCCACAGCTCAAACAAATAAAGGTATTTGATCAAATGATATATTATTAACACGTATATTAATAATTGTAGTAATAAAATTAATAGCTCCTAAGATTGATGAAATTCCAGCTAAATGTAATGAAAAAATTGCTAAATCAACAGATGATCCTCTATGAGCAATATTAGATGAAAGTGGGGGGTAAACTGTTCATCCTGTTCCTGCTCCATTTTCTACAATTCTTCTGGAAATTAATAAAATTAGTGAGGGGGGGAGTAATCAAAATCTTATATTATTTATTCGAGGGAATGCTATATCAGGAGCTCCTAATATTAAAGGAACTAATCAATTTCCAAATCCTCCAATTATAATAGGTATAACCATAAAAAAAATTATAATAAAAGCATGAGCTGTTACAATAGTATTATAAATTTGATCATCTCCAATTAAAGATCCAGGATTTCCTAATTCAGTTCGAATTAAAAGTCTAAGTGAAGTTCCTAATATACCTGCTCAAATTCCAAAAATAAAATATAAAGT
+
+gatk CreateSequenceDictionary -R GCA_905220545.2_ilMelAtha1.2_CO1.fna
+module load samtools
+samtools faidx GCA_905220545.2_ilMelAtha1.2_CO1.fna
+
+gatk FastaAlternateReferenceMaker \
+  -R GCA_905220545.2_ilMelAtha1.2_CO1.fna \
+  -O britomartisCO1_small.fasta \
+  -V /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.COI.vcf.gz
+
+
+NOPE: bcftools view -r HG992208.2:4154-4810 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.COI.vcf.gz
+
+
+bcftools view -s sample_name input.vcf -o output_sample_name.vcf
+
+for sample in $(bcftools query -l britomartis_all_mcaller.COI.vcf.gz); do
+    bcftools view -s $sample britomartis_all_mcaller.COI.vcf.gz -o ${sample}.vcf
+done
+
+
+for sample in $(bcftools query -l britomartis_all_mcaller.COI.vcf.gz); do
+      bgzip ${sample}.vcf;
+      tabix -p vcf ${sample}.vcf.gz
+done
+
+
+for sample in $(bcftools query -l britomartis_all_mcaller.COI.vcf.gz); do
+  gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O britomartisCO1${sample}.fasta -V ${sample}.vcf.gz
+done
+
+
+
+
+
+#!/bin/bash
+
+#SBATCH --job-name=split_vcf
+#SBATCH --output=split_vcf_%A_%a.out
+#SBATCH --error=split_vcf_%A_%a.err
+#SBATCH --array=1-N  # Replace N with the number of samples
+
+# Load necessary modules or activate environments, if needed
+# module load bcftools (if using modules)
+
+SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" samples.list)
+
+bcftools view -s $SAMPLE input.vcf -o ${SAMPLE}.vcf
+
+# If you want to compress and index the resulting VCFs
+# bgzip ${SAMPLE}.vcf
+# tabix -p vcf ${SAMPLE}.vcf.gz
+
+
+
+gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O britomartisCO1_ALTA_1_2015_ALTA_1_2015.fasta -V ALTA_1_2015_ALTA_1_2015.vcf.gz
+
+sed 's/^>46 \(HG992208.2\):[0-9]*-[0-9]*/>\1/' britomartisCO1_ALTA_1_2015_ALTA_1_2015.fasta > britomartisCO1_ALTA_1_2015_ALTA_1_2015_headfix.fasta
+
+bedtools getfasta -fi britomartisCO1_ALTA_1_2015_ALTA_1_2015_headfix.fasta -bed CO1.bed -fo britomartisCO1_ALTA_1_2015_ALTA_1_2015_headfix.f.fasta
+
+
+#Try:
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined
+
+module load bioinfo-tools bcftools GATK
+
+gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O britomartisCO1_CHEH_1_1989_CHEH_1_1989.fasta -V CHEH_1_1989_CHEH_1_1989.vcf.gz
+
+sed 's/^>46 \(HG992208.2\):[0-9]*-[0-9]*/>\1/' britomartisCO1_CHEH_1_1989_CHEH_1_1989.fasta > britomartisCO1_CHEH_1_1989_CHEH_1_1989_headfix.fasta
+
+bedtools getfasta -fi britomartisCO1_CHEH_1_1989_CHEH_1_1989_headfix.fasta -bed CO1.bed -fo britomartisCO1_CHEH_1_1989_CHEH_1_1989_headfix.f.fasta
+
+
+#Making array jobs
+
+bcftools query -l britomartis_all_mcaller.COI.vcf.gz -o samples.txt
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -J extractCO1
+#SBATCH --output=extractCO1.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-$(cat samples.txt | wc -l)
+
+# Load modules or source software here, if needed
+module load bioinfo-tools bcftools GATK BEDTools
+
+# Extract sample name based on the current array index
+SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" samples.txt)
+
+# Run the GATK command
+gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O britomartisCO1_${SAMPLE}.fasta -V ${SAMPLE}.vcf.gz
+
+# Use sed to adjust the header
+sed 's/^>46 \(HG992208.2\):[0-9]*-[0-9]*/>\1/' britomartisCO1_${SAMPLE}.fasta > britomartisCO1_${SAMPLE}_headfix.fasta
+
+# Run bedtools to extract the sequence
+bedtools getfasta -fi britomartisCO1_${SAMPLE}_headfix.fasta -bed CO1.bed -fo britomartisCO1_${SAMPLE}_headfix_final.fasta
+
+
+
+#!/bin/bash
+
+# Define the output file
+output_file="combined.fasta"
+
+# Ensure the output file is empty to start
+> "$output_file"
+
+# Loop over all fasta files with the naming pattern
+for fasta in britomartisCO1_*_headfix_final.fasta; do
+    # Extract ID from the filename
+    ID="${fasta#britomartisCO1_}"
+    ID="${ID%_headfix_final.fasta}"
+
+    # Take only the first half of the redundant ID
+    ID=$(echo "$ID" | awk -F'_' '{print $1"_"$2"_"$3}')
+
+    # Use sed to modify the header and append to the output file
+    sed "s/^>HG992208.2:[0-9]*-[0-9]*$/>$ID/" "$fasta" >> "$output_file"
+done
+
+
+for sample in $(bcftools query -l britomartis_all_mcaller.COI.vcf.gz); do
+  gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O britomartisCO1${sample}.fasta -V ${sample}.vcf.gz
+done
+
+
+bcftools view -i 'TYPE="snp" || TYPE="indel"' ALTA_1_2015_ALTA_1_2015.vcf.gz -Oz -o outputALTA_1_2015_ALTA_1_2015.vcf.gz
+bcftools view -e 'GT="0/0"' outputALTA_1_2015_ALTA_1_2015.vcf.gz -Oz -o outputALTA_1_2015_ALTA_1_2015_alt.vcf.gz
+
+tabix -p vcf outputALTA_1_2015_ALTA_1_2015_alt.vcf.gz
+
+# Run the GATK command
+gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O outputALTA_1_2015_ALTA_1_2015_alt.fasta -V outputALTA_1_2015_ALTA_1_2015_alt.vcf.gz
+
+# Use sed to adjust the header
+sed 's/^>46 \(HG992208.2\):[0-9]*-[0-9]*/>\1/' outputALTA_1_2015_ALTA_1_2015_alt.fasta > outputALTA_1_2015_ALTA_1_2015_alt_headfix.fasta
+
+# Run bedtools to extract the sequence
+bedtools getfasta -fi outputALTA_1_2015_ALTA_1_2015_alt_headfix.fasta -bed CO1.bed -fo outputALTA_1_2015_ALTA_1_2015_alt_headfix_final.fasta
+
+
+
+
+
+bcftools view -i 'TYPE="snp" || TYPE="indel"' BAJK_2_2016_BAJK_2_2016.vcf.gz -Oz -o outputBAJK_2_2016_BAJK_2_2016.vcf.gz
+bcftools view -e 'GT="0/0"' outputBAJK_2_2016_BAJK_2_2016.vcf.gz -Oz -o outputBAJK_2_2016_BAJK_2_2016_alt.vcf.gz
+
+tabix -p vcf outputBAJK_2_2016_BAJK_2_2016_alt.vcf.gz
+
+# Run the GATK command
+gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O outputBAJK_2_2016_BAJK_2_2016_alt.fasta -V outputBAJK_2_2016_BAJK_2_2016_alt.vcf.gz
+
+# Use sed to adjust the header
+sed 's/^>46 \(HG992208.2\):[0-9]*-[0-9]*/>\1/' outputBAJK_2_2016_BAJK_2_2016_alt.fasta > outputBAJK_2_2016_BAJK_2_2016_alt_headfix.fasta
+
+# Run bedtools to extract the sequence
+bedtools getfasta -fi outputBAJK_2_2016_BAJK_2_2016_alt_headfix.fasta -bed CO1.bed -fo outputBAJK_2_2016_BAJK_2_2016_alt_headfix_final.fasta
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -J extractCO1
+#SBATCH --output=extractCO1.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-73
+
+# Load modules or source software here, if needed
+module load bioinfo-tools bcftools GATK BEDTools
+
+# Extract sample name based on the current array index
+SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" samples.txt)
+
+# Filter vcf file for invariant sites, enforce removing 0/0 records
+bcftools view -i 'TYPE="snp" || TYPE="indel"' ${SAMPLE}.vcf.gz -Oz -o ${SAMPLE}.snponly.vcf.gz
+bcftools view -e 'GT="0/0"' ${SAMPLE}.snponly.vcf.gz -Oz -o ${SAMPLE}.no0.vcf.gz
+
+#Index resulting vcf files
+tabix -p vcf ${SAMPLE}.no0.vcf.gz
+
+# Run the GATK command
+gatk FastaAlternateReferenceMaker -R GCA_905220545.2_ilMelAtha1.2_genomic.fna -O britomartisCO1_${SAMPLE}_f.fasta -V ${SAMPLE}.no0.vcf.gz
+
+# Use sed to adjust the header
+sed 's/^>46 \(HG992208.2\):[0-9]*-[0-9]*/>\1/' britomartisCO1_${SAMPLE}_f.fasta > britomartisCO1_${SAMPLE}_f_headfix.fasta
+
+# Run bedtools to extract the sequence
+bedtools getfasta -fi britomartisCO1_${SAMPLE}_f_headfix.fasta -bed CO1.bed -fo britomartisCO1_${SAMPLE}_f_headfix_final.fasta
+
+#!/bin/bash
+
+# Define the output file
+output_file="combined.fasta"
+
+# Ensure the output file is empty to start
+> "$output_file"
+
+# Loop over all fasta files with the naming pattern
+for fasta in britomartisCO1_*_f_headfix_final.fasta; do
+    # Extract ID from the filename
+    ID="${fasta#britomartisCO1_}"
+    ID="${ID%_f_headfix_final.fasta}"
+
+    # Take only the first half of the redundant ID
+    ID=$(echo "$ID" | awk -F'_' '{print $1"_"$2"_"$3}')
+
+    # Use sed to modify the header and append to the output file
+    sed "s/^>HG992208.2:[0-9]*-[0-9]*$/>$ID/" "$fasta" >> "$output_file"
+done
+
+#Check quality of those:
+
+#Vastmanland_2_1999 no
+#Stockholm_4_1965 really low QC
+#Gastrikland_13_1969
+#(and perhaps Gastrikland_1_1941
+
+#Check SNP quality overall
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 06:00:00
+#SBATCH -J SNP_QC.miss20
+#SBATCH --output=SNP_QC.miss20.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --freq2 --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --depth --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --site-mean-depth --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --site-quality  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --missing-indv  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --missing-site  --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+vcftools --gzvcf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.miss20.vcf.gz --het --out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/britomartis_all_mcaller.miss20
+
+
+for sample in $(bcftools query -l britomartis_all_mcaller.COI.vcf.gz); do
+  grep './.' ${sample}.no0.vcf.gz
+done
+
+for sample in $(bcftools query -l britomartis_all_mcaller.COI.vcf.gz); do zgrep -H '\./\.' ${sample}.no0.vcf.gz ; done
+
+#Quality control performed in python3
+
+#Samples to filter
+
+KALM_4_1957 - diamina
+ALTA_2_2015 - diamina
+BAJK_4_2016 - diamina
+ITAL_1_1946 - diamina
+VORO_1_1998 - athalia
+VAST_3_2005 - athalia
+URAL_1_1991 - athalia
+RUSS_2_1999 - athalia
+SMAL_6_2013 - athalia
+KRAS_4_2002 - athalia
+KRAS_2_2002 - athalia
+CHEH_3_2008 - athalia
+CHEH_2_2004 - athalia
+POLA_1_2003 - athalia
+
+#Quality red flags, deph lower then 2.5
+ind depth
+KALM_7_1961 2.25957
+STOC_3_1965 0.960228
+GAST_13_1969 1.40341
+GAST_8_1965 1.10823
+GAST_9_1965 1.31725
+SMAL_1_1967 1.97408
+STOC_1_1965 0.520048
+
+##############################################
+##############################################
+###### NEW ERA ##############################
+
+#Workplan
+# 1. Remove extra
+### a. Analyse with plink
+### b. Analyse with ANGSD
+### c. Plot PCA
+### d. PLot bsaic stats incl. missingness/heterozygosity etc
+
+# 2. Subsampe big Files
+### a. Analyse from BAM with ANGSD
+### b. Plot
+
+# 3. Assemble mtDNA
+
+
+#1. Remove low quality and invariant
+#Provide files containing a list of individuals to either include or exclude in subsequent analysis. Each individual ID (as defined in the VCF headerline) should be included on a separate line. If both options are used, then the "--keep" option is executed before the "--remove" option. When multiple files are provided, the union of individuals from all keep files subtracted by the union of individuals from all remove files are kept. No header line is expected.
+
+nano keep.reduced.txt
+#
+URAL_2_1995_URAL_2_1995
+RUSS_4_2008_RUSS_4_2008
+JAPA_1_1994_JAPA_1_1994
+CHEH_1_1989_CHEH_1_1989
+KRAS_1_2002_KRAS_1_2002
+RUSS_1_1998_RUSS_1_1998
+URAL_1_1991_URAL_1_1991
+STOC_6_1965_STOC_6_1965
+VAST_1_1983_VAST_1_1983
+SMAL_4_1996_SMAL_4_1996
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --keep keep.reduced.txt --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
+
+module load bioinfo-tools vcftools bcftools
+bcftools query -l britomartis_all_mcaller.COI.vcf.gz
+
+nano keep.HQ.indviduals.list
+
+ALTA_1_2015_ALTA_1_2015
+BAJK_1_2016_BAJK_1_2016
+BAJK_2_2016_BAJK_2_2016
+BAJK_3_2016_BAJK_3_2016
+BELA_1_2004_BELA_1_2004
+CHEH_1_1989_CHEH_1_1989
+DALA_1_1965_DALA_1_1965
+GAST_10_1965_GAST_10_1965
+GAST_11_1965_GAST_11_1965
+GAST_1_1941_GAST_1_1941
+GAST_12_1969_GAST_12_1969
+GAST_14_1969_GAST_14_1969
+GAST_2_1941_GAST_2_1941
+GAST_3_1941_GAST_3_1941
+GAST_4_1941_GAST_4_1941
+GAST_5_1943_GAST_5_1943
+GAST_6_1965_GAST_6_1965
+GAST_7_1965_GAST_7_1965
+JAPA_1_1994_JAPA_1_1994
+JAPA_2_1994_JAPA_2_1994
+KALM_10_1983_KALM_10_1983
+KALM_1_2018_KALM_1_2018
+KALM_2_1955_KALM_2_1955
+KALM_3_1955_KALM_3_1955
+KALM_5_1961_KALM_5_1961
+KALM_6_1961_KALM_6_1961
+KALM_8_1969_KALM_8_1969
+KALM_9_1981_KALM_9_1981
+KAZA_1_2006_KAZA_1_2006
+KAZA_2_2006_KAZA_2_2006
+KRAS_1_2002_KRAS_1_2002
+KRAS_3_2002_KRAS_3_2002
+POLA_2_2003_POLA_2_2003
+RUSS_1_1998_RUSS_1_1998
+RUSS_3_1999_RUSS_3_1999
+RUSS_4_2008_RUSS_4_2008
+RUSS_5_2008_RUSS_5_2008
+SLOV_1_1990_SLOV_1_1990
+SMAL_2_1967_SMAL_2_1967
+SMAL_3_1967_SMAL_3_1967
+SMAL_4_1996_SMAL_4_1996
+SMAL_5_1998_SMAL_5_1998
+STOC_2_1965_STOC_2_1965
+STOC_4_1965_STOC_4_1965
+STOC_5_1965_STOC_5_1965
+STOC_6_1965_STOC_6_1965
+UPPS_1_1951_UPPS_1_1951
+UPPS_2_1958_UPPS_2_1958
+UPPS_3_1969_UPPS_3_1969
+URAL_2_1995_URAL_2_1995
+VAST_1_1983_VAST_1_1983
+VAST_2_1999_VAST_2_1999
+
+(base) [daria@rackham1 07_mpileupM_joined]$ wc -l keep.HQ.indviduals.list
+52 keep.HQ.indviduals.list
+
+vcftools --gzvcf merge.contemporary.freebayes.bg.vcf.gz --keep keep.HQ.indviduals.list --recode --stdout | gzip -c > merge.contemporary.reduced.freebayes.bg.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --keep keep.HQ.indviduals.list --max-missing-count 0 --remove-indels --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.miss3.vcf.gz
+
+bcftools view -i 'FORMAT/GQ > 30' input.vcf -Ov -o filtered.vcf
+
+
+#!/bin/sh
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 1-00:00:00
+#SBATCH -J all_sample_filter
+#SBATCH --output=all_sample_filter.out
+#SBATCH --mail-user=daria.shipilina@ebc.uu.se
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools bcftools samtools vcftools
+
+vcftools --gzvcf britomartis_all_mcaller.vcf.gz --keep keep.HQ.indviduals.list --max-missing-count 0 --remove-indels --min-alleles 2 --max-alleles 2 --minQ 30 --recode --stdout  | gzip -c > britomartis_all_mcaller.HQ.miss0.vcf.gz
+
+tabix britomartis_all_mcaller.HQ.miss0.vcf.gz
+
+bcftools view -i 'FORMAT/GQ >= 30' britomartis_all_mcaller.HQ.miss0.vcf.gz -Oz -o britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz
+
+FORMAT/DP[0-20] > 30
+
+
+# 3. Assemble mtDNAm
+
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 4
+#SBATCH -t 04:00:00
+#SBATCH -J mtgenome_assembly
+#SBATCH --mail-user=daria.shipilina@gmail.com
+
+module load bioinfo-tools GetOrganelle/1.7.7.0
+module load GetOrganelleDB
+
+get_organelle_from_reads.py -1 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/00_Benchmarking4x/SMAL_2_1967-L001_1.fastp.fastq.gz -2 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/00_Benchmarking4x/SMAL_2_1967-L001_2.fastp.fastq.gz -t 4 -o SMAL_2_1967.mt -F animal_mt -R 10
+
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/00_Benchmarking4x
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 4
+#SBATCH -t 04:00:00
+#SBATCH -J mtgenome_assembly
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --array=1-3  # Replace N with the number of lines in samples.txt
+
+module load bioinfo-tools GetOrganelle/1.7.7.0
+module load GetOrganelleDB
+
+# Extract the paths from the samples.txt file using the array task ID as the line number
+READ1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" fasta_pathes_britomartis.txt | cut -f1)
+READ2=$(sed -n "${SLURM_ARRAY_TASK_ID}p" fasta_pathes_britomartis.txt | cut -f2)
+
+# Set the output directory based on the sample name
+OUTPUT_DIR=$(basename $(dirname $READ1))
+
+get_organelle_from_reads.py -1 $READ1 -2 $READ2 -t 4 -o ${OUTPUT_DIR}.mt -F animal_mt -R 10
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 4
+#SBATCH -t 04:00:00
+#SBATCH -J mtgenome_assembly
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --array=1-N  # Replace N with the number of lines in samples.csv (excluding the header)
+
+module load bioinfo-tools GetOrganelle/1.7.7.0
+module load GetOrganelleDB
+
+# Skip the header (using tail) and then extract the paths using awk and the SLURM_ARRAY_TASK_ID as the record number
+READ1=$(tail -n +2 sample_sheetHQ.csv | awk -F, -v line=${SLURM_ARRAY_TASK_ID} 'NR==line{print $4}')
+READ2=$(tail -n +2 sample_sheetHQ.csv | awk -F, -v line=${SLURM_ARRAY_TASK_ID} 'NR==line{print $5}')
+
+# Set the output directory based on the sample name
+OUTPUT_DIR=$(tail -n +2 sample_sheetHQ.csv | awk -F, -v line=${SLURM_ARRAY_TASK_ID} 'NR==line{print $2}')
+
+get_organelle_from_reads.py -1 $READ1 -2 $READ2 -t 4 -o ${OUTPUT_DIR}.mt -F animal_mt -R 10
+
+#NOT ENOUGH MEMORY
+
+
+# 2. Subsampe big Files
+### a. Analyse from BAM with ANGSD
+### b. Plot
+
+#DownsampleSam function from GATK
+
+Downsample file, keeping about 10% of the reads
+
+ java -jar picard.jar DownsampleSam \
+       I=input.bam \
+       O=downsampled.bam \
+       P=0.1
+
+gatk DownsampleSam I=MUZAV26_94.md.cram  O=downsampled.bam P=0.1
+
+samtools view -b MUZAV26_94.md.cram | gatk DownsampleSam -I /dev/stdin -O downsampled.bam -P 0.1
+
+###################
+##  Direction 1  ##
+###################
+
+bcftools stats britomartis_all_mcaller.HQ.miss0.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	52
+SN	0	number of records:	584552
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	584552
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+bcftools stats britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	52
+SN	0	number of records:	584552
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	584552
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+#### Filter fixed alternative
+
+bcftools view -i 'GT!="1/1"' britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz
+
+bcftools view -i 'FORMAT/DP[0-20] > 30' britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz
+
+FORMAT/DP[0-20] > 30
+
+vcftools --gzvcf britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz --minGQ 30
+
+
+--recode --stdout | bgzip -c > LR9999${i}allsites_hardTEfiltered_noindel_invariant_Qfilter.vcf.gz
+
+'MEAN(FMT/DP)>10'
+
+
+bcftools view -i 'N_PASS(FORMAT/GQ >= 30) > 51' britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz -Oz -o britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.vcf.gz
+
+bcftools stats britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.vcf.gz | head -n 30 | tail -n 9
+
+tabix britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.vcf.gz
+
+bcftools view -r HG992177.1,HG992178.1,HG992179.1,HG992180.1,HG992181.1,HG992182.1,HG992183.1,HG992184.1,HG992185.1,HG992186.1,HG992187.1,HG992188.1,HG992189.1,HG992190.1,HG992191.1,HG992192.1,HG992193.1,HG992194.1,HG992195.1,HG992196.1,HG992197.1,HG992198.1,HG992199.1,HG992200.1,HG992201.1,HG992202.1,HG992203.1,HG992204.1,HG992205.1,HG992206.1 britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.vcf.gz -Oz -o britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.autosomes.vcf.gz
+
+bcftools stats britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.autosomes.vcf.gz  | head -n 30 | tail -n 9
+
+bcftools view -r HG992208.2 britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.vcf.gz -Oz -o britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.mtDNA.vcf.gz
+
+bcftools stats britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.mtDNA.vcf.gz  | head -n 30 | tail -n 9
+
+###### PCA ######
+
+plink --vcf ../britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.autosomes.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out britomartis.all
+Pruning complete.  1486 of 2203 variants removed.
+
+
+plink --vcf ../britomartis.merged.freebayes.qfilter.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out britomartis.all
+
+plink --vcf ../britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.autosomes.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.autosomes
+19453 variants and 52 people pass filters and QC.
+
+plink --vcf ../britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.mtDNA.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.mtDNA
+
+module load plink
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 06:00:00
+#SBATCH -J SNP_QC.miss20
+#SBATCH --output=SNP_QC.miss20.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+module load bioinfo-tools vcftools
+
+# Define the input VCF file and output directory
+input_vcf="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.vcf.gz"
+output_dir="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/07_mpileupM_joined/QC/"
+
+# Create a loop to iterate over each VCF operation with a sample name
+vcf_operations=("freq2" "depth" "site-mean-depth" "site-quality" "missing-indv" "missing-site" "het")
+
+for operation in "${vcf_operations[@]}"; do
+    output_file="${output_dir}britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.${operation}"
+    vcftools --gzvcf "$input_vcf" --"$operation" --out "$output_file"
+done
+
+
+
+########## Removing
+
+vcftools --gzvcf britomartis_all_mcaller.HQ.miss0.GQfilteredNPASS.autosomes.vcf.gz --keep keep.HQextra.indviduals.list --recode --stdout  | gzip -c > britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.vcf.gz
+
+plink --vcf ../britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --pca --out britomartis_all_mcaller.HQ.miss0.GQextra.filteredNPASS.autosomes
+
+
+
+####### Trying ANGSD
+
+$ANGSD/angsd -P 4 -b ALL.bamlist -ref $REF -out Results/ALL -r 11 \
+        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -baq 1 \
+        -minMapQ 20 -minQ 20 -minInd 15 -setMinDepth 60 -setMaxDepth 400 -doCounts 1 \
+        -GL 1 -doMajorMinor 1 -doMaf 1 -skipTriallelic 1 \
+        -SNP_pval 1e-3 \
+        -doGeno 8 -doPost 1 &> /dev/null
+
+
+ANGSD/0.940-stable
+
+PCAngsd
+
+
+module load bioinfo-tools ANGSD PCAngsd
+
+./angsd -GL 2 -doGlf 2 -b bam.filelist -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1
+
+angsd -GL 2 -out genolike -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam bam.filelist
+
+bcftools view -i 'N_PASS(FORMAT/GQ >= 30) > 51' britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz
+
+vcftools --gzvcf britomartis_all_mcaller.HQ.miss0.GQfiltered.vcf.gz --keep keep.HQextra.indviduals.list --maf 0.05 --recode --stdout  | gzip -c > britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.vcf.gz
+
+bcftools stats britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.vcf.gz | head -n 30 | tail -n 9
+
+plink --vcf ../britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.1 --out britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF
+
+plink --vcf ../britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.vcf.gz --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.prune.in --make-bed --pca --out britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF
+
+britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.eigenval
+britomartis_all_mcaller.HQ.miss0.GQfiltered.MAF.eigenvec
+
+http://www.popgen.dk/software/index.php/PCAngsd
+
+Test set of
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/04_CallingContemporary/00_mpileupCalling
+
+
+##### TESTING ANGST #####
+
+module load bioinfo-tools ANGSD PCAngsd
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD
+
+
+angsd -GL 2 -out genolike -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam reduced_sample_ANGSTtest1.list
+
+pcangsd -beagle genolike.beagle.gz -out output -threads 64
+
+### Try angsd for mtDNA
+
+### extract mtDNA
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -J mtDNAbam
+#SBATCH --output=mtDNAbam.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-3
+
+# Load the samtools module (modify this if needed)
+module load bioinfo-tools samtools
+
+# Set the output directory
+output_dir=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams
+
+# Read the input file paths from reducedset.info line by line
+input_file=$(sed -n "${SLURM_ARRAY_TASK_ID}p" /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/reduced_sample_ANGSTtest1.list)
+
+# Extract the sample name from the input file path
+sample_name=$(basename "${input_file}" .md.cram)
+
+# Run samtools view and save the output to a BAM file
+samtools view "${input_file}" HG992208.2 -o "${output_dir}/${sample_name}.cram"
+tabix "${output_dir}/${sample_name}.cram"
+
+
+input_file=$(sed -n 1p /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/reduced_sample_ANGSTtest1.list)
+
+samtools view "${input_file}" HG992208.2
+
+
+### Create bam list
+
+#!/bin/bash
+
+# File containing all file paths
+all_files_file="full_sample.list"
+
+# File containing samples to keep
+samples_to_keep_file="keep.HQextra.indviduals.list"
+
+# Output file to store the filtered file paths
+output_file="filtered_paths_bam.txt"
+
+while IFS= read -r sample_name; do
+    # Iterate through each line in the list of all files
+    while IFS= read -r file_path; do
+        # Extract the sample name from the file path
+        file_sample_name=$(basename "$file_path" .md.cram)
+
+        # Check if the sample name matches the current sample to keep
+        if [ "$sample_name" == "$file_sample_name" ] || [ "$sample_name" == "${file_sample_name}_${file_sample_name}" ]; then
+            # Sample is in the list, so add the file path to the output
+            echo "$file_path" >> "$output_file"
+        fi
+    done < "$all_files_file"
+done < "$samples_to_keep_file"
+
+echo "Filtered files are saved in $output_file"
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -J mtDNAbam
+#SBATCH --output=mtDNAbam.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-3
+
+# Load the samtools module (modify this if needed)
+module load bioinfo-tools samtools
+
+# Set the output directory
+output_dir=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams
+
+# Read the input file paths from reducedset.info line by line
+input_file=$(sed -n "${SLURM_ARRAY_TASK_ID}p" /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/filtered_paths_bam.txt)
+
+# Extract the sample name from the input file path
+sample_name=$(basename "${input_file}" .md.cram)
+
+# Run samtools view and save the output to a BAM file
+samtools view "${input_file}" HG992208.2 -o "${output_dir}/${sample_name}.cram"
+tabix "${output_dir}/${sample_name}.cram"
+
+
+./BAJK_2_2016.cram
+./URAL_2_1995.cram
+./RUSS_1_1998.cram
+./KAZA_1_2006.cram
+./SMAL_2_1967.cram
+./UPPS_3_1969.cram
+./CHEH_1_1989.cram
+./GAST_4_1941.cram
+./KALM_3_1955.cram
+./UPPS_1_1951.cram
+./KRAS_1_2002.cram
+./STOC_4_1965.cram
+./UPPS_2_1958.cram
+./DALA_1_1965.cram
+./GAST_10_1965.cram
+./VAST_1_1983.cram
+./GAST_1_1941.cram
+./KALM_10_1983.cram
+./GAST_5_1943.cram
+./SLOV_1_1990.cram
+./GAST_14_1969.cram
+./GAST_12_1969.cram
+./GAST_3_1941.cram
+./STOC_5_1965.cram
+./BAJK_1_2016.cram
+./KALM_1_2018.cram
+./GAST_6_1965.cram
+./RUSS_3_1999.cram
+./JAPA_1_1994.cram
+./KALM_2_1955.cram
+./SMAL_3_1967.cram
+./SMAL_5_1998.cram
+./STOC_2_1965.cram
+./KALM_8_1969.cram
+./KAZA_2_2006.cram
+./KALM_6_1961.cram
+./GAST_11_1965.cram
+./RUSS_5_2008.cram
+./JAPA_2_1994.cram
+./POLA_2_2003.cram
+./KRAS_3_2002.cram
+./SMAL_4_1996.cram
+./GAST_2_1941.cram
+./KALM_9_1981.cram
+./BELA_1_2004.cram
+./GAST_7_1965.cram
+./RUSS_4_2008.cram
+./ALTA_1_2015.cram
+./STOC_6_1965.cram
+./KALM_5_1961.cram
+
+
+module load bioinfo-tools ANGSD PCAngsd
+
+angsd -GL 2 -out mtDNA_assmann -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam sample_mtDNA.list
+
+pcangsd -b mtDNA_assmann.beagle.gz -o mtDNA_assmann -threads 64
+
+###Moving to python
+
+### Trying to evenout coverage
+
+samtools depth sample.cram | awk '{sum+=$3} END {print "Mean Coverage:", sum/NR}'
