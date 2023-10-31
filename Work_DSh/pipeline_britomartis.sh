@@ -2975,15 +2975,84 @@ tabix "${output_dir}/${sample_name}.cram"
 
 samtools view -h ../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_3_1969/UPPS_3_1969.md.cram HG992176.1 HG992177.1 HG992178.1 HG992179.1 HG992180.1 HG992181.1 HG992182.1 HG992183.1 HG992184.1 HG992185.1 HG992186.1 HG992187.1 HG992188.1 HG992189.1 HG992190.1 HG992191.1 HG992192.1 HG992193.1 HG992194.1 HG992195.1 HG992196.1 HG992197.1 HG992198.1 HG992199.1 HG992200.1 HG992201.1 HG992202.1 HG992203.1 HG992204.1 HG992205.1 HG992206.1 HG992207.1 -o autos.cram
 
+for cram_file in /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams/*.cram; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%.cram}"
+
+    # Print the result
+    echo "$file_name_no_ext"
+done
+
+angsd -GL 2 -out chroms_assmann -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam sample_chroms.list
 
 
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 10
+#SBATCH -t 09:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+angsd -GL 2 -out chroms_assmann -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam sample_chroms.list
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 10
+#SBATCH -t 09:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+angsd -b sample_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out chroms_assmann_saf \
+        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+        -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 5 -setMaxDepth 60 -doCounts 1 \
+        -GL 1 -doSaf 1
+
+
+pcangsd -b chroms_assmann.beagle.gz -o chroms_assmann -t 64
 
 ###############
 #3. RUN PCAngsd
 
 ###############
 module load bioinfo-tools ANGSD PCAngsd
+pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp --inbreedSamples
 
-python $PCANGSD -beagle $IN_DIR/Demo1input.gz -o $OUT_DIR/Demo1PCANGSD_4 -inbreed 2 -iter 0
+# Define the folder containing the .cram files
+folder_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/mtDNAbams"
 
-pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp -inbreed 2 -iter 0
+# Iterate through .cram files in the folder
+for cram_file in "$folder_path"/*_downsampled.bam; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%_downsampled.bam}"
+
+    # Print the result
+    echo "$file_name_no_ext"
+done
+
+
+gzip: chroms_assmann.beagle.gz: unexpected end of file
+Loaded 3280971 sites and 47 individuals.
+Estimating minor allele frequencies.
+EM (MAF) converged at iteration: 41
+Number of sites after MAF filtering (0.05): 1623233
+
+
+tree?
