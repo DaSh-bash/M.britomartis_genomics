@@ -2920,3 +2920,70 @@ done
 angsd -GL 2 -out mtDNA_assmann_downsamp -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1  -bam sample_mtDNA_downsamp.list
 
 pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp -threads 64
+
+
+#!/bin/bash
+
+# Define the file containing the list of BAM files
+file_list="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/filtered_paths_bam.txt"  # Replace with the actual path to your file
+
+# Iterate through BAM files listed in the file
+while IFS= read -r cram_file; do
+    # Extract the file name without the path and extension
+    file_name=$(basename -- "$cram_file")
+    file_name_no_ext="${file_name%.cram}"
+
+    # Run samtools depth and calculate mean coverage
+    mean_coverage=$(samtools depth "$cram_file" | awk '{sum+=$3} END {print sum/NR}')
+
+    # Print the result
+    echo "File: $file_name_no_ext - Mean Coverage: $mean_coverage"
+done < "$file_list"
+
+###############
+#2. Run whole genomes
+###############
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 03:00:00
+#SBATCH -J mtDNAbam
+#SBATCH --output=nomtDNAbam.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-50
+
+# Load the samtools module (modify this if needed)
+module load bioinfo-tools samtools
+
+# Set the output directory
+output_dir=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+
+# Read the input file paths from reducedset.info line by line
+input_file=$(sed -n "${SLURM_ARRAY_TASK_ID}p" /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/filtered_paths_bam.txt)
+
+# Extract the sample name from the input file path
+sample_name=$(basename "${input_file}" .md.cram)
+
+# Run samtools view and save the output to a BAM file
+samtools view -h "${input_file}" HG992176.1 HG992177.1 HG992178.1 HG992179.1 HG992180.1 HG992181.1 HG992182.1 HG992183.1 HG992184.1 HG992185.1 HG992186.1 HG992187.1 HG992188.1 HG992189.1 HG992190.1 HG992191.1 HG992192.1 HG992193.1 HG992194.1 HG992195.1 HG992196.1 HG992197.1 HG992198.1 HG992199.1 HG992200.1 HG992201.1 HG992202.1 HG992203.1 HG992204.1 HG992205.1 HG992206.1 HG992207.1 -o "${output_dir}/${sample_name}.cram"
+tabix "${output_dir}/${sample_name}.cram"
+
+
+
+samtools view -h ../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_3_1969/UPPS_3_1969.md.cram HG992176.1 HG992177.1 HG992178.1 HG992179.1 HG992180.1 HG992181.1 HG992182.1 HG992183.1 HG992184.1 HG992185.1 HG992186.1 HG992187.1 HG992188.1 HG992189.1 HG992190.1 HG992191.1 HG992192.1 HG992193.1 HG992194.1 HG992195.1 HG992196.1 HG992197.1 HG992198.1 HG992199.1 HG992200.1 HG992201.1 HG992202.1 HG992203.1 HG992204.1 HG992205.1 HG992206.1 HG992207.1 -o autos.cram
+
+
+
+
+###############
+#3. RUN PCAngsd
+
+###############
+module load bioinfo-tools ANGSD PCAngsd
+
+python $PCANGSD -beagle $IN_DIR/Demo1input.gz -o $OUT_DIR/Demo1PCANGSD_4 -inbreed 2 -iter 0
+
+pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp -inbreed 2 -iter 0
