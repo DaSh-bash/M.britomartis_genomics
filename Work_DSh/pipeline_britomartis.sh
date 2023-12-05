@@ -982,7 +982,7 @@ Command error:
   INFO:    Environment variable SINGULARITYENV_TMPDIR is set, but APPTAINERENV_TMPDIR is preferred
   INFO:    Environment variable SINGULARITYENV_NXF_DEBUG is set, but APPTAINERENV_NXF_DEBUG is preferred
   INFO:    Environment variable SINGULARITYENV_SNIC_TMP is set, but APPTAINERENV_SNIC_TMP is preferred
-  WARNING: Skipping mount /var/apptainer/mnt/session/etc/resolv.conf [files]: /etc/resolv.conf doesn't exist in container
+  WARNING: Skipping mount /var/apptainer/mnt/session/etc/resolv.conf [files]: /etc/resolv.conf doesnt exist in container
   Skipping '??LTA_1_2015-L001_P27562_1051_S51_L001_R1_001.fastq.gz' which didn't exist, or couldn't be read
   Skipping '??LTA_1_2015-L001_P27562_1051_S51_L001_R2_001.fastq.gz' which didn't exist, or couldn't be read
 
@@ -1595,7 +1595,7 @@ du -h reduced_samle_contemp_mcalling.qfilterDP.vcf.gz
 bcftools stats reduced_samle_contemp_mcalling.qfilterDP.vcf.gz | head -n 30 | tail -n 9
 
 
- bcftools filter -e FORMAT/PL[0] < 50'  reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
+ bcftools filter -e 'FORMAT/PL[0] < 50'  reduced_samle_contemp_mcalling.Chr1.qfilter.vcf.gz
 
 
 scancel 40558801
@@ -3056,3 +3056,1187 @@ Number of sites after MAF filtering (0.05): 1623233
 
 
 tree?
+
+
+
+### Figuring out pop stats ###
+https://github.com/nt246/lcwgs-guide-tutorial/blob/main/tutorial4_summary_stats/markdowns/summary_stats.md
+
+
+angsd -b $DIR/$POP'_bams.txt' -ref $REF -anc $ANC -out Results/$POP \
+                -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+                -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 5 -setMaxDepth 60 -doCounts 1 \
+                -GL 1 -doSaf 1
+
+realSFS print chroms_assmann_saf.saf.idx | less -S
+
+realSFS chroms_assmann_saf.saf.idx > chroms_assmann_saf.sfs
+
+
+realSFS saf2theta chroms_assmann_saf.saf.idx -sfs chroms_assmann_saf.sfs -outname chroms_assmann_saf
+
+awk -F' ' '{print NF; exit}' chroms_assmann_saf.sfs
+
+
+
+
+############# 10.11.2023 ###############
+############# Select all Swedish samples ###############
+# 0. Filter repeats
+# 1. New angsd
+# 2. PCA, theta, taj D, relatedness - Swedish
+
+### Pipeline development
+
+# Set pathes
+DATA=$BASEDIR/bam
+REF=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna
+ANC=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna
+
+module load bioinfo-tools ANGSD PCAngsd NgsRelate
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+
+#Call GL and MAF simultaneously
+#angsd -bam sample_chroms.list -out chroms_assmann -GL 2 -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1
+
+angsd -bam sample_mtDNA.list -out chroms_assmann -ref $REF -anc $ANC -GL 2 -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -minMapQ 20 -minQ 20 -minInd 40 -setMinDepth 7 -setMaxDepth 30 -doCounts 1 -doSaf 1 -rf non_TEintervals.txt
+
+angsd -bam sweden_chroms.list -out sweden_chroms -ref $REF -anc $ANC -GL 2 -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 7 -setMaxDepth 30 -doCounts 1 -doSaf 1 -rf non_TEintervals.txt -nThreads 16
+
+-nThreads
+
+-minInd 22 quals to 75% of individuals
+
+? -doGlf 2/5
+
+#cd $BASEDIR
+#$ANGSD -b $BASEDIR/sample_lists/PANY_bams.txt -ref $REF -out $BASEDIR/results/PANY \
+#        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+#        -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 7 -setMaxDepth 30 -doCounts 1 \
+#        -GL 2 -doGlf 2
+
+#Call SAF
+#angsd -b sample_chroms.list -ref $REF -anc $ANC -out chroms_assmann_saf \
+#        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+#        -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 5 -setMaxDepth 60 -doCounts 1 \
+#        -GL 1 -doSaf 1 -rf
+
+#### optional
+# Call gnotypes
+
+#cd $BASEDIR
+#$ANGSD -b $BASEDIR/sample_lists/PANY_bams.txt -ref $REF -out $BASEDIR/results/PANY \
+#        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+#        -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 7 -setMaxDepth 30 -doCounts 1 \
+#        -GL 2 -doGlf 4
+
+#-rf for excluding Repeats
+
+# Call SNPs (geno)
+
+#$ANGSD -glf $BASEDIR/results/PANY.glf.gz -fai $REF.fai -nInd 15 -out $BASEDIR/results/PANY \
+#    -doMajorMinor 1 -doGeno 3 -doPost 2 -doMaf 1
+
+    # iterate over some cutoffs (you can change these)
+#    for PV in 0.05 1e-2 1e-4 1e-6
+#    do
+#            if [ $PV == 0.05 ]; then echo SNP_pval NR_SNPs; fi
+#            $ANGSD -glf ? -nInd 15 -fai ? -out $BASEDIR/results/PANY.$PV \
+#                    -doMajorMinor 1 -doMaf 1 -skipTriallelic 1 \
+#                    -SNP_pval $PV &> /dev/null
+#            echo $PV `zcat $BASEDIR/results/PANY.$PV.mafs.gz | tail -n+2 | wc -l`
+#    done
+
+# # cd $BASEDIR
+# $ANGSD -b $BASEDIR'/sample_lists/ALL_bams.txt' -anc $REF -out $BASEDIR'/results/MME_SNPs' \
+# -minMapQ 20 -minQ 20 -doMaf 1 -minMaf 0.05 -SNP_pval 2e-6 \
+# -GL 1 -doGlf 2 -doMajorMinor 1 -doPost 1
+
+## Call SAF FOLDED!!!
+
+#angsd -b $DIR/$POP'_bams.txt' -ref $REF -anc $ANC -out Results/$POP \
+#                -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+#                -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 5 -setMaxDepth 60 -doCounts 1 \
+#                -GL 1 -doSaf 1
+
+# stats
+# PCA in PCangsd
+pcangsd -b chroms_assmann.beagle.gz -o chroms_assmann -t 64
+# Fis
+pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp --inbreedSamples
+# TRee
+pcangsd -b mtDNA_assmann_downsamp.beagle.gz -o mtDNA_assmann_downsamp --tree -tree_samples XXXXX
+# SFS can be filtered here!
+
+realSFS print chroms_assmann_saf.saf.idx | less -S
+
+realSFS chroms_assmann_saf.saf.idx -r HG992176.1:10-100000 -fold 1
+realSFS chroms_assmann_saf.saf.idx > chroms_assmann_saf.sfs #(UNFOLDED)
+realSFS chroms_assmann_saf.saf.idx -r HG992176.1:10-100000 -fold 1 > chroms_assmann_ch1.folded.sfs
+$REALSFS $BASEDIR/results/$POP.folded.saf.idx -fold 1 > $BASEDIR/results/$POP.folded.sfs #(FOLDED)
+realSFS saf2theta chroms_assmann_saf.saf.idx -r HG992176.1:10-100000 -sfs chroms_assmann_ch1.folded.sfs -outname chroms_assmann_theta
+#remove
+thetaStat do_stat chroms_assmann_theta.thetas.idx
+
+#(indexStart,indexStop)(firstPos_withData,lastPos_withData)(WinStart,WinStop)   Chr     WinCenter       tW      tP      tF      tH      tL      Tajima  fuf     fud     fayh    zeng    nSites
+(0,15876)(3029,99785)(0,99785)  HG992176.1      49892   121.389684      186.970604      159.190415      136.322426      161.646515      1.845950        0.442196        -0.939451       0.272558        0.200808        15876
+
+#remove
+#Intraspecific variation#
+
+# reletedness
+NGSrelate
+./ngsrelate -g angsdput.glf.gz -n 100 -f freq  -O newres
+
+### First we generate a file with allele frequencies (angsdput.mafs.gz) and a file with genotype likelihoods (angsdput.glf.gz).
+./angsd -b filelist -gl 2 -domajorminor 1 -snp_pval 1e-6 -domaf 1 -minmaf 0.05 -doGlf 3
+
+### Then we extract the frequency column from the allele frequency file and remove the header (to make it in the format NgsRelate needs)
+zcat angsdput.mafs.gz | cut -f5 |sed 1d >freq
+
+### run NgsRelate
+./ngsrelate  -g angsdput.glf.gz -n 100 -f freq  -O newres
+
+
+# Output files for python
+$BASEDIR/results/JIGA.sfs
+cov
+
+
+#### python code for TE identification
+
+import re
+
+def find_non_masked_regions(fasta_file):
+    with open(fasta_file, 'r') as file:
+        # Skip the header line
+        next(file)
+        sequence = file.read().replace('\n', '')
+
+    # Regular expression to find non-masked (capital letter) regions
+    non_masked_regions = [(match.start(), match.end()) for match in re.finditer(r'[A-Z]+', sequence)]
+
+    return non_masked_regions
+
+# Replace with your FASTA file path
+fasta_file ="/crex/proj/uppstore2017185/cb2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna"
+regions = find_non_masked_regions(fasta_file)
+
+# Print the non-masked regions
+for start, end in regions:
+    print(f'chr:start-end -> {start}-{end}')
+
+
+
+
+    import re
+
+    def find_non_masked_regions(fasta_file):
+        regions = []
+        with open(fasta_file, 'r') as file:
+            sequence = ''
+            chrm_id = ''
+            for line in file:
+                if line.startswith('>'):
+                    # Process the previous chromosome
+                    if sequence:
+                        non_masked_regions = [(match.start(), match.end()) for match in re.finditer(r'[A-Z]+', sequence)]
+                        for start, end in non_masked_regions:
+                            regions.append(f'{chrm_id}:{start}-{end}')
+                    # Update the chromosome ID
+                    chrm_id = line.split()[0][1:]  # Remove '>' and split by space, taking the first part
+                    sequence = ''
+                else:
+                    sequence += line.strip()
+
+            # Process the last chromosome
+            if sequence:
+                non_masked_regions = [(match.start(), match.end()) for match in re.finditer(r'[A-Z]+', sequence)]
+                for start, end in non_masked_regions:
+                    regions.append(f'{chrm_id}:{start}-{end}')
+
+        return regions
+
+    # Replace with your FASTA file path
+    fasta_file = 'path_to_your_fasta_file.fasta'
+    regions = find_non_masked_regions(fasta_file)
+
+    # Print the non-masked regions with chromosome IDs
+    for region in regions:
+        print(region)
+
+
+grep -v "CAJNA" non_TEintervals.txt > non_TEintervals_chroms.txt
+
+15467.020064 164.788129 10.326439 2.573697 1.640540 1.847954 2.799214 4.721829 7.846736 11.949729 16.107125 19.067260 20.024360 19.040159 16.798602 14.088673 11.469279 9.209387 7.372525 5.919084 4.775954 3.871481 3.148335 2.565112 2.093427 1.713789 1.412001 1.176698 0.998120 0.867786 0.778663 0.725503 0.705160 0.716861 0.762452 0.846628 0.977080 1.164348 1.421004 1.759633 2.189098 2.709005 3.303215 3.934630 4.544537 5.059395 5.405474 2.763829 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+
+
+angsd -GL 2 -out chroms_assmannGLF -nThreads 10 -doGlf 5 -doMajorMinor 1 -SNP_pval 1e-6 -bam sample_mtDNA.list
+
+
+#Script for angsd
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 16
+#SBATCH -t 22:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+REF=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna
+ANC=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna
+
+angsd -bam sweden_chroms.list -out sweden_chroms_wg -ref $REF -anc $ANC -GL 2 -nThreads 10 -doGlf 2 -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 7 -setMaxDepth 30 -doCounts 1 -doSaf 1 -rf non_TEintervals_chroms.txt -nThreads 16
+
+
+angsd -b sample_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out chroms_sweden_saf \
+        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+        -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 5 -setMaxDepth 60 -doCounts 1 \
+        -GL 1 -doSaf 1
+
+
+        angsd -b sweden_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out sweden_saf \
+                -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 \
+                -minMapQ 20 -minQ 20 -minInd 5 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 \
+                -GL 2 -doSaf 1
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 16
+#SBATCH -t 12:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+
+angsd -b sweden_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out sweden_2 -nThreads 8 -uniqueOnly 1 -remove_bads 1 -doGlf 2 -only_proper_pairs 1 -trim 0 -C 50 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 16
+#SBATCH -t 3-00:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams
+
+angsd -b sweden_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test1 -nThreads 8 -uniqueOnly 1 -remove_bads 1 -doGlf 2 -only_proper_pairs 1 -trim 0 -C 50 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -rf non_TEintervals_chroms.txt -doMajorMinor 1 -doMaf 1
+
+
+samtools sort SMAL_5_1998.cram -o SMAL_5_1998.sorted.cram
+samtools index SMAL_5_1998.sorted.cram
+
+samtools sort STOC_6_1965.cram -o STOC_6_1965.sorted.cram
+samtools index STOC_6_1965.sorted.cram
+
+
+angsd -b sweden_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out sweden_tst -nThreads 16 -uniqueOnly 1 -remove_bads 1 -doGlf 2 -only_proper_pairs 1 -trim 0 -C 50 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1
+
+angsd -b sweden_chroms.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out sweden_tst -nThreads 16 -doGlf 2 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1
+
+####re sorting
+
+samtools sort STOC_6_1965.cram -o STOC_6_1965.sorted.cram
+samtools index STOC_6_1965.sorted.cram
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 10:00:00
+#SBATCH -J mtDNAbam2
+#SBATCH --output=mtDNAbam2.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-3
+
+# Load the samtools module (modify this if needed)
+module load bioinfo-tools samtools
+
+# Set the output directory
+output_dir=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams2
+
+# Read the input file paths from reducedset.info line by line
+input_file=$(sed -n "${SLURM_ARRAY_TASK_ID}p" /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams2/sweden_chroms.list)
+
+# Extract the sample name from the input file path
+sample_name=$(basename "${input_file}" .md.cram)
+
+# Run samtools view and save the output to a BAM file
+samtools sort "${input_file}" -o "${output_dir}/${sample_name}.sorted.cram"
+tabix "${output_dir}/${sample_name}.sorted.cram"
+samtools index "${output_dir}/${sample_name}.sorted.cram"
+
+
+
+
+
+
+
+#!/bin/bash
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -J mtDNAbam
+#SBATCH --output=mtDNAbam.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-3
+
+# Load the samtools module (modify this if needed)
+module load bioinfo-tools samtools
+
+# Directory containing your CRAM files
+CRAM_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams2"
+
+# Directory to store sorted CRAM files
+SORTED_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/nomtDNAcrams2"
+
+# Check if the sorted directory exists, if not, create it
+mkdir -p "$SORTED_DIR"
+
+# Loop over each CRAM file in the directory
+for cram_file in "$CRAM_DIR"/*.cram; do
+    # Extract the base name of the file
+    base_name=$(basename "$cram_file" .cram)
+
+    # Define the output file path
+    sorted_file="$SORTED_DIR/${base_name}_sorted.cram"
+
+    # Sort the CRAM file and output the sorted version
+    samtools sort "$cram_file" -o "$sorted_file"
+
+    # Index the sorted CRAM file
+    samtools index "$sorted_file"
+done
+
+# echo "Sorting complete."
+
+
+DALA_1_1965.cram.sorted.cram
+GAST_10_1965.cram.sorted.cram
+GAST_11_1965.cram.sorted.cram
+
+nano small.list
+
+
+angsd -b small.list -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out sweden_tst -nThreads 8 -doGlf 2 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1
+
+
+
+samtools view -h ../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_3_1969/UPPS_3_1969.md.cram HG992176.1 HG992177.1 HG992178.1 HG992179.1 HG992180.1 HG992181.1 HG992182.1 HG992183.1 HG992184.1 HG992185.1 HG992186.1 HG992187.1 HG992188.1 HG992189.1 HG992190.1 HG992191.1 HG992192.1 HG992193.1 HG992194.1 HG992195.1 HG992196.1 HG992197.1 HG992198.1 HG992199.1 HG992200.1 HG992201.1 HG992202.1 HG992203.1 HG992204.1 HG992205.1 HG992206.1 HG992207.1 -o autos.cram
+
+
+angsd -b filtered_paths_bam.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test4 -nThreads 8 -doGlf 2 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50
+
+angsd -b filtered_paths_bam.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test6 -nThreads 8 -doGlf 2 -minMapQ 10 -minQ 10 -minInd 40 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 1 -C 50
+
+angsd -b filtered_paths_bam.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test8 -nThreads 8 -doGlf 2 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 10 -C 50 -minmaf 0.05
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test9 -nThreads 8 -doGlf 2 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doCounts 1 -GL 2 -doSaf 1 -doMajorMinor 1 -doMaf 1 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -minmaf 0.05
+
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test11 -nThreads 8 -doGlf 2 -minMapQ 20 -minQ 20 -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test12 -nThreads 8 -doGlf 2  -minInd 22 -setMinDepth 5 -setMaxDepth 30 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test12 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test13 -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test14 -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10
+
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test15 -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf Zonly.list
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out test15 -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf non_TEintervals_Zchrom.txt
+
+
+@SQ	SN:HG992177.1	LN:25133022	M5:7fa9b50c82266c962fcd75b3ab08b30c	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992178.1	LN:24877037	M5:27fc270259ff632e4114c8ee4d60f384	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992179.1	LN:23648884	M5:a7a4e8ed6853fe54a3ff85ca5f3cb7b8	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992180.1	LN:22925277	M5:7fc9614edb8918ddf026d8c2119d4883	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992181.1	LN:22895925	M5:e02dd9a1b420843eaddbc9b90858895f	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992182.1	LN:22794856	M5:cd5c4fd792d9457a0fe3cf3be6f11208	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992183.1	LN:21872383	M5:1cdd7e22917795ba24790d65d3d99c5f	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992184.1	LN:21419982	M5:be2188058d87d8265e2a3eb2e6d3d91b	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992185.1	LN:21389510	M5:4c7b8257935f70c1aeaa94adecf30d0b	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992186.1	LN:21375889	M5:0e8e7f54ce0625f02b1d85f1769bb86d	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992187.1	LN:21234190	M5:f1269e6e3b70a3bafe1a7debd483d8f5	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992188.1	LN:20508949	M5:8e58e479979be88eadab8a952ee96ebe	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992189.1	LN:20295254	M5:1ad15d58348d00e9c8806a3b1b58f7f8	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992190.1	LN:20209291	M5:f95845f9d27a5df6de0ca31100bc07d9	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992191.1	LN:19986373	M5:cecb217ccbb3d97b50680374e635665f	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992192.1	LN:19818840	M5:40197286d65834b4bbffc54664657741	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992193.1	LN:19640724	M5:87d42ddd8e2e20b55d02f34c5c81fee4	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992194.1	LN:19553016	M5:4e70f810261f69e1b51ff7d0cf063683	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992195.1	LN:18440301	M5:9fcb2abc5ed1c5fc4b0eb29c81a81648	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992196.1	LN:18366132	M5:25965eba3b45ccaba37ce480485380b9	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992197.1	LN:17060131	M5:51aaea1eba59d8d0e3e8dbc5218e21d8	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992198.1	LN:16621731	M5:621d368e2b1cf954d92e778a81789c85	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992199.1	LN:15218959	M5:276b31dccd5a7848c78793414456976d	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992200.1	LN:15145429	M5:7e282a201e17f87afa0bd0d4387d2e59	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992201.1	LN:14968207	M5:1deb4206c49c7dc1a5fe832329e79259	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992202.1	LN:14402919	M5:b0928eb4c70d977865034d047700251a	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992203.1	LN:13271753	M5:066862bbb0df85b62c4dd0716e5ed7b3	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992204.1	LN:12763386	M5:99ad602e114ce45f628d0dcd07c9a161	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992205.1	LN:11974655	M5:d6fffbfb33363fda2f413d9b578994be	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992206.1	LN:10898131	M5:dbc784c16f8035f1c2646e3fe1532dfb	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992207.1	LN:5265952	M5:9a5f6fa634bcb24209afe3e2b217b6bd	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+@SQ	SN:HG992176.1	LN:26233870	M5:9e4d67f3fd26622b14b38dc272cc36f1	UR:/scratch/38675654/nxf.1NNvBKX4OK/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.fna
+
+
+
+chromo  position        major   minor   ref     anc     knownEM nInd
+HG992176.1      159212  G       A       T       T       0.315583        11
+HG992176.1      159228  G       T       G       G       0.074429        11
+HG992176.1      159240  T       C       T       T       0.176845        11
+HG992176.1      213355  G       T       G       G       0.073204        13
+HG992176.1      703170  T       G       T       T       0.063740        10
+HG992176.1      1147217 A       T       A       A       0.127632        10
+HG992176.1      1147218 A       G       A       A       0.063367        10
+HG992176.1      1620893 T       A       T       T       0.093377        10
+HG992176.1      1746046 T       A       T       T       0.074459        10
+HG992176.1      2292842 A       T       A       A       0.068497        10
+HG992176.1      2292847 T       C       T       T       0.073135        10
+HG992176.1      2580077 C       T       C       C       0.161427        10
+HG992176.1      3031387 T       G       T       T       0.082412        12
+HG992176.1      3031401 T       A       T       T       0.261492        14
+HG992176.1      3031404 G       C       G       G       0.065952        16
+HG992176.1      3031406 C       G       C       C       0.148772        16
+HG992176.1      3031413 T       C       C       C       0.314479        12
+HG992176.1      3099658 G       T       G       G       0.075900        10
+HG992176.1      3536838 A       C       A       A       0.073715        10
+HG992176.1      5076861 A       G       A       A       0.062530        10
+HG992176.1      5076876 T       A       T       T       0.063995        10
+HG992176.1      5939552 T       C       T       T       0.139345        10
+HG992176.1      5939555 C       T       C       C       0.141604        10
+HG992176.1      7306887 A       T       A       A       0.056553        14
+HG992176.1      7454322 C       T       C       C       0.074877        10
+HG992176.1      7673135 T       C       T       T       0.065881        10
+HG992176.1      7673159 T       A       T       T       0.073161        10
+HG992176.1      8094648 T       A       T       T       0.060473        10
+HG992176.1      8094649 A       G       A       A       0.061028        10
+HG992176.1      8423143 C       T       C       C       0.068921        10
+HG992176.1      8423146 C       A       C       C       0.306269        10
+HG992176.1      8423158 A       G       A       A       0.062721        10
+HG992176.1      8423167 G       A       G       G       0.066819        10
+HG992176.1      8423172 C       G       C       C       0.065584        10
+HG992176.1      8423174 T       C       T       T       0.066301        10
+HG992176.1      8423176 G       A       G       G       0.065224        10
+HG992176.1      8423178 T       A       T       T       0.065069        10
+HG992176.1      8423181 G       A       G       G       0.062353        10
+HG992176.1      8423187 G       T       G       G       0.060473        10
+HG992176.1      8423194 C       A       C       C       0.064400        10
+HG992176.1      8423204 C       T       C       C       0.063034        10
+HG992176.1      8423208 T       A       T       T       0.343978        10
+HG992176.1      8423209 A       T       A       A       0.062953        10
+HG992176.1      9257559 G       T       G       G       0.063761        11
+HG992176.1      9454038 A       T       A       A       0.067501        10
+HG992176.1      9514081 A       G       A       A       0.052580        10
+HG992176.1      9514082 A       G       A       A       0.246404        10
+
+
+
+#!/bin/bash
+
+# Path to the file containing the intervals
+FILE_PATH="non_TEintervals_Zchrom.txt"
+total_length=0
+while read -r line; do
+    start=$(echo $line | cut -d ':' -f 2 | cut -d '-' -f 1)
+    end=$(echo $line | cut -d ':' -f 2 | cut -d '-' -f 2)
+    length=$((end - start + 1))
+    total_length=$((total_length + length))
+done < "$FILE_PATH"
+echo "Total length of regions: $total_length"
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 10:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out angsd_new/sweden -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf coordinates_noZ_nomt.list
+
+angsd -b filtered_paths_bam.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out angsd_new/all -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf coordinates_noZ_nomt.list
+
+
+
+## Prepare a geno file by subsampling one SNP in every 50 SNPs in the beagle file
+zcat sweden.beagle.gz  | awk 'NR % 50 == 0' | cut -f 4- | gzip  > sweden.LDprep.beagle.gz
+
+## Prepare a pos file by subsampling one SNP in every 50 SNPs in the mafs filre
+zcat sweden.mafs.gz | cut -f 1,2 |  awk 'NR % 50 == 0' | sed 's/:/_/g'| gzip > sweden.LDprep.pos.gz
+
+ module load bioinfo-tools ngsLD
+
+
+ $NGSLD/ngsLD \
+--geno $BASEDIR/ngsld/MME_ANGSD_PCA_subsampled.beagle.gz \
+--pos $BASEDIR/ngsld/MME_ANGSD_PCA_subsampled.pos.gz \
+--probs \
+--n_ind 60 \
+--n_sites 1134 \
+--max_kb_dist 0 \
+--n_threads 1 \
+--out $BASEDIR/ngsld/MME_ANGSD_PCA_subsampled.ld
+
+
+ngsLD \
+--geno sweden.LDprep.test.beagle.gz \
+--pos sweden.LDprep.pos.gz \
+--probs \
+--n_ind 29 \
+--n_sites 109 \
+--max_kb_dist 0 \
+--n_threads 1 \
+--out sweden.LDprep.ld
+
+ngsLD \
+--geno sweden.LDprep.beagle \
+--pos sweden.LDprep.pos \
+--probs \
+--n_ind 29 \
+--n_sites 109 \
+--max_kb_dist 10000 \
+--n_threads 1 \
+--out sweden.LDprep.10k.ld
+
+cp sweden.beagle.gz sweden.test.beagle.gz
+gunzip sweden.test.beagle.gz
+
+zcat sweden.test.beagle.gz  | awk 'NR % 50 == 0' | cut -f 4- | gzip  > sweden.LDprep.test.beagle.gz
+
+less sweden.LDprep.test.beagle.gz
+
+
+
+ngsLD \
+--geno sweden.LDprep.test.beagle.gz \
+--pos sweden.LDprep.pos.gz \
+--probs \
+--n_ind 29 \
+--n_sites 109 \
+--max_kb_dist 10000 \
+--n_threads 1 \
+--out sweden.10k.LDprep.ld
+
+
+perl /sw/bioinfo/ngsLD/1.1.1/rackham/scripts/prune_graph.pl \
+--in_file $BASEDIR/ngsld/MME_ANGSD_PCA_subsampled.ld \
+--max_kb_dist 2000 \
+--min_weight 0.5 \
+--out $BASEDIR/ngsld/MME_ANGSD_PCA_subsampled_unlinked.id
+
+q
+ngsLD \
+--geno sweden.LDprep.test.beagle.gz \
+--pos sweden.LDprep.pos.gz \
+--probs \
+--n_ind 29 \
+--n_sites 109 \
+--max_kb_dist 1 \
+--n_threads 1 \
+--out sweden.LDprep.1kb.ld
+
+
+python prune_ngsLD.py
+usage: prune_ngsLD.py --input sweden.LDprep.ld --output sweden.LDprep.id --max_dist 2000 --min_weight 0.5 --print_excl excel
+
+python prune_ngsLD.py --input sweden.LDprep.ld --output sweden.LDprep.id --max_dist 2000 --min_weight 0.5
+
+conda activate snakemake-tutorial
+
+python ngsLD/scripts/prune_ngsLD.py --input sweden.LDprep.ld --output sweden.LDprep.id --max_dist 2000 --min_weight 0.5
+
+./ngsLD --geno sweden.LDprep.test.beagle.gz --pos sweden.LDprep.pos.gz --probs --n_ind 29 --n_sites 109 --max_kb_dist 0 --n_threads 1 --out sweden.LDprep.ld
+
+
+#!/bin/bash
+
+# Path to your input file
+FILE="sweden.teest.mafs.gz"
+
+# Skip the header and read the file line by line
+awk 'NR>1 {
+    # Extract the position from the current line
+    current_position = $2
+
+    # For the first line, just store the position
+    if (NR == 2) {
+        previous_position = current_position
+    } else {
+        # Calculate the difference
+        difference = current_position - previous_position
+
+        # Check if the difference is greater than 500
+        if (difference > 500) {
+            print "Line " NR-1 " (position " previous_position ") and Line " NR " (position " current_position ") are more than 500 bp apart."
+        }
+
+        # Update the previous_position for the next iteration
+        previous_position = current_position
+    }
+}' "$FILE"
+
+
+#!/bin/bash
+
+# Path to your gzipped input file
+FILE="sweden.teest.mafs.gz"
+
+# Initialize the previous position variable
+previous_position=0
+
+# Read the gzipped file line by line, starting from the second line
+zcat "$FILE" | tail -n +2 | while read line; do
+    # Extract the position from the current line
+    current_position=$(echo $line | awk '{print $2}')
+
+    # For the first line processed, just store the position
+    if [ $previous_position -eq 0 ]; then
+        previous_position=$current_position
+        continue
+    fi
+
+    # Calculate the difference
+    difference=$((current_position - previous_position))
+
+    # Check if the difference is greater than 500
+    if [ $difference -gt 500 ]; then
+        echo "Positions $previous_position and $current_position are more than 500 bp apart."
+    fi
+
+    # Update the previous_position for the next iteration
+    previous_position=$current_position
+done
+
+
+
+#!/bin/bash
+
+# Path to your gzipped input file
+FILE="sweden.teest.mafs.gz"
+
+# Initialize the previous position variable
+previous_position=0
+
+# Read the gzipped file line by line, starting from the second line
+zcat "$FILE" | tail -n +2 | while read line; do
+    # Extract the position from the current line
+    current_position=$(echo $line | awk '{print $2}')
+
+    # For the first line processed, just store the position
+    if [ $previous_position -eq 0 ]; then
+        previous_position=$current_position
+        continue
+    fi
+
+    # Calculate the difference
+    difference=$((current_position - previous_position))
+
+    # Check if the difference is less than 100
+    if [ $difference -lt 100 ]; then
+        echo "Positions $previous_position and $current_position are less than 100 bp apart."
+    fi
+
+    # Update the previous_position for the next iteration
+    previous_position=$current_position
+done
+
+
+#!/bin/bash
+
+# Path to your gzipped input file
+FILE="sweden.teest.mafs.gz"
+
+# Initialize variables
+previous_position=0
+line_number=0
+
+# Read the gzipped file line by line, starting from the second line
+zcat "$FILE" | tail -n +2 | while read line; do
+    # Increment line number
+    ((line_number++))
+
+    # Extract the position from the current line
+    current_position=$(echo $line | awk '{print $2}')
+
+    # Skip the first line
+    if [ $previous_position -eq 0 ]; then
+        previous_position=$current_position
+        previous_line_number=$line_number
+        continue
+    fi
+
+    # Calculate the difference
+    difference=$((current_position - previous_position))
+
+    # Check if the difference is less than 100
+    if [ $difference -lt 100 ]; then
+        # Update the previous_position and continue to the next line
+        previous_position=$current_position
+        previous_line_number=$line_number
+    else
+        # Print the message and update the previous_position
+        echo "Positions at lines $previous_line_number and $line_number are more than 100 bp apart."
+        previous_position=$current_position
+        previous_line_number=$line_number
+    fi
+done
+
+
+
+#!/bin/bash
+
+# Path to your gzipped input file
+FILE="sweden.teest.mafs.gz"
+
+# Initialize variables
+previous_position=0
+line_number=0
+
+# Read the gzipped file line by line, starting from the second line
+zcat "$FILE" | tail -n +2 | while read line; do
+    # Increment line number
+    ((line_number++))
+
+    # Extract the position from the current line
+    current_position=$(echo $line | awk '{print $2}')
+
+    # Skip the first line
+    if [ $previous_position -eq 0 ]; then
+        previous_position=$current_position
+        previous_line_number=$line_number
+        continue
+    fi
+
+    # Calculate the difference
+    difference=$((current_position - previous_position))
+
+    # If the difference is less than 100, update previous_position and continue to next line
+    while [ $difference -lt 100 ]; do
+        # Read the next line
+        if ! read line; then
+            # Exit if no more lines
+            break 2
+        fi
+        ((line_number++))
+        current_position=$(echo $line | awk '{print $2}')
+        difference=$((current_position - previous_position))
+    done
+
+    # Print the message for the pair that is 100 bp or more apart
+    echo "Positions at lines $previous_line_number and $line_number are 100 bp or more apart."
+    previous_position=$current_position
+    previous_line_number=$line_number
+done
+
+pcangsd -b sweden2.beagle.gz -o sweden2.test -t 64
+
+../01_MappingAll/results/preprocessing/markduplicates/KALM_10_1983/KALM_10_1983.md.cram
+../01_MappingAll/results/preprocessing/markduplicates/KALM_1_2018/KALM_1_2018.md.cram 1,2,3,
+../01_MappingAll/results/preprocessing/markduplicates/KALM_9_1981/KALM_9_1981.md.cram 4,5,6
+../01_MappingAll/results/preprocessing/markduplicates/SMAL_4_1996/SMAL_4_1996.md.cram 7,8,9
+../01_MappingAll/results/preprocessing/markduplicates/SMAL_5_1998/SMAL_5_1998.md.cram 10,11,12
+../01_MappingAll/results/preprocessing/markduplicates/STOC_6_1965/STOC_6_1965.md.cram 13,14,15
+../01_MappingAll/results/preprocessing/markduplicates/VAST_1_1983/VAST_1_1983.md.cram 16,17,18
+../03_MappingHistorical/results/preprocessing/markduplicates/DALA_1_1965/DALA_1_1965.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_10_1965/GAST_10_1965.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_11_1965/GAST_11_1965.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_1_1941/GAST_1_1941.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_12_1969/GAST_12_1969.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_14_1969/GAST_14_1969.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_2_1941/GAST_2_1941.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_3_1941/GAST_3_1941.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_4_1941/GAST_4_1941.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_5_1943/GAST_5_1943.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_6_1965/GAST_6_1965.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/GAST_7_1965/GAST_7_1965.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/KALM_2_1955/KALM_2_1955.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/KALM_3_1955/KALM_3_1955.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/KALM_5_1961/KALM_5_1961.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/KALM_6_1961/KALM_6_1961.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/KALM_8_1969/KALM_8_1969.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_2_1967/SMAL_2_1967.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/SMAL_3_1967/SMAL_3_1967.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_1_1951/UPPS_1_1951.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_2_1958/UPPS_2_1958.md.cram
+../03_MappingHistorical/results/preprocessing/markduplicates/UPPS_3_1969/UPPS_3_1969.md.cram
+
+
+realSFS print sweden.saf.idx -fold 1 # | less -S
+realSFS sweden.saf.idx -fold 1 > sweden.sfs #(UNFOLDED
+realSFS saf2theta sweden.saf.idx -sfs sweden.sfs -outname sweden_theta
+#remove
+thetaStat do_stat chroms_assmann_theta.thetas.idx
+
+
+pcangsd -b all.beagle.gz -o all.assmann -t 64
+
+
+# Remove sample vastmanland
+
+Example: zcat original_beagle.beagle.gz | cut -f10,11,12,25,26,27 --complement |  gzip > edited_beagle.beagle.gz
+
+zcat sweden2.beagle.gz | cut -f22,23,24 --complement |  gzip > sweden2.edited_beagle.noVAST.beagle.gz
+
+gunzip -c sweden2.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Ind%d: %d out of %d\n", (i-1)/3, sum, maxCount}}'
+
+Cols 4-6 (Ind1): 880 out of 5937
+Cols 7-9 (Ind2): 855 out of 5937
+Cols 10-12 (Ind3): 590 out of 5937
+Cols 13-15 (Ind4): 569 out of 5937
+Cols 16-18 (Ind5): 2557 out of 5937
+Cols 19-21 (Ind6): 1288 out of 5937
+Cols 22-24 (Ind7): 460 out of 5937
+Cols 25-27 (Ind8): 5817 out of 5937
+Cols 28-30 (Ind9): 5892 out of 5937
+Cols 31-33 (Ind10): 5533 out of 5937
+Cols 34-36 (Ind11): 5870 out of 5937
+Cols 37-39 (Ind12): 3113 out of 5937
+Cols 40-42 (Ind13): 4326 out of 5937
+Cols 43-45 (Ind14): 5891 out of 5937
+Cols 46-48 (Ind15): 5087 out of 5937
+Cols 49-51 (Ind16): 5045 out of 5937
+Cols 52-54 (Ind17): 5668 out of 5937
+Cols 55-57 (Ind18): 5749 out of 5937
+Cols 58-60 (Ind19): 5885 out of 5937
+Cols 61-63 (Ind20): 3448 out of 5937
+Cols 64-66 (Ind21): 5590 out of 5937
+Cols 67-69 (Ind22): 3999 out of 5937
+Cols 70-72 (Ind23): 5820 out of 5937
+Cols 73-75 (Ind24): 3023 out of 5937
+Cols 76-78 (Ind25): 3931 out of 5937
+Cols 79-81 (Ind26): 5125 out of 5937
+Cols 82-84 (Ind27): 5892 out of 5937
+Cols 85-87 (Ind28): 5260 out of 5937
+Cols 88-90 (Ind29): 5681 out of 5937
+
+gunzip -c sweden2.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; print "Row " NR ": " count " occurrences"}'
+
+gunzip -c sweden2.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Ind%d: %d out of %d\n", (i-4)/3, sum, maxCount}}'
+
+
+gunzip -c sweden2.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-1)/3, sum, maxCount}}'
+
+gunzip -c sweden.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-1)/3, sum, maxCount}}'
+
+gunzip -c sweden.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-4)/3, sum, maxCount}}'
+
+Cols 4-6 (Ind0): 2540 out of 16410
+Cols 7-9 (Ind1): 2439 out of 16410
+Cols 10-12 (Ind2): 1724 out of 16410
+Cols 13-15 (Ind3): 1697 out of 16410
+Cols 16-18 (Ind4): 7274 out of 16410
+Cols 19-21 (Ind5): 3561 out of 16410
+Cols 22-24 (Ind6): 1331 out of 16410
+Cols 25-27 (Ind7): 16112 out of 16410
+Cols 28-30 (Ind8): 16276 out of 16410
+Cols 31-33 (Ind9): 15147 out of 16410
+Cols 34-36 (Ind10): 16201 out of 16410
+Cols 37-39 (Ind11): 8433 out of 16410
+Cols 40-42 (Ind12): 11793 out of 16410
+Cols 43-45 (Ind13): 16291 out of 16410
+Cols 46-48 (Ind14): 13994 out of 16410
+Cols 49-51 (Ind15): 13992 out of 16410
+Cols 52-54 (Ind16): 15603 out of 16410
+Cols 55-57 (Ind17): 15863 out of 16410
+Cols 58-60 (Ind18): 16279 out of 16410
+Cols 61-63 (Ind19): 9745 out of 16410
+Cols 64-66 (Ind20): 15416 out of 16410
+Cols 67-69 (Ind21): 10541 out of 16410
+Cols 70-72 (Ind22): 16093 out of 16410
+Cols 73-75 (Ind23): 8215 out of 16410
+Cols 76-78 (Ind24): 10825 out of 16410
+Cols 79-81 (Ind25): 14125 out of 16410
+Cols 82-84 (Ind26): 16272 out of 16410
+Cols 85-87 (Ind27): 14593 out of 16410
+Cols 88-90 (Ind28): 15525 out of 16410
+
+zcat sweden2.beagle.gz | cut -f25-36,43-45,52-60,64-72,70-90 --complement | gzip > edited_beagle.beagle.gz
+
+gunzip -c edited_beagle.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-4)/3, sum, maxCount}}'
+
+zcat sweden2.beagle.gz | cut -f25-36,43-45,52-60,64-72,76-90 --complement | gzip > edited_beagle2.beagle.gz
+
+gunzip -c edited_beagle.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; print "Row " NR ": " count " occurrences"}'
+
+gunzip -c edited_beagle.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; print "Row " NR ": " count / 3 " occurrences"}'
+
+zcat sweden.beagle.gz | cut -f25-36,43-45,52-60,64-72,76-90 --complement | gzip > edited_beagle2.beagle.gz
+
+gunzip -c edited_beagle2.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-4)/3, sum, maxCount}}'
+
+zcat edited_beagle2.beagle.gz | cut -f28-36 --complement | gzip > edited_beagle3.beagle.gz
+gunzip -c edited_beagle3.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; print "Row " NR ": " count / 3 " occurrences"}'
+
+gunzip -c edited_beagle3.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; if (count / 3 > 4) linesWithHighCount++; print "Row " NR ": " count / 3 " occurrences"} END {print "Number of lines where count/3 > 4: " linesWithHighCount}'
+
+gunzip -c edited_beagle3.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; if (count / 3 > 4) print "Row " NR " meets criteria"}'
+
+gunzip -c edited_beagle3.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; if (count / 3 <= 4) print $0}' | gzip > edited_beagle3_filtered.beagle.gz
+
+gunzip -c edited_beagle3_filtered.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; if (count / 3 > 4) linesWithHighCount++; print "Row " NR ": " count / 3 " occurrences"} END {print "Number of lines where count/3 > 4: " linesWithHighCount}'
+
+
+
+module load bioinfo-tools ANGSD PCAngsd
+
+pcangsd -b edited_beagle3_filtered.beagle.gz -o edited_beagle3_filtered.assmann -t 64
+
+Ind0
+Ind1
+Ind2
+Ind3
+Ind4
+Ind5
+Ind6 remove!!!
+Ind11
+Ind19
+Ind23
+
+zcat edited_beagle2.beagle.gz | cut -f28-36 --complement | gzip > edited_beagle3.beagle.gz
+
+gunzip -c edited_beagle3_filtered.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-4)/3, sum, maxCount}}'
+
+zcat edited_beagle3_filtered.beagle.gz | cut -f22-24 --complement | gzip > edited_beagle3_filtered.beagle.noVAST.gz
+
+pcangsd -b edited_beagle3_filtered.beagle.noVAST.gz -o edited_beagle3_filtered.beagle.noVAST.assmann -t 64
+
+Loaded 4911 sites and 9 individuals.
+Estimating minor allele frequencies.
+EM (MAF) converged at iteration: 11
+Number of sites after MAF filtering (0.05): 3875
+
+edited_beagle3_filtered.beagle.noVAST.assmann.cov
+
+
+gunzip -c all.beagle.gz | awk '{totalLines++; for (i=4; i<=NF; i++) if ($i == "0.333333") count[i]++} END {maxCount = totalLines * 3; for (i=4; i<=NF; i+=3) {sum=count[i]+count[i+1]+count[i+2]; printf "Cols %d-%d (Ind%d): %d out of %d\n", i, i+2, (i-4)/3, sum, maxCount}}'
+
+gunzip -c all.beagle.gz | awk '{count=0; for (i=4; i<=NF; i++) if ($i == "0.333333") count++; if (count / 3 > 4) linesWithHighCount++; print "Row " NR ": " count / 3 " occurrences"} END {print "Number of lines where count/3 > 4: " linesWithHighCount}'
+
+Cols 4-6 (Ind0): 3870132 out of 5097084
+Cols 7-9 (Ind1): 4831501 out of 5097084
+Cols 10-12 (Ind2): 3778823 out of 5097084
+Cols 13-15 (Ind3): 4067540 out of 5097084
+Cols 16-18 (Ind4): 1815833 out of 5097084
+Cols 19-21 (Ind5): 1824075 out of 5097084
+Cols 22-24 (Ind6): 4402292 out of 5097084
+Cols 25-27 (Ind7): 3136955 out of 5097084
+Cols 28-30 (Ind8): 2819603 out of 5097084
+Cols 31-33 (Ind9): 2453630 out of 5097084
+Cols 34-36 (Ind10): 4786209 out of 5097084
+Cols 37-39 (Ind11): 2598301 out of 5097084
+Cols 40-42 (Ind12): 3733653 out of 5097084
+Cols 43-45 (Ind13): 1952516 out of 5097084
+Cols 46-48 (Ind14): 2578372 out of 5097084
+Cols 49-51 (Ind15): 2180108 out of 5097084
+Cols 52-54 (Ind16): 2197163 out of 5097084
+Cols 55-57 (Ind17): 3677403 out of 5097084
+Cols 58-60 (Ind18): 3741993 out of 5097084
+Cols 61-63 (Ind19): 1796207 out of 5097084
+Cols 64-66 (Ind20): 2930181 out of 5097084
+Cols 67-69 (Ind21): 4701370 out of 5097084
+Cols 70-72 (Ind22): 3684989 out of 5097084
+Cols 73-75 (Ind23): 3597823 out of 5097084
+Cols 76-78 (Ind24): 1924572 out of 5097084
+Cols 79-81 (Ind25): 5096552 out of 5097084
+Cols 82-84 (Ind26): 5096890 out of 5097084
+Cols 85-87 (Ind27): 5088540 out of 5097084
+Cols 88-90 (Ind28): 5096862 out of 5097084
+Cols 91-93 (Ind29): 4912544 out of 5097084
+Cols 94-96 (Ind30): 5032624 out of 5097084
+Cols 97-99 (Ind31): 5096847 out of 5097084
+Cols 100-102 (Ind32): 5072431 out of 5097084
+Cols 103-105 (Ind33): 5071766 out of 5097084
+Cols 106-108 (Ind34): 5093450 out of 5097084
+Cols 109-111 (Ind35): 5095530 out of 5097084
+Cols 112-114 (Ind36): 5096836 out of 5097084
+Cols 115-117 (Ind37): 4957762 out of 5097084
+Cols 118-120 (Ind38): 5088810 out of 5097084
+Cols 121-123 (Ind39): 5007696 out of 5097084
+Cols 124-126 (Ind40): 5096546 out of 5097084
+Cols 127-129 (Ind41): 4935454 out of 5097084
+Cols 130-132 (Ind42): 5005724 out of 5097084
+Cols 133-135 (Ind43): 5067015 out of 5097084
+Cols 136-138 (Ind44): 5021640 out of 5097084
+Cols 139-141 (Ind45): 5038827 out of 5097084
+Cols 142-144 (Ind46): 5015808 out of 5097084
+Cols 145-147 (Ind47): 5096918 out of 5097084
+Cols 148-150 (Ind48): 5077061 out of 5097084
+Cols 151-153 (Ind49): 5092003 out of 5097084
+
+
+Cols 4-6 (Ind0): 3870132 out of 5097084
+Cols 7-9 (Ind1): 4831501 out of 5097084
+Cols 10-12 (Ind2): 3778823 out of 5097084
+Cols 13-15 (Ind3): 4067540 out of 5097084
+Cols 16-18 (Ind4): 1815833 out of 5097084
+Cols 19-21 (Ind5): 1824075 out of 5097084
+Cols 22-24 (Ind6): 4402292 out of 5097084
+Cols 25-27 (Ind7): 3136955 out of 5097084
+Cols 28-30 (Ind8): 2819603 out of 5097084
+Cols 31-33 (Ind9): 2453630 out of 5097084
+Cols 34-36 (Ind10): 4786209 out of 5097084
+Cols 37-39 (Ind11): 2598301 out of 5097084
+Cols 40-42 (Ind12): 3733653 out of 5097084
+Cols 43-45 (Ind13): 1952516 out of 5097084
+Cols 46-48 (Ind14): 2578372 out of 5097084
+Cols 49-51 (Ind15): 2180108 out of 5097084
+Cols 52-54 (Ind16): 2197163 out of 5097084
+Cols 55-57 (Ind17): 3677403 out of 5097084
+Cols 58-60 (Ind18): 3741993 out of 5097084
+Cols 61-63 (Ind19): 1796207 out of 5097084
+Cols 64-66 (Ind20): 2930181 out of 5097084
+Cols 67-69 (Ind21): 4701370 out of 5097084
+Cols 70-72 (Ind22): 3684989 out of 5097084
+Cols 73-75 (Ind23): 3597823 out of 5097084
+Cols 76-78 (Ind24): 1924572 out of 5097084
+Cols 91-93 (Ind29): 4912544 out of 5097084
+Cols 115-117 (Ind37): 4957762 out of 5097084
+Cols 127-129 (Ind41): 4935454 out of 5097084
+
+
+######################
+# BAM QUALITY CHECKS #
+######################
+
+HG992177.1_13411770     1       0
+HG992177.1_13939774     2       0
+HG992177.1_14019323     3       1
+
+
+HG992177.1  13411760  14019340
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 10:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load modules
+module load bioinfo-tools ANGSD PCAngsd
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD
+
+angsd -b filtered_paths_bam2.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out angsd_new/sweden -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf coordinates_noZ_nomt.list
+
+angsd -b filtered_paths_bam.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna -out angsd_new/all -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf coordinates_noZ_nomt.list
+angsd_sweden.sh (END)
+
+samtools view "${input_file}" HG992208.2
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -J mtDNAbam
+#SBATCH --output=mtDNAbam.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-3
+
+# Load the samtools module (modify this if needed)
+module load bioinfo-tools samtools
+
+# Set the output directory
+output_dir=/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/visual_test
+
+# Read the input file paths from reducedset.info line by line
+input_file=$(sed -n "${SLURM_ARRAY_TASK_ID}p" /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/filtered_paths_bam2.txt )
+
+# Extract the sample name from the input file path
+sample_name=$(basename "${input_file}" .md.cram)
+
+# Run samtools view and save the output to a BAM file
+samtools view "${input_file}" HG992177.1:13411760-14019340 -o "${output_dir}/${sample_name}.bam"
+tabix "${output_dir}/${sample_name}.bam"
+
+
+  samtools view ../../01_MappingAll/results/preprocessing/markduplicates/KALM_10_1983/KALM_10_1983.md.cram HG992177.1:13411760-14019340 -o KALM_10_1983.sect.bam
+
+../01_MappingAll/results/preprocessing/markduplicates/KALM_10_1983/KALM_10_1983.md.cram
+
+
+
+#!/bin/bash
+
+# Set the output directory
+output_dir="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/visual_test"
+
+# Path to the file containing input file paths
+input_file_path="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/filtered_paths_bam2.txt"
+
+# Iterate over each line in the input file
+while IFS= read -r line; do
+    input_file="$line"
+
+    # Extract the sample name from the input file path
+    sample_name=$(basename "${input_file}" .md.cram)
+
+    # Run samtools view and save the output to a BAM file
+    samtools view "${input_file}" HG992177.1:13411760-14019340 -o "${output_dir}/${sample_name}.sect.bam"
+    tabix "${output_dir}/${sample_name}.sect.bam"
+done < "$input_file_path"
+
+
+
+AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTCTGGCCTGTGTAG
+
+TTCAAGCAGAAGACGGCATACGAGATATGATTAGTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT
+
+GGATCTTGTAAGCGCTTTAACAAAACTATGCAGCTTATTTTCTTTAATACACGTTTTACCAGATCGGAAGAGCACACGTCTGAACT-
+
+TGCAGTATTTCTTGCTCTATCAAAAAACTGTGTAAAACAATCACAACCGGA-CACTGCTGGTAAACTTCATTATCTAATTATCTTTTATTTTTTTTGTCTTCT
+
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCACTAATCATATCTCGTATGCC--
+
+
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCACTAATCATATCTCGTATGCCGTCTTC
+
+
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCACCATCCGGATCTCGTATGCCGTCTTCTGCTTGAAAAA-
+
+AGATCGGAAGAGCACACGTCTGAACTCCAGTCACCATCCGGATCTCGTATGCCGTCTTCTGCTTGAAAAT-
+
+AGATCGGAAGAGCGTCGTGTAGGGAAAGA
