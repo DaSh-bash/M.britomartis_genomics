@@ -1,0 +1,44 @@
+Checklist	ERP155232	ENA default sample checklist					
+tax_id	scientific_name	sample_alias	sample_title	collection date	geographic location (country and/or sea)	geographic location (region and locality)	migratory_phenotype
+#units	 	 	 	 	 	 	
+1	Vanessa cardui	S1	19H112	short	Portugal	Pocilgais	short
+2	Vanessa cardui	S2	19H100	local	Malta	San Pawl il-Bahar	local
+3	Vanessa cardui	S3	19H104	local	Malta		local
+4	Vanessa cardui	S4	19H113	local	Portugal	Pocilgais	local
+5	Vanessa cardui	S5	19H110	local	Portugal	Monchique	local
+6	Vanessa cardui	S6	18B699	long	Senegal	"Diongolor, Fatick"	long
+7	Vanessa cardui	S7	19H107	short	Spain	Playa de Islantilla	short
+8	Vanessa cardui	S8	19M051	local	Morocco	Zemrane Charquia	local
+9	Vanessa cardui	S9	19H106	short	Malta	Orange Beach (Ramla beach)	short
+10	Vanessa cardui	S10	19H121	local	Senegal	Toglou	local
+11	Vanessa cardui	S11	19H102	local	Malta	Manikata	local
+12	Vanessa cardui	S12	19H108	local	Portugal	Aldeia das Açoteias	local
+13	Vanessa cardui	S13	19M050	local	Morocco	Zemrane Charquia	local
+14	Vanessa cardui	S14	19H105	local	Malta	Orange Beach (Ramla beach)	local
+15	Vanessa cardui	S15	19M002	local	Morocco	Taroudant	local
+16	Vanessa cardui	S16	18B721	long	Senegal	"Koumpentoum, Tambacounda"	long
+17	Vanessa cardui	S17	19M240	local	Morocco	Ait Melloul	local
+18	Vanessa cardui	S18	19M181	local	Morocco	Dades	local
+19	Vanessa cardui	S19	19H109	local	Portugal	Vale Fuzeiros	local
+20	Vanessa cardui	S20	19H111	local	Portugal	Monchique	local
+21	Vanessa cardui	S21	19H116	long	Senegal	Toglou	long
+22	Vanessa cardui	S22	18B773	long	Benin	"Malanville, Guené"	long
+23	Vanessa cardui	S23	19M001	local	Morocco	Taroudant	local
+24	Vanessa cardui	S24	19H103	local	Malta	Manikata	local
+25	Vanessa cardui	S25	19H120	long	Senegal	Toglou	long
+26	Vanessa cardui	S26	18B722	local	Senegal	"Koumpentoum, Tambacounda"	local
+27	Vanessa cardui	S27	18B705	long	Senegal	"Foret de Sebikhoutane, Dakar"	long
+28	Vanessa cardui	S28	19H119	long	Senegal	Toglou	long
+29	Vanessa cardui	S29	18B720	long	Senegal	"Koumpentoum, Tambacounda"	long
+30	Vanessa cardui	S30	18B775	local	Benin	"Malanville, Guené"	local
+31	Vanessa cardui	S31	18B782	local	Benin	Guéné	local
+32	Vanessa cardui	S32	19H115	long	Senegal	Toglou	long
+33	Vanessa cardui	S34	18B755	long	Benin	Guéné	long
+34	Vanessa cardui	S35	19H128	long	Benin	Tanguieta	long
+35	Vanessa cardui	S36	18B774	local	Benin	"Malanville, Guené"	local
+36	Vanessa cardui	S37	19H139	local	Malta	San Pawl il-Bahar	local
+37	Vanessa cardui	S38	19M170	local	Morocco	Dades	local
+38	Vanessa cardui	S39	19H129	local	Benin	Tanguieta	local
+39	Vanessa cardui	S40	19H137	long	Benin	Tanguieta	long
+40	Vanessa cardui	S41	19H140	long	Benin	Tanguieta	long
+							
