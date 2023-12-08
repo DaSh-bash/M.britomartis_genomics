@@ -4242,3 +4242,396 @@ AGATCGGAAGAGCACACGTCTGAACTCCAGTCACCATCCGGATCTCGTATGCCGTCTTCTGCTTGAAAAT-
 AGATCGGAAGAGCGTCGTGTAGGGAAAGA
 
 TTAAATAGAAAGGTTACAGAATAATTCGAGCTGCAGCAATTATCACTGAATACAGCTTGCTGCTTTAGCGATGCC
+
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/
+
+
+### Mapping from before
+[ ! -f  BAJK_1_2016-L001_1.fastq.gz ] && ln -sf P27562_1039_S39_L001_R1_001.fastq.gz BAJK_1_2016-L001_1.fastq.gz
+        [ ! -f  BAJK_1_2016-L001_2.fastq.gz ] && ln -sf P27562_1039_S39_L001_R2_001.fastq.gz BAJK_1_2016-L001_2.fastq.gz
+        fastp \
+            --in1 BAJK_1_2016-L001_1.fastq.gz \
+            --in2 BAJK_1_2016-L001_2.fastq.gz \
+            --out1 BAJK_1_2016-L001_1.fastp.fastq.gz \
+            --out2 BAJK_1_2016-L001_2.fastp.fastq.gz \
+            --json BAJK_1_2016-L001.fastp.json \
+            --html BAJK_1_2016-L001.fastp.html \
+             \
+             \
+             \
+            --thread 12 \
+            --detect_adapter_for_pe \
+            --disable_adapter_trimming      --split_by_lines 200000000 \
+            2> BAJK_1_2016-L001.fastp.log
+
+        cat <<-END_VERSIONS > versions.yml
+        "NFCORE_SAREK:SAREK:FASTP":
+            fastp: $(fastp --version 2>&1 | sed -e "s/fastp //g")
+        END_VERSIONS
+
+
+fastp -i {input.R1} -I {input.R2} -p -c --merge --merged_out={output.merged} \
+-o {output.R1_un} -O {output.R2_un}  -h {output.html} -j {output.json} -R '{params.report}' \
+ -w {threads} -l {params.readlength} 2> {log}
+
+ fastp \
+     --in1 GAST_5_1943-L001_1.fastq.gz \
+     --in2 GAST_5_1943-L001_2.fastq.gz \
+     --out1 GAST_5_1943-L001_1.fastp.fastq.gz \
+     --out2 GAST_5_1943-L001_2.fastp.fastq.gz \
+     --json GAST_5_1943-L001.fastp.json \
+     --html GAST_5_1943-L001.fastp.html \
+     --thread 12 \
+     --reads_to_process 1000 \
+     --trim_front1=20 \
+     --trim_tail1=20 \
+     --detect_adapter_for_pe \
+     -p \
+     --adapter_fasta adapters.fasta \
+     --dedup
+
+
+--correction --detect_adapter_for_pe --cut_front 3 --cut_tail 3 \
+ --qualified_quality-phred 20 --average_qual 20 --length_required 35 \
+ --unqualified_percent_limit 10 --n_base_limit 0
+
+
+ # global trimming options
+ -f, --trim_front1                    trimming how many bases in front for read1, default is 0 (int [=0])
+ -t, --trim_tail1                     trimming how many bases in tail for read1, default is 0 (int [=0])
+ -b, --max_len1                       if read1 is longer than max_len1, then trim read1 at its tail to make it as long as max_len1. Default 0 means no limitation (int [=0])
+ -F, --trim_front2                    trimming how many bases in front for read2. If it's not specified, it will follow read1's settings (int [=0])
+ -T, --trim_tail2                     trimming how many bases in tail for read2. If it's not specified, it will follow read1's settings (int [=0])
+ -B, --max_len2                       if read2 is longer than max_len2, then trim read2 at its tail to make it as long as max_len2. Default 0 means no limitation. If it's not specified, it will follow read1's settings (int [=0])
+
+#Testing: #1
+ fastp \
+     --in1 GAST_5_1943-L001_1.fastq.gz \
+     --in2 GAST_5_1943-L001_2.fastq.gz \
+     --out1 GAST_5_1943-L001_1.fastp.fastq.gz \
+     --out2 GAST_5_1943-L001_2.fastp.fastq.gz \
+     --json GAST_5_1943-L001.fastp.json \
+     --html GAST_5_1943-L001.fastp.html \
+     --thread 12 \
+     --reads_to_process 1000 \
+     --trim_front1=20 \
+     --trim_tail1=20 \
+     --detect_adapter_for_pe \
+     -p \
+     --adapter_fasta adapters.fasta \
+     --dedup
+
+Filtering result:
+reads passed filter: 1640
+reads failed due to low quality: 34
+reads failed due to too many N: 0
+reads failed due to too short: 326
+reads with adapter trimmed: 1916
+bases trimmed due to adapters: 124066
+
+nohup fastp \
+    --in1 GAST_5_1943-L001_1.fastq.gz \
+    --in2 GAST_5_1943-L001_2.fastq.gz \
+    --out1 GAST_5_1943-L001_1.fastp.fastq.gz \
+    --out2 GAST_5_1943-L001_2.fastp.fastq.gz \
+    --json GAST_5_1943-L001.fastp.json \
+    --html GAST_5_1943-L001.fastp.html \
+    --thread 12 \
+    --trim_front1=20 \
+    --trim_tail1=20 \
+    --detect_adapter_for_pe \
+    -p \
+    --adapter_fasta adapters.fasta \
+    --dedup  \
+    --correction --cut_front 3 --cut_tail 3 \
+     --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+     --unqualified_percent_limit 10 --n_base_limit 0 &
+
+     Filtering result:
+     reads passed filter: 622
+     reads failed due to low quality: 232
+     reads failed due to too many N: 0
+     reads failed due to too short: 1146
+     reads with adapter trimmed: 1907
+     bases trimmed due to adapters: 120193
+     reads corrected by overlap analysis: 27
+     bases corrected by overlap analysis: 56
+
+fastp \
+         --in1 GAST_5_1943-L001_1.fastq.gz \
+         --in2 GAST_5_1943-L001_2.fastq.gz \
+         --out1 GAST_5_1943-L001_1.fastp.fastq.gz \
+         --out2 GAST_5_1943-L001_2.fastp.fastq.gz \
+         --json GAST_5_1943-L001.fastp.json \
+         --html GAST_5_1943-L001.fastp.html \
+         --thread 12 \
+         --reads_to_process 1000 \
+         --trim_front1=20 \
+         --trim_tail1=20 \
+         --detect_adapter_for_pe \
+         -p \
+         --adapter_fasta adapters.fasta \
+         --dedup  \
+         --correction --cut_front 5 --cut_tail 5 \
+          --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+          --unqualified_percent_limit 10 --n_base_limit 0
+
+#### Mapping test
+
+# snakemake rules
+rule map_historical:
+    """Map trimmed and merged reads from historical samples to reference. BWA aln for short Illumina reads, parameters according to Palkopoulou et al. 2015"""
+    input:
+        ref=config["ref_path"],
+        index=rules.bwa_index_reference.output,
+        fastq_hist=rules.fastp_historical.output.merged,
+    output:
+        sai=temp("results/historical/mapping/" + REF_NAME + "/{sample}_{index}_{lane}.sai"),
+    log:
+        "results/logs/2_mapping/historical/" + REF_NAME + "/{sample}_{index}_{lane}_map_historical.log",
+    threads: 8
+    singularity:
+        "docker://biocontainers/bwa:v0.7.17-3-deb_cv1"
+    shell:
+        """
+        bwa aln -l 16500 -n 0.01 -o 2 -t  {input.ref} {input.fastq_hist} > {output.sai} 2> {log}
+        """
+
+bwa aln -l 16500 -n 0.01 -o 2 -t 8 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna  GAST_5_1943-L001_2.fastp.merged.fastq.gz > GAST_5_1943-L001.sai
+
+
+fastp -i {input.R1} -I {input.R2} -p -c --merge --merged_out={output.merged} -o {output.R1_un} -O {output.R2_un} \
+-h {output.html} -j {output.json} -R '{params.report}' -w {threads} -l {params.readlength} 2> {log}
+
+nohup fastp \
+    --in1 GAST_5_1943-L001_1.fastq.gz \
+    --in2 GAST_5_1943-L001_2.fastq.gz \
+    --out1 GAST_5_1943-L001_1.fastp.fastq.gz \
+    --out2 GAST_5_1943-L001_2.fastp.fastq.gz \
+    --json GAST_5_1943-L001.fastp.json \
+    --html GAST_5_1943-L001.fastp.html \
+    --thread 12 \
+    --trim_front1=20 \
+    --trim_tail1=20 \
+    --detect_adapter_for_pe \
+    -p \
+    --adapter_fasta adapters.fasta \
+    --dedup  \
+    --correction --cut_front 5 --cut_tail 5 \
+    --merge --merged_out=GAST_5_1943-L001_2.fastp.merged.fastq.gz \
+     --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+     --unqualified_percent_limit 10 --n_base_limit 0 &
+
+     Filtering result:
+     reads passed filter: 33442576
+     reads failed due to low quality: 8720074
+     reads failed due to too many N: 6110
+     reads failed due to too short: 60912010
+     reads with adapter trimmed: 98238796
+     bases trimmed due to adapters: 6229092140
+     reads corrected by overlap analysis: 902705
+     bases corrected by overlap analysis: 1856620
+
+bwa samse /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna GAST_5_1943-L001.sai GAST_5_1943-L001_2.fastp.merged.fastq.gz | \
+     samtools sort -@ {threads} - > GAST_5_1943-L001_2.fastp.merged.bam
+
+
+     bwa samse /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna GAST_5_1943-L001.sai GAST_5_1943-L001_2.fastp.merged.fastq.gz | \
+          samtools sort - > GAST_5_1943-L001_2.fastp.merged.bam
+
+bwa samse ref.fa reads.sai reads.fq > aln-se.sam
+
+#### Testing GenErode
+
+conda env create -n generode -f environment.yml
+
+
+rule fastp_historical:
+    """Remove adapters, quality trim (phred 15) and merge overlapping paired-end reads in historical samples"""
+    """fastp automatically detects adapter sequences for removal"""
+    """NextSeq and NovaSeq samples are automatically detected and poly-G tails are removed"""
+    """Minimum read length specified in config file"""
+    input:
+        R1=rules.fastq_historical_symbolic_links.output.fastq_r1,
+        R2=rules.fastq_historical_symbolic_links.output.fastq_r2,
+    output:
+        R1_un=temp("results/historical/trimming/{sample}_{index}_{lane}_R1_unmerged.fastq.gz"),
+        R2_un=temp("results/historical/trimming/{sample}_{index}_{lane}_R2_unmerged.fastq.gz"),
+        merged="results/historical/trimming/{sample}_{index}_{lane}_trimmed_merged.fastq.gz",
+        html="results/historical/trimming/stats/{sample}_{index}_{lane}_fastp_report.html",
+        json=temp("results/modern/trimming/stats/{sample}_{index}_{lane}_fastp_report.json"),
+    params:
+        readlength=config["hist_readlength"],
+        report="fastp report for {sample}_{index}_{lane}",
+    log:
+        "results/logs/1.1_fastq_processing/historical/{sample}_{index}_{lane}_fastp_historical.log",
+    threads: 4
+    singularity:
+        "docker://quay.io/biocontainers/fastp:0.22.0--h2e03b76_0"
+    shell:
+        """
+        fastp -i {input.R1} -I {input.R2} -p -c --merge --merged_out={output.merged} -o {output.R1_un} -O {output.R2_un} \
+        -h {output.html} -j {output.json} -R '{params.report}' -w {threads} -l {params.readlength} 2> {log}
+        """
+
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 16
+#SBATCH -t 1-00:00:00
+#SBATCH -J remapping
+#SBATCH --output=remapping.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/02_Benchmarking_trimming
+bwa aln -l 16500 -n 0.01 -o 2 -t 16 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna  GAST_5_1943-L001_2.fastp.merged.fastq.gz > GAST_5_1943-L001.sai
+bwa samse /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna GAST_5_1943-L001.sai GAST_5_1943-L001_2.fastp.merged.fastq.gz | samtools sort -@ 16 - > GAST_5_1943-L001_2.fastp.merged.bam
+
+
+#### Trying GenErode
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode
+
+module load Snakemake
+
+########### Example ##########
+#historical
+samplename_index_lane readgroup_id readgroup_platform path_to_R1_fastq_file path_to_R2_fastq_file
+S01_07_L2 BHJ5YVABCD.L2.07 illumina /proj/DeepSeq/P12345_1007_S7_L002_R1_001.fastq.gz /proj/DeepSeq/P12345_1007_S7_L002_R2_001.fastq.gz
+#contemporary
+samplename_index_lane readgroup_id readgroup_platform path_to_R1_fastq_file path_to_R2_fastq_file
+S47_01_L7 AHCHL7XYZA.L7.01 illumina /proj/modern/P1234_101_S47_L007_R1_001.fastq.gz /proj/modern/P1234_101_S47_L007_R2_001.fastq.gz
+########### Example ##########
+
+@A00689:768:HKFY7DSX5:1:1101:4698:1047 2:N:0:CGACCTG+TACTCGC
+@A00689:768:HKFY7DSX5:1:1101:14696:1016 2:N:0:AACCTGC+CGCAAGG
+
+
+samplename_index_lane readgroup_id readgroup_platform path_to_R1_fastq_file path_to_R2_fastq_file
+GAST51943_01_L1 AHKFY7DSX5.L001.S15 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1015/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1015_S15_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1015/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1015_S15_L001_R2_001.fastq.gz
+
+samplename_index_lane readgroup_id readgroup_platform path_to_R1_fastq_file path_to_R2_fastq_file
+KALM12018_01_L1 AHKFY7DSX5.L001.S49 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1049/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1049_S49_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1049/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1049_S49_L001_R2_001.fastq.gz
+
+nano historical_samples_paths_D.txt
+nano modern_samples_paths_D.txt
+
+P27562_1001_S1_L001_R1_001_AHKFY7DSX5
+
+GAST_5_1943,GAST_5_1943,L001,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1015/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1015_S15_L001_R1_001.fastq.gz,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1015/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1015_S15_L001_R2_001.fastq.gz
+KALM_1_2018,KALM_1_2018,L001,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1049/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1049_S49_L001_R1_001.fastq.gz,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1049/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1049_S49_L001_R2_001.fastq.gz
+
+
+KALM_4_1957 - diamina
+ALTA_2_2015 - diamina
+BAJK_4_2016 - diamina ?
+ITAL_1_1946 - diamina
+VORO_1_1998 - athalia
+VAST_3_2005 - athalia
+URAL_1_1991 - athalia
+RUSS_2_1999 - athalia
+SMAL_6_2013 - athalia
+KRAS_4_2002 - athalia
+KRAS_2_2002 - athalia
+CHEH_3_2008 - athalia
+CHEH_2_2004 - athalia
+POLA_1_2003 - athalia
+
+BAJK_3_2016
+VAST_2_1999
+
+#Quality red flags, deph lower then 2.5
+ind depth
+KALM_7_1961 2.25957
+STOC_3_1965 0.960228
+GAST_13_1969 1.40341
+GAST_8_1965 1.10823
+GAST_9_1965 1.31725
+SMAL_1_1967 1.97408
+STOC_1_1965 0.520048
+
+
+#### 3) Edit the file "config/config.yaml"
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna
+
+Fixing headers
+
+sed -e 's/\(^>[^ ]*\) .*/\1/' GCA_905220545.2_ilMelAtha1.2_genomic.fa > GCA_905220545.2_ilMelAtha1.2_genomic.simple_headers.fa
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa
+
+
+#Running Snakemake
+
+module load fastp
+
+
+snakemake -j 100 --use-singularity --cluster-config config/slurm/cluster.yaml --cluster "sbatch -A naiss2023-5-52 -p core --ntasks 17 --cpus-per-task {cluster.cpus-per-task} -t {cluster.time}" -npr &> YYMMDD_dry_run.out
+
+snakemake -j 100 --use-singularity --cluster-config config/slurm/cluster.yaml --cluster "sbatch -A naiss2023-5-52 -p core --ntasks 17 -t 1-00:00:00" -npr &> 231206_1_dry_run.out
+
+snakemake -j 100 --use-singularity --cluster-config config/slurm/cluster.yaml --cluster "sbatch -A naiss2023-5-52"
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config
+
+
+screen -S britomartis
+
+
+screen -r britomartis
+
+
+######## Making sample sample lists
+
+BAJK_1_2016,BAJK_1_2016,L001,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1039/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1039_S39_L001_R1_001.fastq.gz,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1039/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1039_S39_L001_R2_001.fastq.gz
+GAST_6_1965,GAST_6_1965,L001,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1004/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1004_S4_L001_R1_001.fastq.gz,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1004/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1004_S4_L001_R2_001.fastq.gz
+КALM_11_1997,КALM_11_1997,L001,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1036/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1036_S36_L001_R1_001.fastq.gz,/proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1036/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1036_S36_L001_R2_001.fastq.gz
+
+KALM12018_01_L1 AHKFY7DSX5.L001.S49 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1049/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1049_S49_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1049/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1049_S49_L001_R2_001.fastq.gz
+
+awk -F "_"  'print $1,$2,$3,'_01_L1'' smaplelist.tsv
+
+awk -F'[_|,]' -v OFS='' '{print $1, $2, $3, "_01_L1 AHKFY7DSX5.L001.", $18," illumina "}' smaplelist.tsv > sample_section.list
+awk -F',' -v OFS=' ' '{print $4,$5}' smaplelist.tsv > sample_section2.list
+
+paste -d '' sample_section.list sample_section2.list
+
+CHEH22004_01_L1 AHKFY7DSX5.L001.S48 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1048/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1048_S48_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1048/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1048_S48_L001_R2_001.fastq.gz
+RUSS52008_01_L1 AHKFY7DSX5.L001.S42 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1042/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1042_S42_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1042/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1042_S42_L001_R2_001.fastq.gz
+VAST21999_01_L1 AHKFY7DSX5.L001.S66 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1066/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1066_S66_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1066/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1066_S66_L001_R2_001.fastq.gz
+GAST51943_01_L1 AHKFY7DSX5.L001.S15 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1015/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1015_S15_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1015/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1015_S15_L001_R2_001.fastq.gz
+POLA22003_01_L1 AHKFY7DSX5.L001.S73 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1073/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1073_S73_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1073/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1073_S73_L001_R2_001.fastq.gz
+KRAS12002_01_L1 AHKFY7DSX5.L001.S52 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1052/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1052_S52_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1052/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1052_S52_L001_R2_001.fastq.gz
+BELA12004_01_L1 AHKFY7DSX5.L001.S45 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1045/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1045_S45_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1045/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1045_S45_L001_R2_001.fastq.gz
+UPPS21958_01_L1 AHKFY7DSX5.L001.S23 illumina /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1023/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1023_S23_L001_R1_001.fastq.gz /proj/uppstore2017185/b2014034/private/raw_data/Assmann/DataDelivery_2023-03-07_15-07-05_ngisthlm00193/files/P27562/P27562_1023/02-FASTQ/230303_A00689_0768_AHKFY7DSX5/P27562_1023_S23_L001_R2_001.fastq.gz
+
+
+snakemake -j 100 --use-singularity --cluster-config config/slurm/cluster.yaml --rerun-incomplete --cluster "sbatch -A naiss2023-5-52 -p core --ntasks 16 -t 1-00:00:00" -npr &> 231206_3_dry_run.out
+
+snakemake -j 100 --use-singularity --cluster-config config/slurm/cluster.yaml --rerun-incomplete --cluster "sbatch -A naiss2023-5-52"
+
+
+samtools view KALM12018_01_L1.sorted.bam  HG992177.1:13411760-14019340 -o KALM12018_01_L1.sorted.sect.cram
+
+
+snakemake -j 100 --use-singularity --cluster-config config/slurm/cluster.yaml --rerun-incomplete --cluster "sbatch -A naiss2023-5-52" -np
+
+
+# Modifying GenErode
+# Changed trimming settings
+### trying to run
+
+
+# Back to ANGSD
+
+less
+
+# Historical
+
+# contemporary
