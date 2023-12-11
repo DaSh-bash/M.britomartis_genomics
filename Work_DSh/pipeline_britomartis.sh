@@ -5121,9 +5121,10 @@ TRIM_DIR="${PROJECT_DIR}/05_manual/historical/trimming"
 REF_DIR="${PROJECT_DIR}/04_GenErode/GenErode/config/reference"
 REF_GENOME="${REF_DIR}/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
 FILE_LIST="${TRIM_DIR}/file_list.txt"
+OUTPUT_DIR="${PROJECT_DIR}/05_manual/modern/mapping"
 
 # Load modules
-module load bioinfo-tools bwa samtools
+module load bioinfo-tools bwa samtools picard
 
 # Navigate to the trimming directory
 cd "$TRIM_DIR"
@@ -5137,11 +5138,22 @@ FILE_R1=$(sed -n "${LINE_NUM}p" "$FILE_LIST")
 FILE_R2=$(sed -n "${NEXT_LINE_NUM}p" "$FILE_LIST")
 
 # Extracting the common prefix from the first filename
-PREFIX=$(echo "$FILE_1" | cut -d'_' -f 1)
+PREFIX=$(echo "$FILE_R1" | cut -d'_' -f 1)
 
 # Run alignment
 bwa mem -M -t 20 "$REF_GENOME" "$FILE_R1" "$FILE_R2" | \
-samtools sort -@ 20 - > "${PREFIX}.fastp.sorted.bam"
+samtools sort -@ 20 - > "${OUTPUT_DIR}/${PREFIX}.fastp.sorted.bam"
+java -jar $PICARD_ROOT/picard.jar MarkDuplicates -Xmx8g \
+   INPUT="${OUTPUT_DIR}/${PREFIX}.fastp.sorted.bam" \
+   OUTPUT="${OUTPUT_DIR}/${PREFIX}.fastp.sorted.rmdup.bam" \
+   METRICS_FILE="${OUTPUT_DIR}/${PREFIX}.merged.rmdup_metrics.txt"
+
+
+
+
+
+
+
 
 
 ########
@@ -5370,3 +5382,103 @@ samtools view SMAL21967.fastp.sorted.bam  HG992177.1:13411760-14019340 -o bam_vi
 ########
 
 echo "${PREFIX}"
+
+
+# Modifying GenErode
+# Changed trimming settings
+### trying to run
+
+
+# Back to ANGSD
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 10:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load modules
+module load bioinfo-tools ANGSD
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/
+
+angsd -b rerun_Dec7/filtered_paths_historical_sweden.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna \
+-anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna \
+-out rerun_Dec7/historical_sweden -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 \
+ -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 \
+ -SNP_pval 1e-3 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf coordinates_noZ_nomt.list
+
+# Historical
+
+# contemporary
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 10:00:00
+#SBATCH -J angsd
+#SBATCH --output=angsd_sweden.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load modules
+module load bioinfo-tools ANGSD
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/
+
+angsd -b rerun_Dec7/filtered_paths_modern_world.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna \
+-anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/reference_genome_M.athalia/GCA_905220545.2_ilMelAtha1.2_genomic.fna \
+-out rerun_Dec7/modern_world -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 \
+ -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 \
+ -SNP_pval 1e-3 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 10 -rf coordinates_noZ_nomt.list
+
+
+
+ [detached from 31550.pts-8.rackham1]
+
+
+ ###################
+ ##### Retrimmed ANGSD
+##################
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 8
+#SBATCH -t 10:00:00
+#SBATCH -J angsd_hist_75
+#SBATCH --output=angsd_hist_75.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Base directory
+BASE_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+
+# Minimum number of individuals
+MIN_IND=25
+
+# Load modules
+module load bioinfo-tools ANGSD
+
+# Change to ANGSD directory
+ANGSD_DIR="${BASE_DIR}/05_manual/historical/calling_angsd"
+cd "$ANGSD_DIR"
+
+# Define paths
+REF_GENOME="${BASE_DIR}/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+FILTERED_PATHS="${BASE_DIR}/05_manual/historical/calling_angsd/bam_paths_historical_sweden.txt"
+COORDINATES_LIST="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list"
+
+# Run ANGSD
+angsd -b "$FILTERED_PATHS" -ref "$REF_GENOME" \
+-anc "$REF_GENOME" \
+-out "${ANGSD_DIR}/ansgd_hist_${MIN_IND}" -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 \
+-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 \
+-SNP_pval 1e-3 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd "$MIN_IND" -rf "$COORDINATES_LIST"
+
+
+
+
+ls -1 *sorted.rmdup.bam* > bam_list.txt
