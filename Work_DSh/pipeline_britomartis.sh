@@ -4635,3 +4635,738 @@ less
 # Historical
 
 # contemporary
+
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/data/raw_reads_symlinks/historical
+
+fastp \
+    --in1 GAST_5_1943-L001_1.fastq.gz \
+    --in2 GAST_5_1943-L001_2.fastq.gz \
+    --out1 GAST_5_1943-L001_1.fastp.fastq.gz \
+    --out2 GAST_5_1943-L001_2.fastp.fastq.gz \
+    --json GAST_5_1943-L001.fastp.json \
+    --html GAST_5_1943-L001.fastp.html \
+    --thread 12 \
+    --trim_front1=20 \
+    --trim_tail1=20 \
+    --detect_adapter_for_pe \
+    -p \
+    --adapter_fasta adapters.fasta \
+    --dedup  \
+    --correction --cut_front 5 --cut_tail 5 \
+    --merge --merged_out=GAST_5_1943-L001_2.fastp.merged.fastq.gz \
+     --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+     --unqualified_percent_limit 10 --n_base_limit 0
+
+
+
+
+ #!/bin/bash
+
+ #SBATCH --job-name=fastp_processing
+ #SBATCH --output=fastp_%A_%a.out
+ #SBATCH --error=fastp_%A_%a.err
+ #SBATCH --array=1-<number_of_lines>/2
+ #SBATCH --time=02:00:00
+ #SBATCH --cpus-per-task=12
+ #SBATCH --mem=4G
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 10
+#SBATCH -t 10:00:00
+#SBATCH -J hist_fastp
+#SBATCH --output=historical_trimming.out
+#SBATCH --array=1-33
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual
+
+module load bioinfo-tools fastp
+
+# Reading file names from an input file, where each file is listed on a new line
+FILE_LIST="path.list"
+
+# Calculate the line numbers for R1 and R2 files
+LINE_NUM=$((SLURM_ARRAY_TASK_ID * 2 - 1))
+NEXT_LINE_NUM=$((LINE_NUM + 1))
+
+# Extract the file names
+FILE_R1=$(sed -n "${LINE_NUM}p" $FILE_LIST)
+FILE_R2=$(sed -n "${NEXT_LINE_NUM}p" $FILE_LIST)
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo $FILE_R1 | cut -d'_' -f 1,2,3,4,5,6)
+
+# Run the fastp command
+fastp \
+   --in1 $FILE_R1 \
+   --in2 $FILE_R2 \
+   --out1 ${PREFIX}_1.fastp.fastq.gz \
+   --out2 ${PREFIX}_2.fastp.fastq.gz \
+   --json ${PREFIX}.fastp.json \
+   --html ${PREFIX}.fastp.html \
+   --thread 10 \
+   --trim_front1=10 \
+   --trim_tail1=10 \
+   --detect_adapter_for_pe \
+   -p \
+   --dedup \
+   --correction --cut_front 5 --cut_tail 5 \
+   --merge --merged_out=${PREFIX}_2.fastp.merged.fastq.gz \
+   --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+   --unqualified_percent_limit 10 --n_base_limit 0
+
+
+awk 'print {'/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/data/raw_reads_symlinks/historical',$1}' historical_symlinks.list
+
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/trimming
+
+#Controllinf this trimming
+
+ls -1 *merged* > file_list.txt
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 1
+#SBATCH -t 00:20:00
+#SBATCH -J hist_fastqc
+#SBATCH --output=historical_trimmingQC.out
+#SBATCH --array=1-33
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/trimming
+
+module load bioinfo-tools fastp FastQC
+
+# Reading file names from an input file, where each file is listed on a new line
+FILE_LIST="file_list.txt"
+
+# Calculate the line numbers for R1 and R2 files
+#LINE_NUM=$((SLURM_ARRAY_TASK_ID * 2 - 1))
+
+# Extract the file names
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $FILE_LIST)
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo $FILE_R1 | cut -d'_' -f 1,2,3,4,5,6)
+
+# Run the fastp command
+fastqc $FILE_1
+
+
+#Mapping
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10-00:00:00
+#SBATCH -J remapping
+#SBATCH --output=remapping.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-33
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/trimming
+
+module load bioinfo-tools bwa samtools
+
+# Reading file names from an input file, where each file is listed on a new line
+FILE_LIST="file_list.txt"
+
+# Extract the file names
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $FILE_LIST)
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo $FILE_R1 | cut -d'_' -f 1)
+
+#Run alignment
+bwa aln -l 16500 -n 0.01 -o 2 -t 20 /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa  $FILE_1 > $PREFIX.sai
+bwa samse /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa $PREFIX.sai $FILE_1 | samtools sort -@ 20 - > $FILE_1.fastp.sorted.bam
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10-00:00:00
+#SBATCH -J remapping
+#SBATCH --output=remapping.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-33
+
+# Load required modules
+module load bwa
+module load samtools
+
+# Define variables (replace these with actual paths or values)
+REF_PATH="/path/to/reference"
+INDEX="/path/to/index"
+FASTQ_MOD_R1="/path/to/fastq_mod_R1"
+FASTQ_MOD_R2="/path/to/fastq_mod_R2"
+RG_PATH="/path/to/readgroup_file"
+OUTPUT_BAM="/path/to/output.bam"
+LOG_FILE="/path/to/logfile.log"
+
+# Run the command
+bwa mem -M -t 8 -R $(cat ${RG_PATH}) ${REF_PATH} ${FASTQ_MOD_R1} ${FASTQ_MOD_R2} | \
+samtools sort -@ 8 -o ${OUTPUT_BAM} - 2> ${LOG_FILE}
+
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10-00:00:00
+#SBATCH -J remapping
+#SBATCH --output=remapping.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-33
+
+# Stop on error
+set -e
+
+# Directories and file paths
+PROJECT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+TRIM_DIR="${PROJECT_DIR}/05_manual/historical/trimming"
+REF_DIR="${PROJECT_DIR}/04_GenErode/GenErode/config/reference"
+REF_GENOME="${REF_DIR}/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+FILE_LIST="${TRIM_DIR}/file_list.txt"
+
+# Load modules
+module load bioinfo-tools bwa samtools
+
+# Navigate to the trimming directory
+cd "$TRIM_DIR"
+
+# Extract the file names
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$FILE_LIST")
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo "$FILE_1" | cut -d'_' -f 1)
+
+# Run alignment
+bwa aln -l 16500 -n 0.01 -o 2 -t 20 "$REF_GENOME" "$FILE_1" > "${PREFIX}.sai"
+bwa samse "$REF_GENOME" "${PREFIX}.sai" "${PREFIX}" | samtools sort -@ 20 -o "${FILE_1}.fastp.sorted.bam"
+
+# Clean up intermediate files
+rm "${PREFIX}.sai"
+
+# Add optional commands for error output, if any specific error logging is required
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10-00:00:00
+#SBATCH -J remapping
+#SBATCH --output=remapping.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-33
+
+echo "Starting Dry Run of SLURM Job"
+
+# Directories and file paths
+echo "Setting up directories and file paths..."
+PROJECT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+TRIM_DIR="${PROJECT_DIR}/05_manual/historical/trimming"
+REF_DIR="${PROJECT_DIR}/04_GenErode/GenErode/config/reference"
+REF_GENOME="${REF_DIR}/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+FILE_LIST="${TRIM_DIR}/file_list.txt"
+
+# Simulating module load
+echo "Loading modules: bioinfo-tools bwa samtools"
+
+# Simulating navigation to the trimming directory
+echo "Navigating to directory: $TRIM_DIR"
+
+# Extract the file names (simulated)
+echo "Extracting file name from list..."
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$FILE_LIST")
+echo "FILE_1: $FILE_1"
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo "$FILE_1" | cut -d'_' -f 1)
+echo "PREFIX: $PREFIX"
+
+# Display the bwa alignment command
+echo "bwa aln -l 16500 -n 0.01 -o 2 -t 20 $REF_GENOME $FILE_1 > ${PREFIX}.sai"
+
+# Display the bwa samse and samtools sort commands
+echo "bwa samse $REF_GENOME ${PREFIX}.sai $FILE_1 | samtools sort -@ 20 -o ${PREFIX}.sorted.bam"
+
+# Simulating cleanup of intermediate files
+echo "Cleaning up intermediate files: rm ${PREFIX}.sai"
+
+echo "Dry Run Completed"
+
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10-00:00:00
+#SBATCH -J remapping
+#SBATCH --output=remapping.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-33
+
+# Stop on error
+set -e
+
+# Directories and file paths
+PROJECT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+TRIM_DIR="${PROJECT_DIR}/05_manual/historical/trimming"
+REF_DIR="${PROJECT_DIR}/04_GenErode/GenErode/config/reference"
+REF_GENOME="${REF_DIR}/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+FILE_LIST="${TRIM_DIR}/file_list.txt"
+
+# Load modules
+module load bioinfo-tools bwa samtools
+
+# Navigate to the trimming directory
+cd "$TRIM_DIR"
+
+# Extract the file names
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$FILE_LIST")
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo "$FILE_1" | cut -d'_' -f 1)
+
+# Run alignment
+bwa aln -l 16500 -n 0.01 -o 2 -t 20 "$REF_GENOME" "$FILE_1" > "${PREFIX}.sai"
+bwa samse "$REF_GENOME" "${PREFIX}.sai" "$FILE_1" | samtools sort -@ 20 -o "${PREFIX}.fastp.sorted.bam"
+
+# Clean up intermediate files
+rm "${PREFIX}.sai"
+
+# Add optional commands for error output, if any specific error logging is required
+
+
+#Remapping modern
+
+# 1. Remove really bad samples
+
+BELA_1_2004
+KALM_10_1983
+KALM111997
+SMAL_5_19
+RUSS_6_2008
+JAPA_2_1994
+
+### 2. Trim Agin
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 10
+#SBATCH -t 01:00:00
+#SBATCH -J hist_fastp
+#SBATCH --output=modern_super_trimming.out
+#SBATCH --array=1-33
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+cd /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern
+
+module load bioinfo-tools fastp FastQC
+
+# Reading file names from an input file, where each file is listed on a new line
+FILE_LIST="path.list"
+
+# Calculate the line numbers for R1 and R2 files
+LINE_NUM=$((SLURM_ARRAY_TASK_ID * 2 - 1))
+NEXT_LINE_NUM=$((LINE_NUM + 1))
+
+# Extract the file names
+FILE_R1=$(sed -n "${LINE_NUM}p" $FILE_LIST)
+FILE_R2=$(sed -n "${NEXT_LINE_NUM}p" $FILE_LIST)
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo $FILE_R1 | cut -d'_' -f 1)
+
+# Run the fastp command
+fastp \
+   --in1 $FILE_R1 \
+   --in2 $FILE_R2 \
+   --out1 ${PREFIX}_1.superfastp.fastq.gz \
+   --out2 ${PREFIX}_2.superfastp.fastq.gz \
+   --json ${PREFIX}.superfastp.json \
+   --html ${PREFIX}.superfastp.html \
+   --thread 10 \
+   --detect_adapter_for_pe \
+   -p \
+   --dedup \
+   --correction --cut_front 5 --cut_tail 5 \
+   --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+   --unqualified_percent_limit 10 --n_base_limit 0
+
+# Run the fastqc command
+fastqc ${PREFIX}_1.superfastp.fastq.gz
+fastqc ${PREFIX}_2.superfastp.fastq.gz
+
+
+
+
+
+###ls -1 *merged* > file_list.txt
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 10
+#SBATCH -t 01:00:00
+#SBATCH -J modern_super
+#SBATCH --output=modern_super_trimming.out
+#SBATCH --array=1-21
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Base directory
+BASE_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern"
+
+# Navigate to the base directory
+cd "$BASE_DIR"
+
+# Load required modules
+module load bioinfo-tools fastp FastQC
+
+# File list
+FILE_LIST="$BASE_DIR/path.list"
+
+# Ensure the file list exists
+if [ ! -f "$FILE_LIST" ]; then
+    echo "File list not found: $FILE_LIST"
+    exit 1
+fi
+
+# Calculate line numbers for R1 and R2 files
+LINE_NUM=$((SLURM_ARRAY_TASK_ID * 2 - 1))
+NEXT_LINE_NUM=$((LINE_NUM + 1))
+
+# Extract file names
+FILE_R1=$(sed -n "${LINE_NUM}p" "$FILE_LIST")
+FILE_R2=$(sed -n "${NEXT_LINE_NUM}p" "$FILE_LIST")
+
+# Ensure the input files exist
+if [ ! -f "$FILE_R1" ] || [ ! -f "$FILE_R2" ]; then
+    echo "Input files not found: $FILE_R1, $FILE_R2"
+    exit 1
+fi
+
+# Extract common prefix from the first filename
+PREFIX=$(echo "$FILE_R1" | cut -d'_' -f 1)
+
+# Run the fastp command
+fastp \
+   --in1 "$FILE_R1" \
+   --in2 "$FILE_R2" \
+   --out1 "${PREFIX}_1.superfastp.fastq.gz" \
+   --out2 "${PREFIX}_2.superfastp.fastq.gz" \
+   --json "${PREFIX}.superfastp.json" \
+   --html "${PREFIX}.superfastp.html" \
+   --thread 10 \
+   --detect_adapter_for_pe \
+   -p \
+   --dedup \
+   --correction --cut_front 5 --cut_tail 5 \
+   --qualified_quality_phred 20 --average_qual 30 --length_required 35 \
+   --unqualified_percent_limit 10 --n_base_limit 0
+
+# Run the fastqc command
+fastqc "${PREFIX}_1.superfastp.fastq.gz"
+fastqc "${PREFIX}_2.superfastp.fastq.gz"
+
+
+# /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern
+
+
+
+
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10-00:00:00
+#SBATCH -J remappingm
+#SBATCH --output=remappingm.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+#SBATCH --array=1-21
+
+# Stop on error
+set -e
+
+# Directories and file paths
+PROJECT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+TRIM_DIR="${PROJECT_DIR}/05_manual/historical/trimming"
+REF_DIR="${PROJECT_DIR}/04_GenErode/GenErode/config/reference"
+REF_GENOME="${REF_DIR}/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+FILE_LIST="${TRIM_DIR}/file_list.txt"
+
+# Load modules
+module load bioinfo-tools bwa samtools
+
+# Navigate to the trimming directory
+cd "$TRIM_DIR"
+
+# Calculate line numbers for R1 and R2 files
+LINE_NUM=$((SLURM_ARRAY_TASK_ID * 2 - 1))
+NEXT_LINE_NUM=$((LINE_NUM + 1))
+
+# Extract file names
+FILE_R1=$(sed -n "${LINE_NUM}p" "$FILE_LIST")
+FILE_R2=$(sed -n "${NEXT_LINE_NUM}p" "$FILE_LIST")
+
+# Extracting the common prefix from the first filename
+PREFIX=$(echo "$FILE_1" | cut -d'_' -f 1)
+
+# Run alignment
+bwa mem -M -t 20 "$REF_GENOME" "$FILE_R1" "$FILE_R2" | \
+samtools sort -@ 20 - > "${PREFIX}.fastp.sorted.bam"
+
+
+########
+## Remove duplicates
+########
+
+# historical
+
+rule rmdup_historical_bams:
+    """Remove PCR duplicates from historical samples using Pontus Skoglund's custom script for duplicate removal (checks both ends of a read)"""
+    """The script was modified so that also unmapped reads are printed to the output bam file so that they are not lost"""
+    input:
+        merged=rules.merge_historical_bams_per_index.output.merged,
+        index="results/historical/mapping/" + REF_NAME + "/{sample}_{index}.merged.bam.bai",
+    output:
+        rmdup=temp("results/historical/mapping/" + REF_NAME + "/{sample}_{index}.merged.rmdup.bam"),
+    threads: 6
+    log:
+        "results/logs/3.1_bam_rmdup_realign_indels/historical/" + REF_NAME + "/{sample}_{index}_rmdup_historical_bams.log",
+    singularity:
+        "docker://biocontainers/samtools:v1.9-4-deb_cv1"
+    shell:
+        """
+        samtools view -@ {threads} -h {input.merged} | python3 workflow/scripts/samremovedup.py  | samtools view -b -o {output.rmdup} 2> {log}
+        """
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 6
+#SBATCH -t 01:00:00
+#SBATCH -J hist_rmdup
+#SBATCH --output=hist_rmdup.out
+#SBATCH --array=1-33
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load required modules
+module load bioinfo-tools samtools
+
+# Base directories
+TRIM_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/trimming"
+OUTPUT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/mapping"
+cd "${TRIM_DIR}"
+
+# Path to the Python script for duplicate removal
+PYTHON_SCRIPT="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/workflow/scripts/samremovedup.py"
+
+# File list
+FILE_LIST="${TRIM_DIR}/bam_list.txt"
+
+# Extract the file names
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$FILE_LIST")
+
+# Extracting the common prefix from the filename
+PREFIX=$(basename "$FILE_1" | cut -d'.' -f 1)
+
+# Define output BAM file
+OUTPUT_BAM="${OUTPUT_DIR}/${PREFIX}.fastp.sorted.rmdup.bam"
+
+# Run the command
+samtools index "$FILE_1"
+samtools view -@ 6 -h "$FILE_1" | python3 "$PYTHON_SCRIPT" | samtools view -b -o "$OUTPUT_BAM"
+samtools index "$OUTPUT_BAM"
+
+
+ls -1 *sorted.bam* > bam_list.txt
+
+# modern
+rule rmdup_modern_bams:
+    """Mark duplicates in modern samples"""
+    input:
+        merged=rules.merge_modern_bams_per_index.output.merged,
+        index="results/modern/mapping/" + REF_NAME + "/{sample}_{index}.merged.bam.bai",
+    output:
+        rmdup=temp("results/modern/mapping/" + REF_NAME + "/{sample}_{index}.merged.rmdup.bam"),
+        metrix=temp("results/modern/mapping/" + REF_NAME + "/{sample}_{index}.merged.rmdup_metrics.txt"),
+    threads: 2
+    log:
+        "results/logs/3.1_bam_rmdup_realign_indels/modern/" + REF_NAME + "/{sample}_{index}_rmdup_modern_bams.log",
+    singularity:
+        "docker://quay.io/biocontainers/picard:2.26.6--hdfd78af_0"
+    shell:
+        ""
+        mem=$(((6 * {threads}) - 2))
+        picard MarkDuplicates -Xmx${{mem}}g INPUT={input.merged} OUTPUT={output.rmdup} METRICS_FILE={output.metrix} 2> {log}
+        ""
+
+        #!/bin/bash
+        #SBATCH -A naiss2023-5-52
+        #SBATCH -p core
+        #SBATCH -n 6
+        #SBATCH -t 01:00:00
+        #SBATCH -J hist_rmdup
+        #SBATCH --output=hist_rmdup.out
+        #SBATCH --array=1-33
+        #SBATCH --mail-user=daria.shipilina@gmail.com
+        #SBATCH --mail-type=ALL
+
+        echo "Starting Dry Run"
+
+        # Simulating module load
+        echo "Loading modules: bioinfo-tools, samtools"
+
+        # Base directories
+        TRIM_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/trimming"
+        OUTPUT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/mapping"
+        echo "Changing directory to TRIM_DIR: ${TRIM_DIR}"
+
+        # Path to the Python script for duplicate removal
+        PYTHON_SCRIPT="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/workflow/scripts/samremovedup.py"
+
+        # File list
+        FILE_LIST="${TRIM_DIR}/bam_list.txt"
+        echo "Using file list: ${FILE_LIST}"
+
+        # Extract the file names
+        echo "Extracting file name based on SLURM_ARRAY_TASK_ID"
+        FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$FILE_LIST")
+        echo "FILE_1: $FILE_1"
+
+        # Extracting the common prefix from the filename
+        echo "Extracting prefix from FILE_1"
+        PREFIX=$(basename "$FILE_1" | cut -d'.' -f 1)
+        echo "PREFIX: $PREFIX"
+
+        # Define output BAM file
+        OUTPUT_BAM="${OUTPUT_DIR}/${PREFIX}.fastp.sorted.rmdup.bam"
+        echo "Output BAM file: $OUTPUT_BAM"
+
+        # Display the samtools index command
+        echo "samtools index command: samtools index \"$FILE_1\""
+
+        # Display the samtools view and python script pipeline
+        echo "samtools view and Python script pipeline:"
+        echo "samtools view -@ 6 -h \"$FILE_1\" | python3 \"$PYTHON_SCRIPT\" | samtools view -b -o \"$OUTPUT_BAM\""
+
+        # Display the final samtools index command
+        echo "Final samtools index command: samtools index \"$OUTPUT_BAM\""
+
+        echo "Dry Run Completed"
+
+
+
+
+rmdup_historical_bams:
+time: 3-00:00:00
+cpus-per-task: 6
+rmdup_modern_bams:
+time: 3-00:00:00
+cpus-per-task: 2
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 6
+#SBATCH -t 01:00:00
+#SBATCH -J hist_rmdup
+#SBATCH --output=hist_rmdup.out
+#SBATCH --array=1-21
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load required modules
+module load bioinfo-tools samtools picard
+
+# Base directories
+TRIM_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern/trimming"
+OUTPUT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern/mapping"
+cd "${TRIM_DIR}"
+
+# File list
+FILE_LIST="${TRIM_DIR}/bam_list.txt"
+
+# Extract the file names
+FILE_1=$(sed -n 1p "$FILE_LIST")
+
+# Extracting the common prefix from the filename
+PREFIX=$(basename "$FILE_1" | cut -d'.' -f 1)
+
+# Calculate memory allocation for Picard
+THREADS=2
+MEM=$((6 * THREADS - 2))
+
+# Run Picard MarkDuplicates command
+java -jar $PICARD_ROOT/picard.jar MarkDuplicates -Xmx${MEM}g \
+   INPUT="$FILE_1" \
+   OUTPUT="${FILE_1}.rmdup.bam" \
+   METRICS_FILE="${METRICS_FILE}.merged.rmdup_metrics.txt"
+
+
+
+   # Base directories
+   TRIM_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/trimming"
+   OUTPUT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/mapping"
+   cd "${TRIM_DIR}"
+
+   # Path to the Python script for duplicate removal
+   PYTHON_SCRIPT="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/workflow/scripts/samremovedup.py"
+
+   # File list
+   FILE_LIST="${TRIM_DIR}/bam_list.txt"
+
+
+########
+## BAM manual QC
+########
+module load samtools
+samtools index DALA11965.fastp.sorted.bam
+samtools view DALA11965.fastp.sorted.bam  HG992177.1:13411760-14019340 -o bam_visual_control/DALA11965.fastp.sorted.sect.bam
+
+samtools index GAST51943.fastp.sorted.bam
+samtools view GAST51943.fastp.sorted.bam  HG992177.1:13411760-14019340 -o bam_visual_control/GAST51943.fastp.sect.bam
+
+samtools index SMAL21967.fastp.sorted.bam
+samtools view SMAL21967.fastp.sorted.bam  HG992177.1:13411760-14019340 -o bam_visual_control/SMAL21967.fastp.sorted.sect.bam
+
+########
+## ANGSD
+########
+
+########
+## PCA
+########
+
+echo "${PREFIX}"
