@@ -5628,3 +5628,146 @@ java -jar $PICARD_ROOT/picard.jar MarkDuplicates \
    METRICS_FILE="$PREFIX".merged.rmdup_metrics.txt
 
 samtools index "$PREFIX".fastp.sorted.rmdup.bam
+
+
+ ls -1 *sorted.rmdup.bam$* | awk '{print "/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern/mapping/"$11}'
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10:00:00
+#SBATCH -J angsd_modern_plink
+#SBATCH --output=angsd_modern_plink.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load necessary modules
+module load bioinfo-tools ANGSD
+
+# Define directories and file paths for easier management
+PROJECT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+BAM_PATHS="${PROJECT_DIR}/05_manual/modern/calling_angsd/bam_paths_modern.txt"
+REF_GENOME="${PROJECT_DIR}/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+COORDINATES_LIST="${PROJECT_DIR}/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list"
+OUTPUT_DIR="${PROJECT_DIR}/05_manual/modern/calling_angsd" # Make sure this directory exists or create it before running the script
+
+# Navigate to output directory
+cd "$OUTPUT_DIR"
+
+# Run ANGSD
+angsd -bam "$BAM_PATHS" \
+      -ref "$REF_GENOME" \
+      -out angsd_hist_plink \
+      -P 20 \
+      -doPlink 2 \
+      -doGeno -4 \
+      -doMajorMinor 1 \
+      -doCounts 1 \
+      -doMaf 2 \
+      -postCutoff 0.99 \
+      -uniqueOnly 1 \
+      -remove_bads 1 \
+      -gl 1 \
+      -dopost 1 \
+      -only_proper_pairs 1 \
+      -trim 0 \
+      -C 50 \
+      -skipTriallelic 1 \
+      -SNP_pval 1e-6 \
+      -geno_minDepth 4 \
+      -rf "$COORDINATES_LIST"
+
+
+-> Done reading data waiting for calculations to finish
+       -> Done waiting for threads
+       -> Output filenames:
+               ->"angsd_hist_plink.arg"
+               ->"angsd_hist_plink.mafs.gz"
+               ->"angsd_hist_plink.tfam"
+               ->"angsd_hist_plink.tped"
+       -> Tue Dec 12 19:39:41 2023
+       -> Arguments and parameters for all analysis are located in .arg file
+       -> Total number of sites analyzed: 351317124
+       -> Number of sites retained after filtering: 653249
+       [ALL done] cpu-time used =  49440.23 sec
+       [ALL done] walltime used =  6904.00 sec
+
+########
+## plink development
+########
+
+##### 1. Prune
+plink --tped outnames.tped --tfam outnames.tfam --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 30 0.1 --out britomartis.hist
+
+# 2. Check missing genotypes
+plink --tped outnames.tped --tfam outnames.tfam --double-id --allow-extra-chr --set-missing-var-ids @:# --missing --out miss_stat
+
+plink --tped outnames.tped --tfam outnames.tfam --geno 0.3 --maf 0.05 --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in --make-bed --pca --out britomartis.PCAhist
+
+# 3.
+
+
+
+##### plink analysis historical
+
+BASE_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd"
+TPED_FILE="${BASE_DIR}/angsd_hist_plink.tped"
+TFAM_FILE="${BASE_DIR}/angsd_hist_plink.tfam"
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --double-id --allow-extra-chr --set-missing-var-ids @:# --missing --out miss_stat_historical
+
+Total genotyping rate is 0.075041
+
+FID  IID MISS_PHENO   N_MISS   N_GENO   F_MISS
+  1    1          Y   641996   653249   0.9828
+  2    1          Y   650713   653249   0.9961
+  3    1          Y   630056   653249   0.9645
+  4    1          Y   648347   653249   0.9925
+  5    1          Y   456373   653249   0.6986
+  6    1          Y   651870   653249   0.9979
+  7    1          Y   552817   653249   0.8463
+  8    1          Y   650098   653249   0.9952
+  9    1          Y   578185   653249   0.8851
+ 10    1          Y   602971   653249    0.923
+ 11    1          Y   608874   653249   0.9321
+ 12    1          Y   629880   653249   0.9642
+ 13    1          Y   650265   653249   0.9954
+ 14    1          Y   652207   653249   0.9984
+ 15    1          Y   651406   653249   0.9972
+ 16    1          Y   487451   653249   0.7462
+ 17    1          Y   617299   653249    0.945
+ 18    1          Y   618878   653249   0.9474
+ 19    1          Y   555393   653249   0.8502
+ 20    1          Y   642271   653249   0.9832
+ 21    1          Y   626884   653249   0.9596
+ 22    1          Y   405832   653249   0.6213
+ 23    1          Y   642805   653249    0.984
+ 24    1          Y   479258   653249   0.7337
+ 25    1          Y   626700   653249   0.9594
+ 26    1          Y   652802   653249   0.9993
+ 27    1          Y   615543   653249   0.9423
+ 28    1          Y   649904   653249   0.9949
+ 29    1          Y   582761   653249   0.8921
+ 30    1          Y   651365   653249   0.9971
+ 31    1          Y   605262   653249   0.9265
+ 32    1          Y   618848   653249   0.9473
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.3 --out britomartis.hist
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.4 --maf 0.05 --double-id \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in \
+    --make-bed --out britomartis.hist
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.4 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --mind 0.9800 --set-missing-var-ids @:# --extract britomartis.hist.prune.in  \
+    --make-bed --out britomartisSTRING.hist
+
+1013 variants and 22 people pass filters and QC.
+
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in  \
+    --make-bed --out britomartisALLIND.hist
+    
+132 variants and 32 people pass filters and QC.
