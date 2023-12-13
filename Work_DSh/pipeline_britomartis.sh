@@ -5341,7 +5341,7 @@ THREADS=2
 MEM=$((6 * THREADS - 2))
 
 # Run Picard MarkDuplicates command
-java -jar $PICARD_ROOT/picard.jar MarkDuplicates -Xmx${MEM}g \
+java -jar picard.jar MarkDuplicates -Xmx${MEM}g \
    INPUT="$FILE_1" \
    OUTPUT="${FILE_1}.rmdup.bam" \
    METRICS_FILE="${METRICS_FILE}.merged.rmdup_metrics.txt"
@@ -5377,9 +5377,6 @@ samtools view SMAL21967.fastp.sorted.bam  HG992177.1:13411760-14019340 -o bam_vi
 ## ANGSD
 ########
 
-########
-## PCA
-########
 
 echo "${PREFIX}"
 
@@ -5472,7 +5469,7 @@ FILTERED_PATHS="${BASE_DIR}/05_manual/historical/calling_angsd/bam_paths_histori
 COORDINATES_LIST="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list"
 
 # Run ANGSD
-angsd -b "$FILTERED_PATHS" -ref "$REF_GENOME" \
+angsd -b "${BASE_DIR}/05_manual/historical/calling_angsd/bam_paths_historical_sweden.txt" -ref "$REF_GENOME" \
 -anc "$REF_GENOME" \
 -out "${ANGSD_DIR}/ansgd_hist_${MIN_IND}" -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2  -setMinDepth 5 -setMaxDepth 30 \
 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 \
@@ -5482,3 +5479,152 @@ angsd -b "$FILTERED_PATHS" -ref "$REF_GENOME" \
 
 
 ls -1 *sorted.rmdup.bam* > bam_list.txt
+
+awk -F"/" '{print "/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/mapping/"$3}' bam_paths_historical_sweden.txt
+awk -F"/" '{print $3}' bam_paths_historical_sweden.txt
+
+awk -F"/" '{print "/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/mapping/"$11}' bam_paths_historical_sweden.txt
+
+
+angsd -b /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd/bam_paths_historical_sweden_.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd/ansgd_hist_25 -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2 -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 -SNP_pval 1e-3 -doMaf 1 -doCounts 1 -GL 2 -doSaf 1 -minmaf 0.05 -minInd 25 -rf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list
+
+
+
+########
+## PCA
+########
+
+/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/rerun_Dec7
+
+
+pcangsd -beagle ansgd_hist_16.beagle.gz -out ansgd_hist_16 -threads 64
+
+
+########
+## vcf approach
+########
+
+
+angsd -b /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd/bam_paths_historical_sweden_.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -out /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd/ansgd_hist_16 -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2 -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -gl 1 -dopost 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 -SNP_pval 1e-6 -doMaf 1 -doCounts 1 -doSaf 1 -dobcf 1 -rf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list
+
+bcftools stats ansgd_hist_16.bcf | head -n 30 | tail -n 9
+
+(base) [daria@r123 calling_angsd]$ bcftools stats ansgd_hist_16.bcf | head -n 30 | tail -n 9
+# SN	[2]id	[3]key	[4]value
+SN	0	number of samples:	32
+SN	0	number of records:	1567755
+SN	0	number of no-ALTs:	0
+SN	0	number of SNPs:	1567755
+SN	0	number of MNPs:	0
+SN	0	number of indels:	0
+SN	0	number of others:	0
+SN	0	number of multiallelic sites:	0
+
+
+bcftools view -Oz v -o ansgd_hist_16.vcf ../ansgd_hist_16.bcf
+
+
+vcftools --bcf ../ansgd_hist_16.bcf --max-missing-count 3 --recode --stdout | gzip -c > ansgd_hist_16.qfilter.vcf.gz
+
+
+angsd -b bam_paths_modern.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -anc /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -out ansgd_modern -minMapQ 20 -minQ 20 -nThreads 8 -doGlf 2 -setMinDepth 5 -setMaxDepth 30 -uniqueOnly 1 -remove_bads 1 -gl 1 -dopost 1 -only_proper_pairs 1 -trim 0 -C 50 -doMajorMinor 1 -skipTriallelic 1 -SNP_pval 1e-6 -doMaf 1 -doCounts 1 -doSaf 1 -dobcf 1 -rf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list
+
+plink --vcf ansgd_hist_16.vcf --double-id --allow-extra-chr --set-missing-var-ids @:# --out britomartis.historical
+
+plink --tped outnames.tped  --double-id --allow-extra-chr --set-missing-var-ids @:# --out britomartis.historical
+
+
+angsd -bam /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd/bam_paths_historical_sweden_.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -out outnames -doPlink 2 -doGeno -4 -doMajorMinor 1 -doCounts 1 -doMaf 2 -postCutoff 0.99 -uniqueOnly 1 -remove_bads 1 -gl 1 -dopost 1 -only_proper_pairs 1 -trim 0 -C 50 -skipTriallelic 1 -SNP_pval 1e-6 -geno_minDepth 4 -rf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list
+
+
+plink --tped outnames.tped --tfam outnames.tfam  --double-id --allow-extra-chr --set-missing-var-ids @:# --make-bed --out britomartis.historical
+
+
+plink --tped outnames.tped --tfam outnames.tfam --mind 0.05 --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.historical.prune.in --make-bed --pca --out britomartis.historical
+
+
+angsd -bam /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/historical/calling_angsd/bam_paths_historical_sweden_.txt -ref /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa -out outnames -doPlink 2 -doGeno -4 -doMajorMinor 1 -doCounts 1 -doMaf 2 -postCutoff 0.99 -uniqueOnly 1 -remove_bads 1 -gl 1 -dopost 1 -only_proper_pairs 1 -trim 0 -C 50 -skipTriallelic 1 -SNP_pval 1e-6 -geno_minDepth 4 -rf /crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 20
+#SBATCH -t 10:00:00
+#SBATCH -J angsd_hist_plink
+#SBATCH --output=angsd_hist_plink.out
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load necessary modules
+module load bioinfo-tools ANGSD
+
+# Define directories and file paths for easier management
+PROJECT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation"
+BAM_PATHS="${PROJECT_DIR}/05_manual/historical/calling_angsd/bam_paths_historical_sweden_.txt"
+REF_GENOME="${PROJECT_DIR}/04_GenErode/GenErode/config/reference/GCA_905220545.2_ilMelAtha1.2_genomic.chroms.simple_headers.fa"
+COORDINATES_LIST="${PROJECT_DIR}/00_Mapping_Calling_sarek/08_ANGSD/coordinates_noZ_nomt.list"
+OUTPUT_DIR="${PROJECT_DIR}/05_manual/historical/calling_angsd" # Make sure this directory exists or create it before running the script
+
+# Navigate to output directory
+cd "$OUTPUT_DIR"
+
+# Run ANGSD
+angsd -bam "$BAM_PATHS" \
+      -ref "$REF_GENOME" \
+      -out angsd_hist_plink \
+      -P 20 \
+      -doPlink 2 \
+      -doGeno -4 \
+      -doMajorMinor 1 \
+      -doCounts 1 \
+      -doMaf 2 \
+      -postCutoff 0.99 \
+      -uniqueOnly 1 \
+      -remove_bads 1 \
+      -gl 1 \
+      -dopost 1 \
+      -only_proper_pairs 1 \
+      -trim 0 \
+      -C 50 \
+      -skipTriallelic 1 \
+      -SNP_pval 1e-6 \
+      -geno_minDepth 4 \
+      -rf "$COORDINATES_LIST"
+
+
+
+#!/bin/bash
+#SBATCH -A naiss2023-5-52
+#SBATCH -p core
+#SBATCH -n 6
+#SBATCH -t 01:00:00
+#SBATCH -J modern_rmdup
+#SBATCH --output=modern_rmdup.out
+#SBATCH --array=1-21
+#SBATCH --mail-user=daria.shipilina@gmail.com
+#SBATCH --mail-type=ALL
+
+# Load required modules
+module load bioinfo-tools samtools picard
+
+# Base directories
+OUTPUT_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern/mapping"
+cd "${OUTPUT_DIR}"
+
+# File list
+FILE_LIST="${OUTPUT_DIR}/bam_paths_modern_minus1.txt"
+
+# Extract the file names
+FILE_1=$(sed -n "${SLURM_ARRAY_TASK_ID}p"  "$FILE_LIST")
+
+# Extracting the common prefix from the filename
+PREFIX=$(basename "$FILE_1" | cut -d'.' -f 1)
+
+# Run Picard MarkDuplicates command
+java -jar $PICARD_ROOT/picard.jar MarkDuplicates \
+   INPUT="$PREFIX".fastp.sorted.bam \
+   OUTPUT="$PREFIX".fastp.sorted.rmdup.bam \
+   METRICS_FILE="$PREFIX".merged.rmdup_metrics.txt
+
+samtools index "$PREFIX".fastp.sorted.rmdup.bam
