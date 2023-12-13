@@ -5769,5 +5769,26 @@ plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.4 --maf 0.05 --double-id 
 plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
     --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in  \
     --make-bed --out britomartisALLIND.hist
-    
+
 132 variants and 32 people pass filters and QC.
+
+
+#!/bin/bash
+
+# Path to the input file
+FILE_PATH="bam_paths_historical_sweden.txt"
+# Read each line in the file
+while read -r line; do
+    # Extract the filename without path and extension
+    filename=$(basename "$line" | cut -d'.' -f 1)
+
+    # Extract the first four characters and the last four characters
+    first_four=$(echo "$filename" | cut -c 1-4)
+    last_four=$(echo "$filename" | rev | cut -c 1-4 | rev)
+
+    # Get the middle part of the filename
+    middle_part=$(echo "$filename" | cut -c 5- | rev | cut -c 5- | rev)
+
+    # Output the formatted string
+    echo "${first_four}_${middle_part}_${last_four}"
+done < "$FILE_PATH"
