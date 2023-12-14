@@ -1,0 +1,14 @@
+
+VCFtools - 0.1.16
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf britomartisSWEDEN.modern.vcf
+	--out taj.modernworld
+	--TajimaD 50000
+
+Warning: Expected at least 2 parts in INFO entry: ID=PR,Number=0,Type=Flag,Description="Provisional reference allele, may not be based on real reference genome">
+After filtering, kept 16 out of 16 Individuals
+Outputting Tajima's D Statistic...
+After filtering, kept 95356 out of a possible 95356 Sites
+Run Time = 1.00 seconds

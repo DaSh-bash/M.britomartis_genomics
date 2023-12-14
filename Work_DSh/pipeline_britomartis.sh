@@ -5792,3 +5792,160 @@ while read -r line; do
     # Output the formatted string
     echo "${first_four}_${middle_part}_${last_four}"
 done < "$FILE_PATH"
+
+
+
+##### plink analysis modern
+
+BASE_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern/calling_angsd"
+TPED_FILE="${BASE_DIR}/angsd_modern_plink.tped"
+TFAM_FILE="${BASE_DIR}/angsd_modern_plink.tfam"
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --double-id --allow-extra-chr --set-missing-var-ids @:# --missing --out miss_stat_modern
+
+10253654 variants loaded from .bim file.
+Total genotyping rate is 0.541703.
+
+FID  IID MISS_PHENO   N_MISS   N_GENO   F_MISS
+  1    1          Y  4774887 10253654   0.4657
+  2    1          Y  7866506 10253654   0.7672
+  3    1          Y  7156705 10253654    0.698
+  4    1          Y  5878027 10253654   0.5733
+  5    1          Y  2982585 10253654   0.2909
+  6    1          Y  4112024 10253654    0.401
+  7    1          Y  4851065 10253654   0.4731
+  8    1          Y  3760292 10253654   0.3667
+  9    1          Y  5683210 10253654   0.5543
+ 10    1          Y  4780817 10253654   0.4663
+ 11    1          Y  4261909 10253654   0.4156
+ 12    1          Y  3708229 10253654   0.3616
+ 13    1          Y  4375313 10253654   0.4267
+ 14    1          Y  4208238 10253654   0.4104
+ 15    1          Y  3500252 10253654   0.3414
+ 16    1          Y  5051678 10253654   0.4927
+ 17    1          Y  5456788 10253654   0.5322
+ 18    1          Y  3361741 10253654   0.3279
+ 19    1          Y  3551320 10253654   0.3463
+ 20    1          Y  5231210 10253654   0.5102
+ 21    1          Y  4130763 10253654   0.4029
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.3 --out britomartis.hist
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in \
+    --make-bed --out britomartisnoALT.modern
+
+92080 variants and 21 people pass filters and QC.
+
+#Extract ALTA2 sample
+
+--remove remove.txt
+
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in  \
+    --make-bed --out britomartisMISS01.modern
+
+132 variants and 32 people pass filters and QC.
+
+92080 variants and 21 people pass filters and QC.
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.hist.prune.in  \
+    --make-bed --remove remove.txt --out britomartisNOALT2.modern
+
+
+#!/bin/bash
+
+# Path to the input file
+FILE_PATH="bam_paths_modern.txt"
+# Read each line in the file
+while read -r line; do
+    # Extract the filename without path and extension
+    filename=$(basename "$line" | cut -d'.' -f 1)
+
+    # Extract the first four characters and the last four characters
+    first_four=$(echo "$filename" | cut -c 1-4)
+    last_four=$(echo "$filename" | rev | cut -c 1-4 | rev)
+
+    # Get the middle part of the filename
+    middle_part=$(echo "$filename" | cut -c 5- | rev | cut -c 5- | rev)
+
+    # Output the formatted string
+    echo "${first_four}_${middle_part}_${last_four}"
+done < "$FILE_PATH"
+
+
+britomartisNOALT2.modern.bed
+britomartisMISS01.modern.bed
+
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# \
+    --make-bed --remove remove_sweden.txt --out britomartisSWEDEN.modern
+
+
+plink --bfile britomartisSWEDEN.modern --double-id \
+    --allow-extra-chr --set-missing-var-ids @:# --genome --out out
+
+
+   FID1 IID1 FID2 IID2 RT    EZ      Z0      Z1 Z2  PI_HAT PHE       DST     PPC   RATIO
+    9   1  13   1 UN    NA  0.9709  0.0291  0.0000  0.0146  -1  0.834913  0.8548  2.1568
+     4   1  15   1 UN    NA  0.9737  0.0091  0.0171  0.0217  -1  0.839148  0.9966  2.4328
+     3   1  15   1 UN    NA  0.9522  0.0478  0.0000  0.0239  -1  0.833183  0.9846  2.3382
+     3   1   5   1 UN    NA  0.9374  0.0626  0.0000  0.0313  -1  0.837214  0.8075  2.1276
+    10   1  13   1 UN    NA  0.9321  0.0603  0.0076  0.0378  -1  0.841313  1.0000  2.8529
+     1   1   9   1 UN    NA  0.9592  0.0000  0.0408  0.0408  -1  0.841646  0.6812  2.0680
+     4   1  12   1 UN    NA  0.9246  0.0533  0.0221  0.0487  -1  0.843179  0.9999  2.6494
+     3   1  12   1 UN    NA  0.8884  0.1116  0.0000  0.0558  -1  0.836924  0.9148  2.2079
+     9   1  20   1 UN    NA  0.8871  0.1129  0.0000  0.0565  -1  0.843400  0.9994  2.5373
+     4   1   5   1 UN    NA  0.9206  0.0454  0.0340  0.0567  -1  0.844560  1.0000  2.7328
+     1   1  10   1 UN    NA  0.8979  0.0770  0.0251  0.0636  -1  0.845403  0.9995  2.5405
+    13   1  17   1 UN    NA  0.9239  0.0000  0.0761  0.0761  -1  0.844079  1.0000  2.6842
+    14   1  20   1 UN    NA  0.9152  0.0000  0.0848  0.0848  -1  0.844971  0.9999  2.6613
+    10   1  20   1 UN    NA  0.8330  0.1618  0.0052  0.0861  -1  0.848307  1.0000  2.7613
+    17   1  20   1 UN    NA  0.8985  0.0166  0.0850  0.0932  -1  0.850837  1.0000  3.0909
+     5   1  20   1 UN    NA  0.8947  0.0084  0.0968  0.1010  -1  0.852193  1.0000  3.0216
+    15   1  20   1 UN    NA  0.8979  0.0000  0.1021  0.1021  -1  0.851406  1.0000  3.9734
+     1   1  12   1 UN    NA  0.8888  0.0000  0.1112  0.1112  -1  0.853173  1.0000  3.6029
+     1   1  15   1 UN    NA  0.8888  0.0000  0.1112  0.1112  -1  0.848272  1.0000  3.1053
+     5   1  13   1 UN    NA  0.8869  0.0000  0.1131  0.1131  -1  0.847869  1.0000  4.1703
+     1   1  13   1 UN    NA  0.8163  0.1343  0.0494  0.1165  -1  0.853563  1.0000  3.8698
+     1   1   4   1 UN    NA  0.7657  0.2343  0.0000  0.1172  -1  0.850614  1.0000  3.2523
+     1   1  17   1 UN    NA  0.8824  0.0000  0.1176  0.1176  -1  0.848207  0.9628  2.2744
+    12   1  13   1 UN    NA  0.8675  0.0174  0.1151  0.1238  -1  0.855856  1.0000  4.8696
+     4   1  13   1 UN    NA  0.7484  0.2516  0.0000  0.1258  -1  0.845718  1.0000  2.9270
+    12   1  20   1 UN    NA  0.8218  0.1026  0.0756  0.1269  -1  0.855566  1.0000  3.7222
+    13   1  15   1 UN    NA  0.8718  0.0000  0.1282  0.1282  -1  0.853549  1.0000  4.1823
+     1   1   3   1 UN    NA  0.7431  0.2569  0.0000  0.1284  -1  0.846335  0.9993  2.5354
+     1   1   5   1 UN    NA  0.8701  0.0000  0.1299  0.1299  -1  0.849784  1.0000  3.1839
+     9   1  14   1 UN    NA  0.8625  0.0000  0.1375  0.1375  -1  0.853595  1.0000  2.8608
+     9   1  10   1 UN    NA  0.7908  0.1377  0.0715  0.1404  -1  0.857452  1.0000  3.4369
+     3   1  14   1 UN    NA  0.7695  0.1678  0.0627  0.1466  -1  0.858188  1.0000  3.5224
+    13   1  20   1 UN    NA  0.7115  0.2828  0.0057  0.1471  -1  0.857202  1.0000  4.2191
+     3   1  13   1 UN    NA  0.7053  0.2947  0.0000  0.1474  -1  0.839575  0.9993  2.5315
+     4   1  16   1 UN    NA  0.8512  0.0000  0.1488  0.1488  -1  0.859283  1.0000  2.7114
+     9   1  17   1 UN    NA  0.8454  0.0000  0.1546  0.1546  -1  0.859423  1.0000  2.6802
+     4   1  14   1 UN    NA  0.7870  0.0917  0.1213  0.1671  -1  0.862278  1.0000  3.6131
+     4   1  20   1 UN    NA  0.6619  0.3381  0.0000  0.1691  -1  0.852609  1.0000  3.5450
+    10   1  17   1 UN    NA  0.8284  0.0033  0.1683  0.1700  -1  0.863567  1.0000  3.0617
+    10   1  16   1 UN    NA  0.8265  0.0000  0.1735  0.1735  -1  0.855147  0.9997  2.5681
+     4   1   9   1 UN    NA  0.6713  0.3038  0.0249  0.1768  -1  0.861883  1.0000  3.5300
+     3   1  20   1 UN    NA  0.6363  0.3637  0.0000  0.1818  -1  0.848857  1.0000  2.7975
+     3   1  17   1 UN    NA  0.7112  0.2044  0.0844  0.1866  -1  0.864419  1.0000  3.8245
+     3   1  10   1 UN    NA  0.6180  0.3820  0.0000  0.1910  -1  0.861797  1.0000  3.5829
+     4   1  10   1 UN    NA  0.6425  0.3087  0.0487  0.2031  -1  0.866156  1.0000  4.0055
+    14   1  17   1 UN    NA  0.7954  0.0000  0.2046  0.2046  -1  0.860049  1.0000  2.7085
+     1   1  20   1 UN    NA  0.6532  0.2196  0.1272  0.2370  -1  0.872562  1.0000  5.1176
+     3   1  11   1 UN    NA  0.7456  0.0000  0.2544  0.2544  -1  0.872914  1.0000  3.8229
+    10   1  14   1 UN    NA  0.7334  0.0000  0.2666  0.2666  -1  0.877077  1.0000  4.6890
+     3   1   4   1 UN    NA  0.4571  0.5429  0.0000  0.2714  -1  0.865907  1.0000  4.6335
+     9   1  16   1 UN    NA  0.6517  0.0814  0.2668  0.3075  -1  0.885446  1.0000  4.3295
+     3   1  16   1 UN    NA  0.5426  0.2396  0.2178  0.3376  -1  0.888910  1.0000  5.5282
+     3   1   9   1 UN    NA  0.3717  0.4889  0.1394  0.3838  -1  0.894175  1.0000  8.6458
+     4   1  17   1 UN    NA  0.5368  0.1547  0.3084  0.3858  -1  0.897618  1.0000  6.8319
+   FID1 IID1 FID2 IID2 RT    EZ      Z0      Z1      Z2  PI_HAT PHE       DST     PPC   RATIO
+
+
+
+   plink --bfile [input_filename_without_extensions] --recode vcf --out [output_filename]
