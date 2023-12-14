@@ -5948,4 +5948,70 @@ plink --bfile britomartisSWEDEN.modern --double-id \
 
 
 
-   plink --bfile [input_filename_without_extensions] --recode vcf --out [output_filename]
+   plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --double-id \
+       --allow-extra-chr --set-missing-var-ids @:# --out out --recode vcf --out britomartisSWEDEN.
+
+
+#Stats for modern population
+
+plink --bfile britomartisSWEDEN.modern --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 10 5 0.7 --out britomartismo
+
+plink --bfile britomartisSWEDEN.modern  --double-id \
+--allow-extra-chr --set-missing-var-ids @:# --extract britomartismo.prune.in  --recode vcf --out britomartisSWEDEN.modern
+
+
+# Calculate nucleotide diversity (Pi)
+vcftools --vcf britomartisSWEDEN.modern.vcf --site-pi --out pi_output
+vcftools --vcf britomartisSWEDEN.modern.vcf --window-pi 50000 --out pi.modernworld
+vcftools --vcf britomartisSWEDEN.modern.vcf --TajimaD 50000 --out taj.modernworld
+vcftools --vcf britomartisSWEDEN.modern.vcf --relatedness --out relate.modernworld
+
+# Calculate the mean of the 5th column
+mean_pi=$(awk '{sum += $5} END {print sum/NR}' pi.modernworld.windowed.pi)
+
+# Output the result
+echo "mean pi: $mean_pi" pi.modernworld.windowed.pi
+
+mean pi: 3.91493e-05 pi.modernworld.windowed.pi
+0.0000391493 ?
+
+mean_pi=$(awk '{sum += $4} END {print sum/NR}' taj.modernworld.Tajima.D)
+echo "Tajimas D: $mean_pi"
+
+Tajimas D: -0.537471
+
+
+# Calculate the mean of the 5th column
+mean_pi=$(awk '{sum += $3} END {print sum/NR}' pi_output.sites.pi)
+
+# Output the result
+echo "mean pi: $mean_pi"
+
+mean pi: 0.206222
+
+
+#Stats for historical population
+
+plink --bfile britomartisALLIND.hist  --double-id \
+--allow-extra-chr --set-missing-var-ids @:#  --recode vcf --out britomartisALLIND
+
+vcftools --vcf britomartisALLIND.vcf --site-pi --out pi_site.hist
+vcftools --vcf britomartisALLIND.vcf --window-pi 50000 --out pi.hist
+vcftools --vcf britomartisALLIND.vcf --TajimaD 50000 --out taj.hist
+vcftools --vcf britomartisALLIND.vcf --relatedness --out relate.hist
+
+
+
+mean_pi=$(awk '{sum += $4} END {print sum/NR}' taj.hist.Tajima.D)
+echo "Tajimas D: $mean_pi"
+
+Tajimas D: 0.0255785
+
+
+# Calculate the mean of the 5th column
+mean_pi=$(awk '{sum += $3} END {print sum/NR}' pi_site.hist.sites.pi)
+
+# Output the result
+echo "mean pi: $mean_pi"
+
+mean pi: 0.430733
