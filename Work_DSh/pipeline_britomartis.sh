@@ -5797,7 +5797,7 @@ done < "$FILE_PATH"
 
 ##### plink analysis modern
 
-BASE_DIR="/crex/proj/uppstore2017185/b2014034_nobackup/Dasha/M.britomartis_Conservation/05_manual/modern/calling_angsd"
+BASE_DIR="modern/calling_angsd"
 TPED_FILE="${BASE_DIR}/angsd_modern_plink.tped"
 TFAM_FILE="${BASE_DIR}/angsd_modern_plink.tfam"
 
@@ -5876,13 +5876,50 @@ while read -r line; do
 done < "$FILE_PATH"
 
 
-britomartisNOALT2.modern.bed
-britomartisMISS01.modern.bed
-
+plink --tped angsd_modern_plink.tped --tfam angsd_modern_plink.tfam --geno 0.1 --maf 0.05 --remove remove.txt  --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.3 --out britomartis.modernall
 
 plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.modernall.prune.in  \
+    --make-bed --remove remove.txt --out britomartisNOALT2.modern
+
+plink --tped angsd_modern_plink.tped --tfam angsd_modern_plink.tfam  --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.modernall.prune.in  \
+    --make-bed --remove remove.txt --recode vcf --out britomartisNOALT2.modern
+
+    plink --tped angsd_modern_plink.tped --tfam angsd_modern_plink.tfam  --geno 0.1 --double-id --pca \
+        --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.modernall.prune.in  \
+        --make-bed --remove remove.txt --out
+
+# Calculate nucleotide diversity (Pi)
+vcftools --vcf britomartisNOALT2.modern.vcf --site-pi --out piNOALT2_output
+#vcftools --vcf britomartisNOALT2.modern.vcf --window-pi 50000 --out piNOALT2.modernworld
+vcftools --vcf britomartisNOALT2.modern.vcf --TajimaD 1000 --out tajNOALT2.modernworld
+vcftools --vcf britomartisNOALT2.modern.vcf --relatedness --out relateNOALT2.modernworld
+
+awk '{if ($3 != 'nan') {sum += $3; count++}} END {if (count > 0) print sum/count; else print "No non-zero values"}' tajNOALT2.modernworld.Tajima.D
+
+Tajimas D: 1.891
+
+
+# Calculate the mean of the 5th column
+mean_pi=$(awk '{sum += $3} END {print sum/NR}' piNOALT2_output.sites.pi)
+
+# Output the result
+echo "mean pi: $mean_pi"
+
+mean pi: 0.237203
+
+
+
+
+
+
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --recode vcf --double-id \
     --allow-extra-chr --set-missing-var-ids @:# \
     --make-bed --remove remove_sweden.txt --out britomartisSWEDEN.modern
+
+
 
 
 plink --bfile britomartisSWEDEN.modern --double-id \
@@ -5966,14 +6003,7 @@ vcftools --vcf britomartisSWEDEN.modern.vcf --window-pi 50000 --out pi.modernwor
 vcftools --vcf britomartisSWEDEN.modern.vcf --TajimaD 50000 --out taj.modernworld
 vcftools --vcf britomartisSWEDEN.modern.vcf --relatedness --out relate.modernworld
 
-# Calculate the mean of the 5th column
-mean_pi=$(awk '{sum += $5} END {print sum/NR}' pi.modernworld.windowed.pi)
-
-# Output the result
-echo "mean pi: $mean_pi" pi.modernworld.windowed.pi
-
-mean pi: 3.91493e-05 pi.modernworld.windowed.pi
-0.0000391493 ?
+q
 
 mean_pi=$(awk '{sum += $4} END {print sum/NR}' taj.modernworld.Tajima.D)
 echo "Tajimas D: $mean_pi"
@@ -5997,19 +6027,53 @@ plink --bfile britomartisALLIND.hist  --double-id \
 
 vcftools --vcf britomartisALLIND.vcf --site-pi --out pi_site.hist
 vcftools --vcf britomartisALLIND.vcf --window-pi 50000 --out pi.hist
-vcftools --vcf britomartisALLIND.vcf --TajimaD 50000 --out taj.hist
+vcftools --vcf britomartisALLIND.vcf --TajimaD 1000000 --out taj.hist
 vcftools --vcf britomartisALLIND.vcf --relatedness --out relate.hist
 
 
+vcftools --vcf britomartisALLIND.vcf --TajimaD 1000 --out taj.hist
+awk '{if ($3 != 'nan') {sum += $3; count++}} END {if (count > 0) print sum/count; else print "No non-zero values"}' taj.hist.Tajima.D
 
-mean_pi=$(awk '{sum += $4} END {print sum/NR}' taj.hist.Tajima.D)
-echo "Tajimas D: $mean_pi"
-
-Tajimas D: 0.0255785
+Tajimas D: 1.11864
 
 
 # Calculate the mean of the 5th column
 mean_pi=$(awk '{sum += $3} END {print sum/NR}' pi_site.hist.sites.pi)
+
+# Output the result
+echo "mean pi: $mean_pi"
+
+mean pi: 0.430733
+
+#Modern Sweden
+
+plink --tped angsd_modern_plink.tped --tfam angsd_modern_plink.tfam --geno 0.1 --maf 0.05 --remove remove_world.txt  --double-id --allow-extra-chr --set-missing-var-ids @:# --indep-pairwise 50 10 0.3 --out britomartis.modernswed
+
+plink --tped "$TPED_FILE" --tfam "$TFAM_FILE" --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.modernall.prune.in  \
+    --make-bed --remove remove.txt --out britomartisNOALT2.modern
+
+plink --tped angsd_modern_plink.tped --tfam angsd_modern_plink.tfam  --geno 0.1 --maf 0.05 --double-id --pca \
+    --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.modernall.prune.in  \
+    --make-bed --remove remove.txt --recode vcf --out britomartisNOALT2.modern
+
+
+plink --tped angsd_modern_plink.tped --tfam angsd_modern_plink.tfam --geno 0.1 --maf 0.05 --recode vcf --remove remove_world.txt  --double-id --allow-extra-chr --set-missing-var-ids @:# --extract britomartis.modernall.prune.in --out britomartis.modernswed
+
+vcftools --vcf britomartis.modernswed.vcf --site-pi --out piMS_site.hist
+vcftools --vcf britomartis.modernswed.vcf --window-pi 50000 --out piMS.hist
+vcftools --vcf britomartis.modernswed.vcf --TajimaD 1000 --out tajMS.hist
+vcftools --vcf britomartis.modernswed.vcf --relatedness --out relateMS.hist
+
+
+vcftools --vcf britomartisALLIND.vcf --TajimaD 1000 --out taj.hist
+awk '{if ($3 != 'nan') {sum += $3; count++}} END {if (count > 0) print sum/count; else print "No non-zero values"}' tajMS.hist.Tajima.D
+
+Tajimas D: 1.11864
+
+
+# Calculate the mean of the 5th column
+mean_pi=$(awk '{sum += $3} END {print sum/NR}' piMS_site.hist.sites.pi)
 
 # Output the result
 echo "mean pi: $mean_pi"
