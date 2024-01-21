@@ -6079,3 +6079,10 @@ mean_pi=$(awk '{sum += $3} END {print sum/NR}' piMS_site.hist.sites.pi)
 echo "mean pi: $mean_pi"
 
 mean pi: 0.430733
+
+#Relatedness analysis
+
+plink --bfile britomartisALLIND.hist --double-id \
+    --allow-extra-chr --set-missing-var-ids @:# --genome --outbritomartisALLIND.hist.relate
+
+plink --bfile britomartisNOALT2.modern  --double-id --allow-extra-chr --set-missing-var-ids @:# --genome --out britomartisNOALT2.modern.relate
