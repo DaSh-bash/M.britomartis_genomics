@@ -1,0 +1,25 @@
+#Sample prep
+
+Table prep locally:
+/Users/dshipilina/GitHub/Phylloscopus/data_management/Sequences_Uppmax_Jan2024_Gustav
+
+grep -f humei_dataset_sample.id  all_raw_files-Table\ 1.csv
+
+
+# Initialize line counter
+line_number=0
+
+# Process the file
+while IFS= read -r line
+do
+    # Increment line counter
+    ((line_number++))
+
+    # Check if line number is odd
+    if [ $((line_number % 2)) -ne 0 ]; then
+        # If odd, print the line without a newline
+        printf "%s" "$line" >> "$output_file"
+    else
+        # If even, append the line with a newline
+        printf ",%s\n" "$line" >> "$output_file"
+    fi
